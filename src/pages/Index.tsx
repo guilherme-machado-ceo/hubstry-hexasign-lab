@@ -1,8 +1,9 @@
 import { useState } from "react";
 import SignificanceAnalyzer from "@/components/SignificanceAnalyzer";
 import ComparisonAnalyzer from "@/components/ComparisonAnalyzer";
+import MetricGlossary from "@/components/MetricGlossary";
 import { MadeWithDyad } from "@/components/made-with-dyad";
-import { Hexagon, Layers, Zap } from "lucide-react";
+import { Hexagon, Layers, Zap, BookOpen } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
@@ -35,6 +36,9 @@ const Index = () => {
               <TabsTrigger value="compare" className="flex items-center gap-2">
                 <Layers className="w-4 h-4" /> Comparação (A/B)
               </TabsTrigger>
+              <TabsTrigger value="glossary" className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4" /> Glossário
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -44,6 +48,10 @@ const Index = () => {
           
           <TabsContent value="compare">
             <ComparisonAnalyzer />
+          </TabsContent>
+
+          <TabsContent value="glossary">
+            <MetricGlossary />
           </TabsContent>
         </Tabs>
       </main>

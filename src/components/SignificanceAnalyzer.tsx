@@ -6,7 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { analyzeSignificance, calculatePiSqrtScore, HexaMetrics } from '@/lib/hexa-engine';
 import HexaRadar from './HexaRadar';
-import { Sparkles, Zap, Brain, Target } from 'lucide-react';
+import SignificanceOptimizer from './SignificanceOptimizer';
+import { Sparkles, Brain, Target } from 'lucide-react';
 
 const SignificanceAnalyzer = () => {
   const [text, setText] = useState("A inteligência artificial não é apenas processamento, é a busca pela ressonância do significado no caos da informação.");
@@ -58,6 +59,8 @@ const SignificanceAnalyzer = () => {
             </CardContent>
           </Card>
         </div>
+
+        {metrics && <SignificanceOptimizer metrics={metrics} />}
       </div>
 
       <div className="space-y-6">
