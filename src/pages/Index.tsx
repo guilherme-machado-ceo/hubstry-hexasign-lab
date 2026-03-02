@@ -2,8 +2,10 @@ import { useState } from "react";
 import SignificanceAnalyzer from "@/components/SignificanceAnalyzer";
 import ComparisonAnalyzer from "@/components/ComparisonAnalyzer";
 import MetricGlossary from "@/components/MetricGlossary";
+import SimulationMode from "@/components/SimulationMode";
+import HistoryManager from "@/components/HistoryManager";
 import { MadeWithDyad } from "@/components/made-with-dyad";
-import { Hexagon, Layers, Zap, BookOpen } from "lucide-react";
+import { Hexagon, Layers, Zap, BookOpen, Beaker, History } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
@@ -28,15 +30,21 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4">
         <Tabs defaultValue="single" className="w-full">
-          <div className="flex justify-center mb-8">
-            <TabsList className="bg-slate-200/50 p-1">
-              <TabsTrigger value="single" className="flex items-center gap-2">
-                <Zap className="w-4 h-4" /> Análise Única
+          <div className="flex justify-center mb-8 overflow-x-auto pb-2">
+            <TabsList className="bg-slate-200/50 p-1 h-auto flex-wrap justify-center">
+              <TabsTrigger value="single" className="flex items-center gap-2 py-2">
+                <Zap className="w-4 h-4" /> Análise
               </TabsTrigger>
-              <TabsTrigger value="compare" className="flex items-center gap-2">
-                <Layers className="w-4 h-4" /> Comparação (A/B)
+              <TabsTrigger value="compare" className="flex items-center gap-2 py-2">
+                <Layers className="w-4 h-4" /> Comparação
               </TabsTrigger>
-              <TabsTrigger value="glossary" className="flex items-center gap-2">
+              <TabsTrigger value="simulate" className="flex items-center gap-2 py-2">
+                <Beaker className="w-4 h-4" /> Simulação
+              </TabsTrigger>
+              <TabsTrigger value="history" className="flex items-center gap-2 py-2">
+                <History className="w-4 h-4" /> Histórico
+              </TabsTrigger>
+              <TabsTrigger value="glossary" className="flex items-center gap-2 py-2">
                 <BookOpen className="w-4 h-4" /> Glossário
               </TabsTrigger>
             </TabsList>
@@ -48,6 +56,14 @@ const Index = () => {
           
           <TabsContent value="compare">
             <ComparisonAnalyzer />
+          </TabsContent>
+
+          <TabsContent value="simulate">
+            <SimulationMode />
+          </TabsContent>
+
+          <TabsContent value="history">
+            <HistoryManager />
           </TabsContent>
 
           <TabsContent value="glossary">

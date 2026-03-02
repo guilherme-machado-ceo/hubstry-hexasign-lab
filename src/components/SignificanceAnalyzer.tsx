@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { analyzeSignificance, calculatePiSqrtScore, HexaMetrics } from '@/lib/hexa-engine';
 import HexaRadar from './HexaRadar';
 import SignificanceOptimizer from './SignificanceOptimizer';
-import { Sparkles, Brain, Target } from 'lucide-react';
+import { Sparkles, Brain, Target, Save } from 'lucide-react';
+import { showSuccess } from '@/utils/toast';
 
 const SignificanceAnalyzer = () => {
   const [text, setText] = useState("A inteligência artificial não é apenas processamento, é a busca pela ressonância do significado no caos da informação.");
@@ -20,18 +22,36 @@ const SignificanceAnalyzer = () => {
     setScore(calculatePiSqrtScore(m));
   }, [text]);
 
+  const saveToHistory = () => {
+    const newItem = {
+      id: Date.now().toString(),
+      text: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+      score: score,
+      date: new Date().toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
+    };
+    
+    const existing = JSON.parse(localStorage.getItem('hexa-history') || '[]');
+    localStorage.setItem('hexa-history', JSON.stringify([newItem, ...existing].slice(0, 20)));
+    showSuccess("Análise salva no histórico!");
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto p-4">
       <div className="space-y-6">
         <Card className="border-2 border-violet-100 shadow-xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-violet-700">
-              <Brain className="w-6 h-6" />
-              Entrada de Dados (A)
-            </CardTitle>
-            <CardDescription>
-              Insira o artefato linguístico para processamento hexarrelacional.
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-violet-700">
+                <Brain className="w-6 h-6" />
+                Entrada de Dados (A)
+              </CardTitle>
+              <CardDescription>
+                Insira o artefato linguístico para processamento.
+              </CardDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={saveToHistory} className="rounded-full border-violet-200 text-violet-600 hover:bg-violet-50">
+              <Save className="w-4 h-4 mr-2" /> Salvar
+            </Button>
           </CardHeader>
           <CardContent>
             <Textarea 
