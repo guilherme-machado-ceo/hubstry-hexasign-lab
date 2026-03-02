@@ -10,7 +10,8 @@ import HexaRadar from './HexaRadar';
 import HexaSpace3D from './HexaSpace3D';
 import SignificanceOptimizer from './SignificanceOptimizer';
 import AutoOptimizer from './AutoOptimizer';
-import { Sparkles, Brain, Target, Save, Box } from 'lucide-react';
+import SentimentIndicator from './SentimentIndicator';
+import { Sparkles, Brain, Target, Save, Box, Activity } from 'lucide-react';
 import { showSuccess } from '@/utils/toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -69,21 +70,19 @@ const SignificanceAnalyzer = () => {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card className="bg-violet-50 border-none">
               <CardContent className="pt-6 text-center">
                 <p className="text-sm text-violet-600 font-medium uppercase tracking-wider">Score π√f(A)</p>
                 <p className="text-4xl font-bold text-violet-900">{score.toFixed(4)}</p>
               </CardContent>
             </Card>
-            <Card className="bg-indigo-50 border-none">
-              <CardContent className="pt-6 text-center">
-                <p className="text-sm text-indigo-600 font-medium uppercase tracking-wider">Status</p>
-                <Badge className="mt-2 bg-indigo-500">
-                  {score > 2.5 ? 'Alta Significância' : 'Baixa Significância'}
-                </Badge>
-              </CardContent>
-            </Card>
+            {metrics && (
+              <SentimentIndicator 
+                score={metrics.sentimentScore} 
+                label={metrics.sentimentLabel} 
+              />
+            )}
           </div>
 
           {metrics && <SignificanceOptimizer metrics={metrics} />}
@@ -120,13 +119,13 @@ const SignificanceAnalyzer = () => {
             <CardContent className="pt-6">
               <div className="flex items-start gap-4">
                 <div className="p-2 bg-violet-500/20 rounded-lg">
-                  <Sparkles className="w-6 h-6 text-violet-400" />
+                  <Activity className="w-6 h-6 text-violet-400" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg">Insight da Álgebra</h4>
+                  <h4 className="font-bold text-lg">Ressonância Emocional</h4>
                   <p className="text-white/60 text-sm leading-relaxed">
-                    A geometria do seu artefato sugere uma {metrics?.logicalCohesion && metrics.logicalCohesion > 0.7 ? 'estrutura cristalina' : 'nuvem de informação'}. 
-                    O colapso da função π√f(A) indica um potencial de realidade de {((score/Math.PI)*100).toFixed(1)}%.
+                    O tom {metrics?.sentimentLabel.toLowerCase()} do artefato sugere uma intenção de {metrics?.sentimentScore && metrics.sentimentScore > 0 ? 'construção e clareza' : 'alerta ou desconstrução'}. 
+                    Isso afeta a percepção da utilidade pragmática em sistemas de decisão.
                   </p>
                 </div>
               </div>
