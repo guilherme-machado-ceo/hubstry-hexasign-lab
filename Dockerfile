@@ -3,30 +3,28 @@ WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copia os arquivos de dependência e o workspace
+# Copia dependências e workspace
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# Copia o restante do código e faz o build
+# Copia código e compila
 COPY . .
 RUN pnpm run build
 
-# Servidor Nginx otimizado para produção
+# Estágio de Produção com Nginx
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-COPY << 'NGINX_EOF' /etc/nginx/conf.d/default.conf
-server {
-    listen 80;
-    server_name localhost;
-    root /usr/share/nginx/html;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-NGINX_EOF
+# Cria o arquivo de configuração do Nginx de forma segura para SPA (React Router)
+RUN printf 'server {\n\
+    listen 80;\n\
+    server_name localhost;\n\
+    root /usr/share/nginx/html;\n\
+    index index.html;\n\
+    location / {\n\
+        try_files $uri $uri/ /index.html;\n\
+    }\n\
+}\n' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
