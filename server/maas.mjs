@@ -81,6 +81,7 @@ export async function callMaaS({ text, metrics }) {
       },
     ],
     temperature: 0,
+    thinking: { type: 'disabled' },
     response_format: {
       type: 'json_schema',
       json_schema: OBSERVATION_SCHEMA,
