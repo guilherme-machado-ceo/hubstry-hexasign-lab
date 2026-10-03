@@ -1,46 +1,79 @@
-"use client";
+/**
+ * HexaRadar.tsx - Visualização Hexadimensional da Significância
+ * Mapeia as 6 Relações (ρ1 a ρ6), Norma Áurea e Operador Π-radical
+ */
 
 import React from 'react';
-import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  ResponsiveContainer,
-} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { HexaMetrics } from '@/lib/hexa-engine';
+import { PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface HexaRadarProps {
-  metrics: HexaMetrics;
+  metrics: HexaMetrics | null;
 }
 
-const HexaRadar = ({ metrics }: HexaRadarProps) => {
-  const data = [
-    { subject: 'Contexto', A: metrics.contextualDensity * 100 },
-    { subject: 'Semântica', A: metrics.semanticResonance * 100 },
-    { subject: 'Lógica', A: metrics.logicalCohesion * 100 },
-    { subject: 'Intenção', A: metrics.intentionalAlignment * 100 },
-    { subject: 'Entropia', A: metrics.informationalEntropy * 100 },
-    { subject: 'Pragmática', A: metrics.pragmaticUtility * 100 },
+export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
+  const data = metrics ? [
+    { dimension: 'Similitude (ρ₁)', value: metrics.similitude, fullMark: 1 },
+    { dimension: 'Homologia (ρ₂)', value: metrics.homology, fullMark: 1 },
+    { dimension: 'Equivalência (ρ₃)', value: metrics.equivalence, fullMark: 1 },
+    { dimension: 'Simetria (ρ₄)', value: metrics.symmetry, fullMark: 1 },
+    { dimension: 'Equilíbrio (ρ₅)', value: metrics.equilibrium, fullMark: 1 },
+    { dimension: 'Compensação (ρ₆)', value: metrics.compensation, fullMark: 1 },
+  ] : [
+    { dimension: 'Similitude (ρ₁)', value: 0, fullMark: 1 },
+    { dimension: 'Homologia (ρ₂)', value: 0, fullMark: 1 },
+    { dimension: 'Equivalência (ρ₃)', value: 0, fullMark: 1 },
+    { dimension: 'Simetria (ρ₄)', value: 0, fullMark: 1 },
+    { dimension: 'Equilíbrio (ρ₅)', value: 0, fullMark: 1 },
+    { dimension: 'Compensação (ρ₆)', value: 0, fullMark: 1 },
   ];
 
   return (
-    <div className="w-full h-[300px] flex items-center justify-center">
-      <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
-          <PolarGrid stroke="#e2e8f0" />
-          <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12 }} />
-          <Radar
-            name="Significância"
-            dataKey="A"
-            stroke="#8b5cf6"
-            fill="#8b5cf6"
-            fillOpacity={0.5}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
-    </div>
+    <Card className="bg-slate-950/40 border-slate-800 text-slate-100 backdrop-blur-xl shadow-2xl">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="text-lg font-mono tracking-wider text-amber-400">
+              MATRIZ HEXARRELACIONAL $\vec{f}(A)$
+            </CardTitle>
+            <CardDescription className="text-slate-400 text-xs">
+              Espectro multidimensional das seis relações de significância ($\rho_1 \dots \rho_6$)[cite: 18, 36]
+            </CardDescription>
+          </div>
+          {metrics && (
+            <div className="text-right font-mono">
+              <div className="text-xs text-amber-500/80">Norma Áurea $f(A)$: {metrics.goldenNorm.toFixed(3)}[cite: 37]</div>
+              <div className="text-sm font-bold text-amber-300">Π-radical $\Pi(A)$: {metrics.piSqrtScore.toFixed(3)}[cite: 40]</div>
+            </div>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="h-[320px] w-full flex items-center justify-center">
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
+              <PolarGrid stroke="#334155" />
+              <PolarAngleAxis 
+                dataKey="dimension" 
+                tick={{ fill: '#94a3b8', fontSize: 11 }} 
+              />
+              <PolarRadiusAxis angle={30} domain={[0, 1]} stroke="#475569" />
+              <Radar
+                name="Significância"
+                dataKey="value"
+                stroke="#fbbf24"
+                fill="#f59e0b"
+                fillOpacity={0.35}
+              />
+              <Tooltip 
+                contentStyle={{ backgroundColor: '#020617', borderColor: '#334155', borderRadius: '0.5rem', color: '#f8fafc' }}
+                itemStyle={{ color: '#fbbf24' }}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
-
-export default HexaRadar;
