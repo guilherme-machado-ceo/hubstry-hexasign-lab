@@ -64,6 +64,8 @@ export async function callMaaS({ text, metrics }) {
     'For metric evidence, copy the exact numeric value supplied by the engine.',
     'If evidence is insufficient, put the issue in unknowns and do not make the claim.',
     'Do not introduce external factual claims about the artifact.',
+    'Do not compute, derive, aggregate, average, normalize, estimate, or transform metric values.',
+    'Only cite and interpret values exactly as supplied by the HexaSign engine.',
   ].join(' ');
 
   const payload = {
@@ -81,10 +83,16 @@ export async function callMaaS({ text, metrics }) {
       },
     ],
     temperature: 0,
-    response_format: {
-      type: 'json_schema',
-      json_schema: OBSERVATION_SCHEMA,
-    },
+    max_tokens: 4096,
+    tools: [{
+      type: 'function',
+      function: {
+        name: 'hexasign_observation',
+        description: 'Return the structured observation of the supplied deterministic HexaSign facts.',
+        parameters: OBSERVATION_SCHEMA.schema,
+      },
+    }],
+    tool_choice: { type: 'function', function: { name: 'hexasign_observation' } },
   };
 
   const response = await fetch(`${baseUrl}/chat/completions`, {
@@ -97,14 +105,27 @@ export async function callMaaS({ text, metrics }) {
   if (!response.ok) throw new Error(`MaaS HTTP ${response.status}: ${body.slice(0, 500)}`);
 
   const data = JSON.parse(body);
-  const content = data?.choices?.[0]?.message?.content;
-  if (typeof content !== 'string') throw new Error('MaaS response did not contain assistant content');
+  const choice = data?.choices?.[0];
+  const finishReason = choice?.finish_reason;
+  const toolCall = choice?.message?.tool_calls
+    ?.find((c) => c?.function?.name === 'hexasign_observation');
+  const diag = { event: 'maas_observe', finishReason, usage: data?.usage ?? null,
+                 toolCallPresent: Boolean(toolCall) };
 
+  if (finishReason === 'length') {
+    console.error(JSON.stringify({ ...diag, error: 'TRUNCATED' }));
+    throw new Error('MaaS observation truncated (finish_reason=length)');
+  }
+  if (!toolCall) {
+    console.error(JSON.stringify({ ...diag, error: 'NO_TOOL_CALL' }));
+    throw new Error('MaaS did not return the required hexasign_observation tool call');
+  }
   let parsed;
   try {
-    parsed = JSON.parse(content);
+    parsed = JSON.parse(toolCall.function.arguments);
   } catch {
-    throw new Error('MaaS returned non-JSON content despite structured-output request');
+    console.error(JSON.stringify({ ...diag, error: 'ARGUMENTS_NOT_JSON' }));
+    throw new Error('MaaS tool call arguments were not valid JSON');
   }
 
   return {

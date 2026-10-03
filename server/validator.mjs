@@ -1,4 +1,4 @@
-const RELATION_KEYS = ['similitude','homology','equivalence','symmetry','equilibrium','compensation'];
+const RELATION_KEYS = ['similitude','homology','equivalence','symmetry','equilibrium','compensation','goldenNorm','piSqrtScore'];
 
 export function validateAIObservation(result, metrics) {
   const errors = [];
