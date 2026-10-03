@@ -1,5 +1,4 @@
 import React from 'react';
-import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip } from 'recharts';
 import { HexaMetrics } from '@/lib/hexa-engine';
 
 interface HexaRadarProps {
@@ -7,7 +6,6 @@ interface HexaRadarProps {
 }
 
 export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
-  // Fallback defensivo rigoroso para evitar qualquer TypeError de undefined
   const safeMetrics = {
     similitude: Number(metrics?.similitude ?? 0),
     homology: Number(metrics?.homology ?? 0),
@@ -19,40 +17,20 @@ export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
     piSqrtScore: Number(metrics?.piSqrtScore ?? 0),
   };
 
-  const data = [
-    { subject: 'Similitude (ρ₁)', value: safeMetrics.similitude * 100, fullMark: 100 },
-    { subject: 'Homologia (ρ₂)', value: safeMetrics.homology * 100, fullMark: 100 },
-    { subject: 'Equivalência (ρ₃)', value: safeMetrics.equivalence * 100, fullMark: 100 },
-    { subject: 'Simetria (ρ₄)', value: safeMetrics.symmetry * 100, fullMark: 100 },
-    { subject: 'Equilíbrio (ρ₅)', value: safeMetrics.equilibrium * 100, fullMark: 100 },
-    { subject: 'Compensação (ρ₆)', value: safeMetrics.compensation * 100, fullMark: 100 },
-  ];
-
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center font-mono">
-      <div className="w-full h-[320px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={data} outerRadius={105}>
-            <PolarGrid stroke="#334155" />
-            <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-            <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#64748b" />
-            <Radar name="HexaSign" dataKey="value" stroke="#fbbf24" fill="#fbbf24" fillOpacity={0.4} />
-            <Tooltip 
-              contentStyle={{ backgroundColor: '#020617', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontFamily: 'monospace' }}
-              formatter={(value: any) => [`${(Number(value) || 0).toFixed(1)}%`, 'Score']}
-            />
-          </RadarChart>
-        </ResponsiveContainer>
+    <div className="w-full h-full flex flex-col items-center justify-center font-mono p-6 text-slate-100 space-y-4 bg-slate-900/90 rounded-xl border border-amber-500/30">
+      <h3 className="text-amber-400 font-bold text-sm">DIAGNÓSTICO DE REATIVIDADE DO VETOR</h3>
+      <div className="grid grid-cols-2 gap-3 w-full text-xs">
+        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₁ Similitude: {(safeMetrics.similitude * 100).toFixed(0)}%</div>
+        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₂ Homologia: {(safeMetrics.homology * 100).toFixed(0)}%</div>
+        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₃ Equivalência: {(safeMetrics.equivalence * 100).toFixed(0)}%</div>
+        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₄ Simetria: {(safeMetrics.symmetry * 100).toFixed(0)}%</div>
+        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₅ Equilíbrio: {(safeMetrics.equilibrium * 100).toFixed(0)}%</div>
+        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₆ Compensação: {(safeMetrics.compensation * 100).toFixed(0)}%</div>
       </div>
-      <div className="grid grid-cols-2 gap-4 w-full mt-4 text-xs">
-        <div className="bg-slate-900/80 p-2.5 rounded border border-slate-800 text-center">
-          <span className="text-slate-400 block">Norma Áurea f(A):</span>
-          <span className="text-amber-400 font-bold text-sm">{safeMetrics.goldenNorm.toFixed(4)}</span>
-        </div>
-        <div className="bg-slate-900/80 p-2.5 rounded border border-slate-800 text-center">
-          <span className="text-slate-400 block">Π-radical Π(A):</span>
-          <span className="text-amber-400 font-bold text-sm">{safeMetrics.piSqrtScore.toFixed(4)}</span>
-        </div>
+      <div className="w-full pt-2 border-t border-slate-800 flex justify-between text-xs font-bold text-amber-300">
+        <span>f(A): {safeMetrics.goldenNorm.toFixed(4)}</span>
+        <span>Π(A): {safeMetrics.piSqrtScore.toFixed(4)}</span>
       </div>
     </div>
   );
