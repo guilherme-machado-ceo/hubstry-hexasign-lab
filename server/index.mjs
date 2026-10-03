@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { callMaaS } from './maas.mjs';
+import { validateAIObservation } from './validator.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -63,7 +64,8 @@ async function route(req, res) {
       if (!text) return send(res, 400, { error: 'text is required' });
       validateMetrics(body.metrics);
       const result = await callMaaS({ text, metrics: body.metrics });
-      return send(res, 200, result);
+      const validated = validateAIObservation(result, body.metrics);
+      return send(res, validated.validation.status === 'VALID' ? 200 : 422, validated);
     } catch (error) {
       return send(res, 502, { error: error instanceof Error ? error.message : 'MaaS request failed' });
     }
