@@ -30,3 +30,6 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+      - name: Check API syntax
+        run: node --check server/index.mjs && node --check server/maas.mjs && node --check server/validator.mjs
