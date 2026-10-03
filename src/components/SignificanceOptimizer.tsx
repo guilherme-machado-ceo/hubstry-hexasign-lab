@@ -1,41 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { calculateGoldenNorm, calculatePiSqrtScore, HexaMetrics } from '@/lib/hexa-engine';
 import HexaRadar from './HexaRadar';
 
 export const SignificanceOptimizer: React.FC = () => {
-  const [metrics, setMetrics] = useState<HexaMetrics>({
-    similitude: 0.6, homology: 0.6, equivalence: 0.6,
-    symmetry: 0.6, equilibrium: 0.6, compensation: 0.6,
-    goldenNorm: 0, piSqrtScore: 0
+  const [metrics, setMetrics] = useState({
+    similitude: 0.6,
+    homology: 0.6,
+    equivalence: 0.6,
+    symmetry: 0.6,
+    equilibrium: 0.6,
+    compensation: 0.6
   });
 
-  useEffect(() => {
-    const vector = [
-      metrics.similitude, metrics.homology, metrics.equivalence,
-      metrics.symmetry, metrics.equilibrium, metrics.compensation
-    ];
-    const newGoldenNorm = calculateGoldenNorm(vector);
-    const newPiScore = calculatePiSqrtScore(newGoldenNorm);
-    
-    setMetrics(prev => ({
-      ...prev,
-      goldenNorm: newGoldenNorm,
-      piSqrtScore: newPiScore
-    }));
-  }, [metrics.similitude, metrics.homology, metrics.equivalence, metrics.symmetry, metrics.equilibrium, metrics.compensation]);
-
-  const handleChange = (dimension: keyof HexaMetrics, value: number) => {
+  const handleChange = (dimension: string, value: number) => {
     setMetrics(prev => ({ ...prev, [dimension]: value }));
   };
 
+  // Recálculo síncrono e direto a cada render para garantir reatividade imediata
+  const vector = [
+    metrics.similitude,
+    metrics.homology,
+    metrics.equivalence,
+    metrics.symmetry,
+    metrics.equilibrium,
+    metrics.compensation
+  ];
+
+  const goldenNorm = calculateGoldenNorm(vector);
+  const piSqrtScore = calculatePiSqrtScore(goldenNorm);
+
+  const currentMetrics: HexaMetrics = {
+    ...metrics,
+    goldenNorm: isNaN(goldenNorm) ? 0 : goldenNorm,
+    piSqrtScore: isNaN(piSqrtScore) ? 0 : piSqrtScore
+  };
+
   const dimensions = [
-    { key: 'similitude' as keyof HexaMetrics, label: 'Similitude (ρ₁)' },
-    { key: 'homology' as keyof HexaMetrics, label: 'Homologia (ρ₂)' },
-    { key: 'equivalence' as keyof HexaMetrics, label: 'Equivalência (ρ₃)' },
-    { key: 'symmetry' as keyof HexaMetrics, label: 'Simetria (ρ₄)' },
-    { key: 'equilibrium' as keyof HexaMetrics, label: 'Equilíbrio (ρ₅)' },
-    { key: 'compensation' as keyof HexaMetrics, label: 'Compensação (ρ₆)' }
+    { key: 'similitude', label: 'Similitude (ρ₁)' },
+    { key: 'homology', label: 'Homologia (ρ₂)' },
+    { key: 'equivalence', label: 'Equivalência (ρ₃)' },
+    { key: 'symmetry', label: 'Simetria (ρ₄)' },
+    { key: 'equilibrium', label: 'Equilíbrio (ρ₅)' },
+    { key: 'compensation', label: 'Compensação (ρ₆)' }
   ];
 
   return (
@@ -46,12 +53,12 @@ export const SignificanceOptimizer: React.FC = () => {
             SIMULADOR HEXARRELACIONAL
           </CardTitle>
           <CardDescription className="text-slate-400">
-            Ajuste os vetores relacionais (ρ₁ a ρ₆) para observar o comportamento determinístico[cite: 37, 40].
+            Ajuste os vetores relacionais (ρ₁ a ρ₆) para observar o comportamento determinístico em tempo real[cite: 37, 40].
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 font-mono">
           {dimensions.map((dim) => {
-            const val = Number(metrics[dim.key]) || 0;
+            const val = Number(metrics[dim.key as keyof typeof metrics]) || 0;
             return (
               <div key={dim.key} className="space-y-2">
                 <div className="flex justify-between text-xs text-slate-300">
@@ -70,12 +77,23 @@ export const SignificanceOptimizer: React.FC = () => {
               </div>
             );
           })}
+
+          <div className="pt-4 border-t border-slate-800 grid grid-cols-2 gap-4 text-xs">
+            <div className="p-3 bg-slate-900/80 rounded border border-slate-800">
+              <span className="text-slate-400 block">Norma Áurea f(A):</span>
+              <span className="text-amber-400 font-bold text-sm">{currentMetrics.goldenNorm.toFixed(4)}</span>
+            </div>
+            <div className="p-3 bg-slate-900/80 rounded border border-slate-800">
+              <span className="text-slate-400 block">Π-radical Π(A):</span>
+              <span className="text-amber-400 font-bold text-sm">{currentMetrics.piSqrtScore.toFixed(4)}</span>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      <div className="lg:col-span-6 flex items-center">
-        <div className="w-full">
-          <HexaRadar metrics={metrics} />
+      <div className="lg:col-span-6 flex items-center justify-center">
+        <div className="w-full h-[450px] bg-slate-950/40 border border-slate-800 rounded-xl p-4 backdrop-blur-xl flex items-center justify-center">
+          <HexaRadar metrics={currentMetrics} />
         </div>
       </div>
     </div>
