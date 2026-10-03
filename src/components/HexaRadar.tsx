@@ -14,19 +14,19 @@ interface HexaRadarProps {
 
 export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
   const data = metrics ? [
-    { dimension: 'Similitude (ρ₁)', value: metrics.similitude, fullMark: 1 },
-    { dimension: 'Homologia (ρ₂)', value: metrics.homology, fullMark: 1 },
-    { dimension: 'Equivalência (ρ₃)', value: metrics.equivalence, fullMark: 1 },
-    { dimension: 'Simetria (ρ₄)', value: metrics.symmetry, fullMark: 1 },
-    { dimension: 'Equilíbrio (ρ₅)', value: metrics.equilibrium, fullMark: 1 },
-    { dimension: 'Compensação (ρ₆)', value: metrics.compensation, fullMark: 1 },
+    { dimension: 'Similitude (ρ1)', value: metrics.similitude, fullMark: 1 },
+    { dimension: 'Homologia (ρ2)', value: metrics.homology, fullMark: 1 },
+    { dimension: 'Equivalência (ρ3)', value: metrics.equivalence, fullMark: 1 },
+    { dimension: 'Simetria (ρ4)', value: metrics.symmetry, fullMark: 1 },
+    { dimension: 'Equilíbrio (ρ5)', value: metrics.equilibrium, fullMark: 1 },
+    { dimension: 'Compensação (ρ6)', value: metrics.compensation, fullMark: 1 },
   ] : [
-    { dimension: 'Similitude (ρ₁)', value: 0, fullMark: 1 },
-    { dimension: 'Homologia (ρ₂)', value: 0, fullMark: 1 },
-    { dimension: 'Equivalência (ρ₃)', value: 0, fullMark: 1 },
-    { dimension: 'Simetria (ρ₄)', value: 0, fullMark: 1 },
-    { dimension: 'Equilíbrio (ρ₅)', value: 0, fullMark: 1 },
-    { dimension: 'Compensação (ρ₆)', value: 0, fullMark: 1 },
+    { dimension: 'Similitude (ρ1)', value: 0, fullMark: 1 },
+    { dimension: 'Homologia (ρ2)', value: 0, fullMark: 1 },
+    { dimension: 'Equivalência (ρ3)', value: 0, fullMark: 1 },
+    { dimension: 'Simetria (ρ4)', value: 0, fullMark: 1 },
+    { dimension: 'Equilíbrio (ρ5)', value: 0, fullMark: 1 },
+    { dimension: 'Compensação (ρ6)', value: 0, fullMark: 1 },
   ];
 
   return (
@@ -35,16 +35,16 @@ export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
         <div className="flex justify-between items-center">
           <div>
             <CardTitle className="text-lg font-mono tracking-wider text-amber-400">
-              MATRIZ HEXARRELACIONAL $\vec{f}(A)$
+              MATRIZ HEXARRELACIONAL f(A)
             </CardTitle>
             <CardDescription className="text-slate-400 text-xs">
-              Espectro multidimensional das seis relações de significância ($\rho_1 \dots \rho_6$)
+              Espectro multidimensional das seis relações de significância (ρ1 a ρ6)
             </CardDescription>
           </div>
           {metrics && (
             <div className="text-right font-mono">
-              <div className="text-xs text-amber-500/80">Norma Áurea $f(A)$: {metrics.goldenNorm.toFixed(3)}</div>
-              <div className="text-sm font-bold text-amber-300">Π-radical $\Pi(A)$: {metrics.piSqrtScore.toFixed(3)}</div>
+              <div className="text-xs text-amber-500/85">Norma Áurea f(A): {metrics.goldenNorm.toFixed(3)}</div>
+              <div className="text-sm font-bold text-amber-300">Π-radical Π(A): {metrics.piSqrtScore.toFixed(3)}</div>
             </div>
           )}
         </div>
