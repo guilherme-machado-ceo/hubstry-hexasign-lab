@@ -2,90 +2,105 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { analyzeSignificance, HexaMetrics } from '@/lib/hexa-engine';
 import HexaRadar from './HexaRadar';
+import { CheckCircle2, Sparkles } from 'lucide-react';
+
+const HISTORY_KEY = 'hexa-history';
 
 export const SignificanceAnalyzer: React.FC = () => {
-  const [inputText, setInputText] = useState<string>('');
+  const [inputText, setInputText] = useState('');
   const [metrics, setMetrics] = useState<HexaMetrics | null>(null);
 
   const handleAnalyze = () => {
-    if (!inputText.trim()) return;
-    const computedMetrics = analyzeSignificance(inputText);
+    const text = inputText.trim();
+    if (!text) return;
+
+    const computedMetrics = analyzeSignificance(text);
     setMetrics(computedMetrics);
+
+    const current = (() => {
+      try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]');
+      } catch {
+        return [];
+      }
+    })();
+
+    const next = [
+      {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        text,
+        score: computedMetrics.piSqrtScore,
+        date: new Date().toLocaleString('pt-BR'),
+      },
+      ...current,
+    ].slice(0, 100);
+
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full max-w-7xl mx-auto p-4">
-      <Card className="lg:col-span-6 bg-slate-950/40 border-slate-800 text-slate-100 backdrop-blur-xl shadow-2xl flex flex-col justify-between">
+    <div className="mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[1fr_0.95fr]">
+      <Card className="border-slate-800 bg-slate-950/75 shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-xl font-mono tracking-wider text-amber-400">
-            LABORATÓRIO DE SIGNIFICÂNCIA f(A)
-          </CardTitle>
-          <CardDescription className="text-slate-400 text-xs">
-            Insira um texto técnico, código ou artefato para avaliação nas 6 dimensões relacionais.
+          <div className="mb-2 flex items-center gap-2">
+            <Badge variant="outline" className="border-amber-400/30 bg-amber-400/5 font-mono text-amber-300">f(A)</Badge>
+            <span className="text-xs uppercase tracking-[0.18em] text-slate-500">Análise determinística</span>
+          </div>
+          <CardTitle className="text-2xl text-white">Analise um artefato</CardTitle>
+          <CardDescription className="max-w-xl text-slate-400">
+            Texto técnico, código ou descrição de um artefato. O motor atual produz uma heurística determinística sobre as seis relações.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 flex-1 flex flex-col">
+        <CardContent className="space-y-4">
           <Textarea
-            placeholder="Cole aqui o texto ou algoritmo para análise semiótica..."
+            aria-label="Artefato para análise"
+            placeholder="Cole aqui o texto, código ou saída de um modelo..."
             value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            className="min-h-[200px] bg-slate-900/80 border-slate-700 text-slate-100 font-mono text-sm resize-none focus:ring-amber-500"
+            onChange={(event) => setInputText(event.target.value)}
+            className="min-h-[300px] resize-y border-slate-700 bg-slate-900/80 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus-visible:ring-amber-400"
           />
-          <div className="flex justify-between items-center pt-2">
+          <div className="flex flex-col gap-3 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-xs font-mono text-slate-500">
-              {inputText.trim().split(/\s+/).filter(Boolean).length} palavras detetadas
+              {inputText.trim().split(/\s+/).filter(Boolean).length} palavras · {inputText.length} caracteres
             </span>
-            <Button
-              onClick={handleAnalyze}
-              className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-mono font-bold px-6 transition-all"
-            >
-              Executar Análise
+            <Button onClick={handleAnalyze} disabled={!inputText.trim()} className="bg-amber-400 text-slate-950 hover:bg-amber-300">
+              <Sparkles className="mr-2 h-4 w-4" /> Executar análise
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <div className="lg:col-span-6">
+      <div className="space-y-4">
         <HexaRadar metrics={metrics} />
+        {metrics && (
+          <Card className="border-slate-800 bg-slate-950/70">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-300">
+                <CheckCircle2 className="h-4 w-4 text-emerald-300" /> Relatório relacional
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {([
+                ['ρ₁', 'Similitude', metrics.similitude],
+                ['ρ₂', 'Homologia', metrics.homology],
+                ['ρ₃', 'Equivalência', metrics.equivalence],
+                ['ρ₄', 'Simetria', metrics.symmetry],
+                ['ρ₅', 'Equilíbrio', metrics.equilibrium],
+                ['ρ₆', 'Compensação', metrics.compensation],
+              ] as const).map(([rho, label, value]) => (
+                <div key={rho} className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+                  <div className="font-mono text-xs text-amber-300">{rho}</div>
+                  <div className="mt-1 text-xs text-slate-500">{label}</div>
+                  <div className="mt-1 font-mono text-lg font-semibold text-slate-100">{(value * 100).toFixed(1)}%</div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
       </div>
-
-      {metrics && (
-        <Card className="lg:col-span-12 bg-slate-950/40 border-slate-800 text-slate-100 backdrop-blur-xl shadow-2xl">
-          <CardHeader>
-            <CardTitle className="text-sm font-mono text-amber-400 uppercase tracking-widest">
-              Relatório de Diagnóstico Relacional
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 md:grid-cols-6 gap-4 font-mono text-center">
-            <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-              <div className="text-xs text-slate-400">Similitude (ρ1)</div>
-              <div className="text-lg font-bold text-amber-300">{(metrics.similitude * 100).toFixed(1)}%</div>
-            </div>
-            <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-              <div className="text-xs text-slate-400">Homologia (ρ2)</div>
-              <div className="text-lg font-bold text-amber-300">{(metrics.homology * 100).toFixed(1)}%</div>
-            </div>
-            <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-              <div className="text-xs text-slate-400">Equivalência (ρ3)</div>
-              <div className="text-lg font-bold text-amber-300">{(metrics.equivalence * 100).toFixed(1)}%</div>
-            </div>
-            <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-              <div className="text-xs text-slate-400">Simetria (ρ4)</div>
-              <div className="text-lg font-bold text-amber-300">{(metrics.symmetry * 100).toFixed(1)}%</div>
-            </div>
-            <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-              <div className="text-xs text-slate-400">Equilíbrio (ρ5)</div>
-              <div className="text-lg font-bold text-amber-300">{(metrics.equilibrium * 100).toFixed(1)}%</div>
-            </div>
-            <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-              <div className="text-xs text-slate-400">Compensação (ρ6)</div>
-              <div className="text-lg font-bold text-amber-300">{(metrics.compensation * 100).toFixed(1)}%</div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };

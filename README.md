@@ -1,41 +1,44 @@
 # Hubstry HexaSign Lab
 
-> **Auditabilidade Semântica e Algorítmica Baseada na Álgebra Hexarrelacional** ($\pi\sqrt{f}(A)$)[cite: 2]
+**Experimental auditability workspace for the Hexarelational Algebra of Significance (π√f(A)).**
 
-[![Vercel Deploy](https://img.shields.io/badge/Vercel-Production-black?logo=vercel)](https://hubstry-hexasign-lab.vercel.app)
-[![Framework IP](https://img.shields.io/badge/IP-Zenodo%20Published%20(Feb%202026)-purple)](https://zenodo.org)
+## Product direction
 
----
+The Lab is being refined as a B2B technical workspace for teams that need to inspect, compare and document semantic/algorithmic artifacts.
 
-## 🏛️ Visão Geral e Proposta de Valor
+Core workflow:
+1. Analyze an artifact.
+2. Compare two artifacts.
+3. Simulate the six-dimensional relation vector.
+4. Preserve history.
+5. Explain the method.
 
-O **Hubstry HexaSign Lab** é uma plataforma B2B de Deep Tech voltada para a auditoria rigorosa e determinística de artefatos lógicos, códigos de programação e outputs de sistemas de Inteligência Artificial. 
+## Mathematical core
 
-Diferente das ferramentas tradicionais ou de abordagens baseadas em LLMs probabilísticos (que sofrem com opacidade e alucinações), o HexaSign Lab fundamenta-se na **Álgebra Hexarrelacional de Significância**, um modelo matemático exato desenvolvido por Guilherme Gonçalves Machado[cite: 2, 3].
+The current engine implements the manuscript's continuous six-component vector and golden-ratio-weighted norm:
 
----
+f(A) = sqrt( sum_{k=1..6} φ^(k-1) · ρ_k(A)^2 )
 
-## ⚙️ O Framework Matemático
+and the canonical Π operator:
 
-A avaliação de qualquer algoritmo ou artefato ($A$) é processada através de duas camadas fundamentais:
+Π(A) = [f(A)]^(1/π)
 
-1. **As Seis Dimensões Relacionais ($\rho_1$ a $\rho_6$):** Uma hierarquia ontológica estrita que mede a *Similitude*, *Homologia*, *Equivalência*, *Simetria*, *Equilíbrio* e *Compensação*[cite: 18, 30].
-2. **A Norma Áurea $f(A)$:** Vetor ponderado pelas potências da razão áurea $\varphi \approx 1.618$[cite: 36, 37]:
-   $$f(A) = \sqrt{\sum_{k=1}^{6} \varphi^{k-1} \cdot [\rho_k]^2}$$
-3. **O Operador $\Pi$-radical ($\Pi(A)$):** A raiz $\pi$-ésima ($[f(A)]^{1/\pi}$) que atua como operador transcendente e irredutível[cite: 3, 40].
+The manuscript describes the six relations as similitude, homology, equivalence, symmetry, equilibrium and compensation, and defines the continuous vector in [0,1]^6. It also explicitly distinguishes the canonical indexed reading from the multiplicative reading of the notation.
 
----
+## Important product caveat
 
-## 🎯 ICP (Perfil de Cliente Ideal) e Posicionamento Comercial
+The current text analysis is deterministic heuristics for experimentation. It should not be presented as a validated scientific measurement instrument. The Lab UI therefore frames results as analytical/experimental outputs.
 
-* **Engenharia de Software Corporativa:** Equipas a conduzir migrações massivas de código legado (ex: transições complexas) que exigem garantia de equivalência funcional e homologia estrutural[cite: 139].
-* **Compliance de IA e Prompt Engineering:** Organizações em setores regulados (bancos, seguradoras, jurídicos) que precisam de auditar se os outputs de modelos gerativos mantêm estabilidade lógica e equilíbrio sistêmico, rejeitando avaliações superficiais baseadas apenas em contagem sintática de palavras.
+## Deployment
 
----
+The frontend is a Vite + React + TypeScript application. It can be deployed to Vercel or containerized for Cloud Run.
 
-## 🚀 Acesso à Aplicação
+## Planned Google Cloud MVP services
 
-* **Aplicação em Produção (Vercel):** [https://hubstry-hexasign-lab.vercel.app](https://hubstry-hexasign-lab.vercel.app)
+- Cloud Run: API / serverless backend when backend functionality is introduced.
+- Firestore: user/session/history persistence.
+- Cloud Storage: exported reports and static assets.
+- Cloud Logging / Monitoring: operational telemetry.
+- Secret Manager: credentials when integrations are added.
 
----
-*© 2026 Hubstry Deep Tech. Todos os direitos reservados.*
+Check the current Google Cloud pricing/free-tier documentation before enabling any service; free quotas and billing requirements vary by product and billing account.

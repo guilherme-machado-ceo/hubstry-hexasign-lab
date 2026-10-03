@@ -1,36 +1,72 @@
 import React from 'react';
 import { HexaMetrics } from '@/lib/hexa-engine';
+import { Activity } from 'lucide-react';
 
 interface HexaRadarProps {
   metrics?: Partial<HexaMetrics> | null;
 }
 
+const RELATIONS = [
+  ['similitude', 'ρ₁', 'Similitude'],
+  ['homology', 'ρ₂', 'Homologia'],
+  ['equivalence', 'ρ₃', 'Equivalência'],
+  ['symmetry', 'ρ₄', 'Simetria'],
+  ['equilibrium', 'ρ₅', 'Equilíbrio'],
+  ['compensation', 'ρ₆', 'Compensação'],
+] as const;
+
 export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
-  const safeMetrics = {
-    similitude: Number(metrics?.similitude ?? 0),
-    homology: Number(metrics?.homology ?? 0),
-    equivalence: Number(metrics?.equivalence ?? 0),
-    symmetry: Number(metrics?.symmetry ?? 0),
-    equilibrium: Number(metrics?.equilibrium ?? 0),
-    compensation: Number(metrics?.compensation ?? 0),
-    goldenNorm: Number(metrics?.goldenNorm ?? 0),
-    piSqrtScore: Number(metrics?.piSqrtScore ?? 0),
-  };
+  const values = RELATIONS.map(([key]) => [key, Number(metrics?.[key] ?? 0)] as const);
+  const goldenNorm = Number(metrics?.goldenNorm ?? 0);
+  const piSqrtScore = Number(metrics?.piSqrtScore ?? 0);
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center font-mono p-6 text-slate-100 space-y-4 bg-slate-900/90 rounded-xl border border-amber-500/30">
-      <h3 className="text-amber-400 font-bold text-sm">DIAGNÓSTICO DE REATIVIDADE DO VETOR</h3>
-      <div className="grid grid-cols-2 gap-3 w-full text-xs">
-        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₁ Similitude: {(safeMetrics.similitude * 100).toFixed(0)}%</div>
-        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₂ Homologia: {(safeMetrics.homology * 100).toFixed(0)}%</div>
-        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₃ Equivalência: {(safeMetrics.equivalence * 100).toFixed(0)}%</div>
-        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₄ Simetria: {(safeMetrics.symmetry * 100).toFixed(0)}%</div>
-        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₅ Equilíbrio: {(safeMetrics.equilibrium * 100).toFixed(0)}%</div>
-        <div className="bg-slate-950 p-2 rounded border border-slate-800">ρ₆ Compensação: {(safeMetrics.compensation * 100).toFixed(0)}%</div>
+    <div className="w-full rounded-2xl border border-white/10 bg-slate-950/80 p-5 text-slate-100 shadow-xl">
+      <div className="mb-5 flex items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
+            <Activity className="h-4 w-4" /> Vetor hexarrelacional
+          </div>
+          <p className="mt-1 text-xs text-slate-500">Estado contínuo das seis relações ρ₁…ρ₆.</p>
+        </div>
+        <div className="font-mono text-right">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500">Π(A)</div>
+          <div className="text-lg font-semibold text-white">{piSqrtScore.toFixed(5)}</div>
+        </div>
       </div>
-      <div className="w-full pt-2 border-t border-slate-800 flex justify-between text-xs font-bold text-amber-300">
-        <span>f(A): {safeMetrics.goldenNorm.toFixed(4)}</span>
-        <span>Π(A): {safeMetrics.piSqrtScore.toFixed(4)}</span>
+
+      <div className="space-y-3">
+        {values.map(([key, value]) => {
+          const relation = RELATIONS.find(([item]) => item === key)!;
+          return (
+            <div key={key} className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md border border-amber-400/20 bg-amber-400/5 px-2 py-0.5 font-mono text-xs text-amber-300">{relation[1]}</span>
+                  <span className="text-sm font-medium text-slate-200">{relation[2]}</span>
+                </div>
+                <span className="font-mono text-sm font-semibold text-slate-100">{(value * 100).toFixed(1)}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-amber-500 via-amber-300 to-white transition-all duration-200"
+                  style={{ width: `${Math.max(0, Math.min(1, value)) * 100}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500">f(A) · norma áurea</div>
+          <div className="mt-1 font-mono text-lg font-semibold text-slate-100">{goldenNorm.toFixed(4)}</div>
+        </div>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500">Relação ativa</div>
+          <div className="mt-1 font-mono text-lg font-semibold text-amber-200">{values.filter(([, value]) => value > 0).length}/6</div>
+        </div>
       </div>
     </div>
   );
