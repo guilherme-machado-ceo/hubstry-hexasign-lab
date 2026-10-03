@@ -1,69 +1,70 @@
 /**
- * HexaSignificance Engine - Implementação Oficial
- * Baseado na Álgebra Hexarrelacional de Significância π√f(A)[cite: 2, 3]
+ * hexa-engine.ts
+ * Implementação determinística da Álgebra Hexarrelacional de Significância π√(f)(A)
+ * Baseada no formalismo matemático de Guilherme Gonçalves Machado (2026)
  */
 
 export interface HexaMetrics {
-  similitude: number;          // ρ1: Similitude (Aparência / Proximidade)[cite: 19]
-  homology: number;            // ρ2: Homologia (Estrutura interna)[cite: 21]
-  equivalence: number;         // ρ3: Equivalência (Substituibilidade funcional)[cite: 22]
-  symmetry: number;            // ρ4: Simetria (Transformação reversível)[cite: 24]
-  equilibrium: number;         // ρ5: Equilíbrio (Estabilidade de tensões)[cite: 26]
-  compensation: number;        // ρ6: Compensação (Emergência e complementaridade)[cite: 28]
-  goldenNorm: number;          // f(A): Norma áurea do vetor de significância[cite: 37]
-  piSqrtScore: number;         // Π(A): [f(A)]^(1/π) - Score transcendente[cite: 40]
-  sentimentScore: number;      // Polaridade auxiliar (-1 a 1)
-  sentimentLabel: 'Positivo' | 'Negativo' | 'Neutro';
+  similitude: number;     // ρ₁
+  homology: number;       // ρ₂
+  equivalence: number;    // ρ₃
+  symmetry: number;       // ρ₄
+  equilibrium: number;    // ρ₅
+  compensation: number;   // ρ₆
+  goldenNorm: number;     // f(A)[cite: 37]
+  piSqrtScore: number;    // Π(A)[cite: 40]
 }
 
-const PHI = (1 + Math.sqrt(5)) / 2; // Razão áurea φ ≈ 1.618[cite: 37]
-const PI = Math.PI;                  // Constante π ≈ 3.14159[cite: 7, 40]
+// Razão Áurea (φ)
+const PHI = (1 + Math.sqrt(5)) / 2; // ≈ 1.61803398875
 
+/**
+ * Calcula a Norma Áurea f(A) ponderada pelas potências da razão áurea.
+ * f(A) = sqrt( sum( φ^(k-1) * [f_ρk(A)]^2 ) )[cite: 37]
+ */
+export const calculateGoldenNorm = (vector: number[]): number => {
+  const sum = vector.reduce((acc, val, index) => {
+    const weight = Math.pow(PHI, index);
+    return acc + weight * (val * val);
+  }, 0);
+  return Math.sqrt(sum);
+};
+
+/**
+ * Aplica o Operador Transcendental Π-radical.
+ * Π(A) = [f(A)]^(1/π)[cite: 40]
+ */
+export const calculatePiSqrtScore = (goldenNorm: number): number => {
+  if (goldenNorm <= 0) return 0;
+  return Math.pow(goldenNorm, 1 / Math.PI);
+};
+
+/**
+ * Avaliação determinística do vetor de significância com base nos perfis estruturais
+ */
 export const analyzeSignificance = (text: string): HexaMetrics => {
-  const trimmed = text.trim();
-  const wordCount = trimmed ? trimmed.split(/\s+/).length : 0;
-  const uniqueWords = new Set(trimmed.toLowerCase().match(/\w+/g) || []).size;
+  if (!text || text.trim().length === 0) {
+    return {
+      similitude: 0, homology: 0, equivalence: 0,
+      symmetry: 0, equilibrium: 0, compensation: 0,
+      goldenNorm: 0, piSqrtScore: 0
+    };
+  }
 
-  const similitude = Math.min(wordCount > 0 ? uniqueWords / wordCount : 0.1, 1);
-  const hasStructuralConnectors = /\b(portanto|visto que|logo|assim|consequentemente|pois)\b/i.test(text);
-  const homology = hasStructuralConnectors ? 0.85 : 0.45;
-  const equivalence = Math.min((uniqueWords / (wordCount || 1)) * 1.2, 0.95);
-  const symmetry = text.length > 30 && text.includes(',') ? 0.80 : 0.40;
-  const equilibrium = (wordCount >= 10 && wordCount <= 120) ? 0.90 : 0.50;
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const hasLogicalConnectors = /portanto|logo|assim|se|então|quando|como/i.test(text);
+  const hasDeepTerms = /algoritmo|matriz|compensação|emergência|sistema|operador|estrutura/i.test(text);
 
-  const complexKeywords = ['sistema', 'estrutura', 'transcendente', 'emergência', 'significância', 'algoritmo', 'operador', 'matriz'];
-  let compScore = 0.3;
-  complexKeywords.forEach(kw => {
-    if (text.toLowerCase().includes(kw)) compScore += 0.15;
-  });
-  const compensation = Math.min(compScore, 1.0);
+  const similitude = Math.min(1, 0.4 + (words / 50));
+  const homology = hasLogicalConnectors ? 0.85 : 0.50;
+  const equivalence = Math.min(1, similitude * 0.95);
+  const symmetry = hasLogicalConnectors ? 0.75 : 0.45;
+  const equilibrium = 0.80;
+  const compensation = hasDeepTerms ? 0.90 : 0.30;
 
-  const rawVector = [similitude, homology, equivalence, symmetry, equilibrium, compensation];
-  const weights = [
-    Math.pow(PHI, 0),
-    Math.pow(PHI, 1),
-    Math.pow(PHI, 2),
-    Math.pow(PHI, 3),
-    Math.pow(PHI, 4),
-    Math.pow(PHI, 5)
-  ];
-
-  const sumSquaresPondered = rawVector.reduce((acc, val, idx) => acc + weights[idx] * Math.pow(val, 2), 0);
-  const goldenNorm = Math.sqrt(sumSquaresPondered); // Norma áurea f(A)[cite: 37]
-  const piSqrtScore = Math.pow(goldenNorm, 1 / PI);  // Operador Π-radical Π(A) = [f(A)]^(1/π)[cite: 40]
-
-  const positiveWords = ['bom', 'excelente', 'incrível', 'sucesso', 'evolução', 'claro', 'lógica', 'harmonia', 'inteligência', 'avanço'];
-  const negativeWords = ['ruim', 'falha', 'erro', 'caos', 'destruição', 'difícil', 'complexo', 'problema', 'crise', 'perda'];
-  
-  let sentimentVal = 0;
-  const lowerText = text.toLowerCase();
-  positiveWords.forEach(w => { if (lowerText.includes(w)) sentimentVal += 0.25; });
-  negativeWords.forEach(w => { if (lowerText.includes(w)) sentimentVal -= 0.25; });
-  
-  const finalSentimentScore = Math.max(-1, Math.min(1, sentimentVal));
-  let sentimentLabel: 'Positivo' | 'Negativo' | 'Neutro' = 'Neutro';
-  if (finalSentimentScore > 0.1) sentimentLabel = 'Positivo';
-  if (finalSentimentScore < -0.1) sentimentLabel = 'Negativo';
+  const vector = [similitude, homology, equivalence, symmetry, equilibrium, compensation];
+  const goldenNorm = calculateGoldenNorm(vector);
+  const piSqrtScore = calculatePiSqrtScore(goldenNorm);
 
   return {
     similitude,
@@ -73,12 +74,6 @@ export const analyzeSignificance = (text: string): HexaMetrics => {
     equilibrium,
     compensation,
     goldenNorm,
-    piSqrtScore,
-    sentimentScore: finalSentimentScore,
-    sentimentLabel
+    piSqrtScore
   };
-};
-
-export const calculatePiSqrtScore = (metrics: HexaMetrics): number => {
-  return metrics.piSqrtScore;
 };
