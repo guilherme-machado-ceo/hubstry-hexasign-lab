@@ -1,80 +1,60 @@
-/**
- * HexaRadar.tsx - Visualização Hexadimensional da Significância
- * Mapeia as 6 Relações (ρ1 a ρ6), Norma Áurea e Operador Π-radical
- */
-
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip } from 'recharts';
 import { HexaMetrics } from '@/lib/hexa-engine';
-import { PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface HexaRadarProps {
-  metrics: HexaMetrics | null;
+  metrics?: Partial<HexaMetrics> | null;
 }
 
 export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
-  const data = metrics ? [
-    { dimension: 'Similitude (ρ1)', value: metrics.similitude, fullMark: 1 },
-    { dimension: 'Homologia (ρ2)', value: metrics.homology, fullMark: 1 },
-    { dimension: 'Equivalência (ρ3)', value: metrics.equivalence, fullMark: 1 },
-    { dimension: 'Simetria (ρ4)', value: metrics.symmetry, fullMark: 1 },
-    { dimension: 'Equilíbrio (ρ5)', value: metrics.equilibrium, fullMark: 1 },
-    { dimension: 'Compensação (ρ6)', value: metrics.compensation, fullMark: 1 },
-  ] : [
-    { dimension: 'Similitude (ρ1)', value: 0, fullMark: 1 },
-    { dimension: 'Homologia (ρ2)', value: 0, fullMark: 1 },
-    { dimension: 'Equivalência (ρ3)', value: 0, fullMark: 1 },
-    { dimension: 'Simetria (ρ4)', value: 0, fullMark: 1 },
-    { dimension: 'Equilíbrio (ρ5)', value: 0, fullMark: 1 },
-    { dimension: 'Compensação (ρ6)', value: 0, fullMark: 1 },
+  // Fallback defensivo rigoroso para evitar qualquer TypeError de undefined
+  const safeMetrics = {
+    similitude: Number(metrics?.similitude ?? 0),
+    homology: Number(metrics?.homology ?? 0),
+    equivalence: Number(metrics?.equivalence ?? 0),
+    symmetry: Number(metrics?.symmetry ?? 0),
+    equilibrium: Number(metrics?.equilibrium ?? 0),
+    compensation: Number(metrics?.compensation ?? 0),
+    goldenNorm: Number(metrics?.goldenNorm ?? 0),
+    piSqrtScore: Number(metrics?.piSqrtScore ?? 0),
+  };
+
+  const data = [
+    { subject: 'Similitude (ρ₁)', value: safeMetrics.similitude * 100, fullMark: 100 },
+    { subject: 'Homologia (ρ₂)', value: safeMetrics.homology * 100, fullMark: 100 },
+    { subject: 'Equivalência (ρ₃)', value: safeMetrics.equivalence * 100, fullMark: 100 },
+    { subject: 'Simetria (ρ₄)', value: safeMetrics.symmetry * 100, fullMark: 100 },
+    { subject: 'Equilíbrio (ρ₅)', value: safeMetrics.equilibrium * 100, fullMark: 100 },
+    { subject: 'Compensação (ρ₆)', value: safeMetrics.compensation * 100, fullMark: 100 },
   ];
 
   return (
-    <Card className="bg-slate-950/40 border-slate-800 text-slate-100 backdrop-blur-xl shadow-2xl">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="text-lg font-mono tracking-wider text-amber-400">
-              MATRIZ HEXARRELACIONAL f(A)
-            </CardTitle>
-            <CardDescription className="text-slate-400 text-xs">
-              Espectro multidimensional das seis relações de significância (ρ1 a ρ6)
-            </CardDescription>
-          </div>
-          {metrics && (
-            <div className="text-right font-mono">
-              <div className="text-xs text-amber-500/85">Norma Áurea f(A): {metrics.goldenNorm.toFixed(3)}</div>
-              <div className="text-sm font-bold text-amber-300">Π-radical Π(A): {metrics.piSqrtScore.toFixed(3)}</div>
-            </div>
-          )}
+    <div className="w-full h-full flex flex-col items-center justify-center font-mono">
+      <div className="w-full h-[320px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart data={data} outerRadius={105}>
+            <PolarGrid stroke="#334155" />
+            <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+            <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#64748b" />
+            <Radar name="HexaSign" dataKey="value" stroke="#fbbf24" fill="#fbbf24" fillOpacity={0.4} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#020617', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontFamily: 'monospace' }}
+              formatter={(value: any) => [`${(Number(value) || 0).toFixed(1)}%`, 'Score']}
+            />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="grid grid-cols-2 gap-4 w-full mt-4 text-xs">
+        <div className="bg-slate-900/80 p-2.5 rounded border border-slate-800 text-center">
+          <span className="text-slate-400 block">Norma Áurea f(A):</span>
+          <span className="text-amber-400 font-bold text-sm">{safeMetrics.goldenNorm.toFixed(4)}</span>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[320px] w-full flex items-center justify-center">
-          <ResponsiveContainer width="100%" height="100%">
-            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
-              <PolarGrid stroke="#334155" />
-              <PolarAngleAxis 
-                dataKey="dimension" 
-                tick={{ fill: '#94a3b8', fontSize: 11 }} 
-              />
-              <PolarRadiusAxis angle={30} domain={[0, 1]} stroke="#475569" />
-              <Radar
-                name="Significância"
-                dataKey="value"
-                stroke="#fbbf24"
-                fill="#f59e0b"
-                fillOpacity={0.35}
-              />
-              <Tooltip 
-                contentStyle={{ backgroundColor: '#020617', borderColor: '#334155', borderRadius: '0.5rem', color: '#f8fafc' }}
-                itemStyle={{ color: '#fbbf24' }}
-              />
-            </RadarChart>
-          </ResponsiveContainer>
+        <div className="bg-slate-900/80 p-2.5 rounded border border-slate-800 text-center">
+          <span className="text-slate-400 block">Π-radical Π(A):</span>
+          <span className="text-amber-400 font-bold text-sm">{safeMetrics.piSqrtScore.toFixed(4)}</span>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
