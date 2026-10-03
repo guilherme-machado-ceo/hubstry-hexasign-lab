@@ -1,9 +1,9 @@
-"use client";
+import "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, History, ExternalLink, Copy, Check } from 'lucide-react';
+import { Trash2, History, Copy, Check, Download } from 'lucide-react';
 import { showSuccess } from '@/utils/toast';
 
 interface HistoryItem {
@@ -13,66 +13,94 @@ interface HistoryItem {
   date: string;
 }
 
+const STORAGE_KEY = 'hexa-history';
+
 const HistoryManager = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('hexa-history');
-    if (saved) setHistory(JSON.parse(saved));
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setHistory(JSON.parse(saved));
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+    }
   }, []);
 
   const clearHistory = () => {
-    localStorage.removeItem('hexa-history');
+    localStorage.removeItem(STORAGE_KEY);
     setHistory([]);
-    showSuccess("Histórico limpo com sucesso.");
+    showSuccess('Histórico limpo com sucesso.');
   };
 
-  const copyToClipboard = (item: HistoryItem) => {
-    const report = `π√f(A) Report\nScore: ${item.score.toFixed(4)}\nData: ${item.date}\nArtefato: ${item.text}`;
-    navigator.clipboard.writeText(report);
+  const copyToClipboard = async (item: HistoryItem) => {
+    const report = [
+      'π√f(A) Report',
+      `Score Π(A): ${item.score.toFixed(5)}`,
+      `Data: ${item.date}`,
+      `Artefato: ${item.text}`,
+    ].join('\n');
+
+    await navigator.clipboard.writeText(report);
     setCopiedId(item.id);
-    showSuccess("Relatório copiado!");
-    setTimeout(() => setCopiedId(null), 2000);
+    showSuccess('Relatório copiado.');
+    window.setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const exportHistory = () => {
+    const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'hexa-history.json';
+    anchor.click();
+    URL.revokeObjectURL(url);
   };
 
   if (history.length === 0) {
     return (
-      <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-100">
-        <History className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-        <p className="text-slate-400 font-medium">Nenhum experimento salvo ainda.</p>
+      <div className="mx-auto max-w-4xl rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 py-20 text-center">
+        <History className="mx-auto mb-4 h-10 w-10 text-slate-600" />
+        <p className="font-medium text-slate-300">Nenhum experimento salvo.</p>
+        <p className="mt-1 text-sm text-slate-500">As análises executadas aparecem aqui automaticamente.</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-4">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-          <History className="w-5 h-5 text-violet-600" />
-          Log de Experimentos
-        </h3>
-        <Button variant="destructive" size="sm" onClick={clearHistory} className="rounded-full">
-          <Trash2 className="w-4 h-4 mr-2" /> Limpar Tudo
-        </Button>
+    <div className="mx-auto w-full max-w-5xl space-y-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
+            <History className="h-4 w-4" /> Histórico local
+          </div>
+          <p className="mt-1 text-sm text-slate-500">{history.length} experimento(s) neste navegador.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportHistory} className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800">
+            <Download className="mr-2 h-4 w-4" /> Exportar JSON
+          </Button>
+          <Button variant="outline" onClick={clearHistory} className="border-rose-500/30 bg-rose-500/5 text-rose-300 hover:bg-rose-500/10">
+            <Trash2 className="mr-2 h-4 w-4" /> Limpar
+          </Button>
+        </div>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         {history.map((item) => (
-          <Card key={item.id} className="group hover:border-violet-200 transition-all">
-            <CardContent className="p-4 flex items-center justify-between">
-              <div className="flex-1 min-w-0 mr-4">
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="text-lg font-black text-violet-600">{item.score.toFixed(4)}</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.date}</span>
+          <Card key={item.id} className="border-slate-800 bg-slate-950/70">
+            <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="font-mono text-xl font-semibold text-amber-300">{item.score.toFixed(5)}</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">{item.date}</span>
                 </div>
-                <p className="text-sm text-slate-600 truncate italic">"{item.text}"</p>
+                <p className="mt-2 truncate text-sm text-slate-300">{item.text}</p>
               </div>
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="outline" size="icon" onClick={() => copyToClipboard(item)}>
-                  {copiedId === item.id ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                </Button>
-              </div>
+              <Button variant="outline" size="icon" onClick={() => copyToClipboard(item)} className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800">
+                {copiedId === item.id ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
+              </Button>
             </CardContent>
           </Card>
         ))}
