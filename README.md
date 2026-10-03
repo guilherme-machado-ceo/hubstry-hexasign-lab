@@ -2,7 +2,7 @@
 
 > **Auditabilidade Semântica e Algorítmica Baseada na Álgebra Hexarrelacional** ($\pi\sqrt{f}(A)$)[cite: 2]
 
-[![Cloud Run Deploy](https://img.shields.io/badge/Cloud%20Run-Deployed-blue?logo=googlecloud)](https://neon-alpaca-lab-631798606703.us-central1.run.app)
+[![Vercel Deploy](https://img.shields.io/badge/Vercel-Production-black?logo=vercel)](https://hubstry-hexasign-lab.vercel.app)
 [![Framework IP](https://img.shields.io/badge/IP-Zenodo%20Published%20(Feb%202026)-purple)](https://zenodo.org)
 
 ---
@@ -35,7 +35,7 @@ A avaliação de qualquer algoritmo ou artefato ($A$) é processada através de 
 
 ## 🚀 Acesso à Aplicação
 
-* **Aplicação em Produção (Cloud Run):** [https://neon-alpaca-lab-631798606703.us-central1.run.app](https://neon-alpaca-lab-631798606703.us-central1.run.app)
+* **Aplicação em Produção (Vercel):** [https://hubstry-hexasign-lab.vercel.app](https://hubstry-hexasign-lab.vercel.app)
 
 ---
 *© 2026 Hubstry Deep Tech. Todos os direitos reservados.*
