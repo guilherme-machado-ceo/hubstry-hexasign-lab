@@ -1,10 +1,54 @@
-const DEFAULT_MODEL = 'GLM-5.2';
+const DEFAULT_MODEL = 'glm-5.2';
 
 function requiredEnv(name) {
   const value = process.env[name];
   if (!value) throw new Error(`Missing required environment variable: ${name}`);
   return value;
 }
+
+const OBSERVATION_SCHEMA = {
+  name: 'hexasign_observation',
+  strict: true,
+  schema: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      summary: { type: 'string' },
+      observations: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            claim: { type: 'string' },
+            evidence: {
+              type: 'array',
+              items: {
+                type: 'object',
+                additionalProperties: false,
+                properties: {
+                  source: { type: 'string', enum: ['hexasign-engine', 'user-input'] },
+                  field: { type: 'string' },
+                  value: { type: ['number', 'string', 'boolean'] },
+                  excerpt: { type: 'string' },
+                },
+                required: ['source', 'field', 'value', 'excerpt'],
+              },
+            },
+            confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+            status: { type: 'string', enum: ['SUPPORTED', 'PARTIALLY_SUPPORTED', 'UNCERTAIN', 'UNSUPPORTED'] },
+          },
+          required: ['claim', 'evidence', 'confidence', 'status'],
+        },
+      },
+      unknowns: {
+        type: 'array',
+        items: { type: 'string' },
+      },
+    },
+    required: ['summary', 'observations', 'unknowns'],
+  },
+};
 
 export async function callMaaS({ text, metrics }) {
   const baseUrl = requiredEnv('MAAS_BASE_URL').replace(/\/$/, '');
@@ -17,13 +61,14 @@ export async function callMaaS({ text, metrics }) {
     'Never invent, modify, recompute, or estimate HexaSign metric values.',
     'Only interpret the supplied deterministic facts.',
     'Every observation MUST cite at least one supplied HexaSign metric as evidence.',
+    'For metric evidence, copy the exact numeric value supplied by the engine.',
     'If evidence is insufficient, put the issue in unknowns and do not make the claim.',
-    'Return JSON only with summary, observations, unknowns.',
-    'Each observation must contain claim, evidence, confidence, and status.',
+    'Do not introduce external factual claims about the artifact.',
   ].join(' ');
 
   const payload = {
     model,
+    stream: false,
     messages: [
       { role: 'system', content: system },
       {
@@ -31,12 +76,15 @@ export async function callMaaS({ text, metrics }) {
         content: JSON.stringify({
           artifact: text,
           deterministic_hexa_metrics: metrics,
-          instruction: 'Interpret the artifact only through the supplied facts. Do not introduce external factual claims.',
+          instruction: 'Interpret only the supplied artifact and deterministic facts.',
         }),
       },
     ],
     temperature: 0,
-    response_format: { type: 'json_object' },
+    response_format: {
+      type: 'json_schema',
+      json_schema: OBSERVATION_SCHEMA,
+    },
   };
 
   const response = await fetch(`${baseUrl}/v2/chat/completions`, {
@@ -52,7 +100,13 @@ export async function callMaaS({ text, metrics }) {
   const content = data?.choices?.[0]?.message?.content;
   if (typeof content !== 'string') throw new Error('MaaS response did not contain assistant content');
 
-  const parsed = JSON.parse(content);
+  let parsed;
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    throw new Error('MaaS returned non-JSON content despite structured-output request');
+  }
+
   return {
     provider: 'Huawei Cloud MaaS',
     model: data?.model || model,
