@@ -11,6 +11,7 @@ const dist = path.join(root, 'dist');
 const port = Number(process.env.PORT || 8080);
 const PHI = (1 + Math.sqrt(5)) / 2;
 const relationKeys = ['similitude','homology','equivalence','symmetry','equilibrium','compensation'];
+const ALLOWED_ORIGIN = 'https://hubstry-hexasign-lab.vercel.app';
 
 const calculateGoldenNorm = (vector) =>
   Math.sqrt(vector.reduce((acc, val, index) => acc + Math.pow(PHI, index) * val * val, 0));
@@ -22,6 +23,20 @@ const send = (res, status, body, contentType = 'application/json; charset=utf-8'
   res.writeHead(status, { 'Content-Type': contentType, 'Cache-Control': 'no-store' });
   if (Buffer.isBuffer(body)) return res.end(body);
   res.end(contentType.startsWith('application/json') ? JSON.stringify(body) : body);
+};
+
+const applyCors = (req, res) => {
+  if (!req.url.startsWith('/api/')) return false;
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Vary', 'Origin');
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return true;
+  }
+  return false;
 };
 
 const readJson = (req) => new Promise((resolve, reject) => {
@@ -53,6 +68,8 @@ function validateMetrics(metrics) {
 }
 
 async function route(req, res) {
+  if (applyCors(req, res)) return;
+
   if (req.method === 'GET' && req.url === '/api/health') {
     return send(res, 200, { ok: true, service: 'hexasign-lab', aiAuthority: 'deterministic-engine' });
   }
