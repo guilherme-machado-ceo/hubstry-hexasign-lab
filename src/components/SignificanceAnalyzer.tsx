@@ -4,14 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { analyzeSignificance, HexaMetrics } from '@/lib/hexa-engine';
+import { requestMaaSObservation } from '@/lib/ai/client';
+import type { AIObservationResult } from '@/lib/ai/types';
 import HexaRadar from './HexaRadar';
-import { CheckCircle2, Sparkles } from 'lucide-react';
+import { CheckCircle2, Sparkles, ShieldCheck, Loader2 } from 'lucide-react';
 
 const HISTORY_KEY = 'hexa-history';
 
 export const SignificanceAnalyzer: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [metrics, setMetrics] = useState<HexaMetrics | null>(null);
+  const [aiResult, setAiResult] = useState<AIObservationResult | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   const handleAnalyze = () => {
     const text = inputText.trim();
@@ -19,26 +24,39 @@ export const SignificanceAnalyzer: React.FC = () => {
 
     const computedMetrics = analyzeSignificance(text);
     setMetrics(computedMetrics);
+    setAiResult(null);
+    setAiError(null);
 
     const current = (() => {
-      try {
-        return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]');
-      } catch {
-        return [];
-      }
+      try { return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]'); }
+      catch { return []; }
     })();
 
-    const next = [
-      {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        text,
-        score: computedMetrics.piSqrtScore,
-        date: new Date().toLocaleString('pt-BR'),
-      },
-      ...current,
-    ].slice(0, 100);
+    const next = [{
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      text,
+      score: computedMetrics.piSqrtScore,
+      date: new Date().toLocaleString('pt-BR'),
+    }, ...current].slice(0, 100);
 
     localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+  };
+
+  const handleAIObservation = async () => {
+    if (!metrics || !inputText.trim()) return;
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const result = await requestMaaSObservation({ text: inputText.trim(), metrics });
+      setAiResult(result);
+      if (result.validation.status === 'INVALID') {
+        setAiError('A resposta do modelo não passou pela validação de evidência e foi retida.');
+      }
+    } catch (error) {
+      setAiError(error instanceof Error ? error.message : 'Falha na observação MaaS');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   return (
@@ -51,7 +69,7 @@ export const SignificanceAnalyzer: React.FC = () => {
           </div>
           <CardTitle className="text-2xl text-white">Analise um artefato</CardTitle>
           <CardDescription className="max-w-xl text-slate-400">
-            Texto técnico, código ou descrição de um artefato. O motor atual produz uma heurística determinística sobre as seis relações.
+            O motor HexaSign calcula as seis relações. A IA é apenas uma camada de observação e não pode alterar o resultado determinístico.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -66,10 +84,20 @@ export const SignificanceAnalyzer: React.FC = () => {
             <span className="text-xs font-mono text-slate-500">
               {inputText.trim().split(/\s+/).filter(Boolean).length} palavras · {inputText.length} caracteres
             </span>
-            <Button onClick={handleAnalyze} disabled={!inputText.trim()} className="bg-amber-400 text-slate-950 hover:bg-amber-300">
-              <Sparkles className="mr-2 h-4 w-4" /> Executar análise
-            </Button>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button onClick={handleAnalyze} disabled={!inputText.trim()} className="bg-amber-400 text-slate-950 hover:bg-amber-300">
+                <Sparkles className="mr-2 h-4 w-4" /> Executar análise
+              </Button>
+              <Button onClick={handleAIObservation} disabled={!metrics || aiLoading} variant="outline" className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800">
+                {aiLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
+                Observação IA
+              </Button>
+            </div>
           </div>
+          <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-xs text-slate-500">
+            <span className="font-semibold text-slate-300">AI safety:</span> o modelo observa fatos já calculados; o engine determinístico continua sendo a autoridade matemática.
+          </div>
+          {aiError && <div className="rounded-lg border border-red-900/60 bg-red-950/20 p-3 text-xs text-red-300">{aiError}</div>}
         </CardContent>
       </Card>
 
@@ -97,6 +125,39 @@ export const SignificanceAnalyzer: React.FC = () => {
                   <div className="mt-1 font-mono text-lg font-semibold text-slate-100">{(value * 100).toFixed(1)}%</div>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {aiResult?.validation.status === 'VALID' && (
+          <Card className="border-emerald-900/60 bg-slate-950/70">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-emerald-200">
+                <ShieldCheck className="h-4 w-4" /> Observação validada · {aiResult.provider}
+              </CardTitle>
+              <CardDescription className="text-slate-500">{aiResult.model}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm leading-6 text-slate-300">{aiResult.summary}</p>
+              <div className="space-y-3">
+                {aiResult.observations.map((observation, index) => (
+                  <div key={`${observation.claim}-${index}`} className="rounded-lg border border-slate-800 bg-slate-900/50 p-3">
+                    <p className="text-sm text-slate-200">{observation.claim}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {observation.evidence.map((evidence, evidenceIndex) => (
+                        <Badge key={evidenceIndex} variant="outline" className="border-emerald-400/20 text-emerald-300">
+                          {evidence.field}: {typeof evidence.value === 'number' ? evidence.value.toFixed(3) : String(evidence.value)}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {aiResult.unknowns.length > 0 && (
+                <div className="border-t border-slate-800 pt-3 text-xs text-slate-500">
+                  <span className="font-semibold text-slate-400">Não determinado:</span> {aiResult.unknowns.join(' · ')}
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
