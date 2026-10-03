@@ -87,7 +87,7 @@ export async function callMaaS({ text, metrics }) {
     },
   };
 
-  const response = await fetch(`${baseUrl}/v2/chat/completions`, {
+  const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
