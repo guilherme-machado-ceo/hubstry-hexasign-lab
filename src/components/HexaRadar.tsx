@@ -38,13 +38,13 @@ export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
               MATRIZ HEXARRELACIONAL $\vec{f}(A)$
             </CardTitle>
             <CardDescription className="text-slate-400 text-xs">
-              Espectro multidimensional das seis relações de significância ($\rho_1 \dots \rho_6$)[cite: 18, 36]
+              Espectro multidimensional das seis relações de significância ($\rho_1 \dots \rho_6$)
             </CardDescription>
           </div>
           {metrics && (
             <div className="text-right font-mono">
-              <div className="text-xs text-amber-500/80">Norma Áurea $f(A)$: {metrics.goldenNorm.toFixed(3)}[cite: 37]</div>
-              <div className="text-sm font-bold text-amber-300">Π-radical $\Pi(A)$: {metrics.piSqrtScore.toFixed(3)}[cite: 40]</div>
+              <div className="text-xs text-amber-500/80">Norma Áurea $f(A)$: {metrics.goldenNorm.toFixed(3)}</div>
+              <div className="text-sm font-bold text-amber-300">Π-radical $\Pi(A)$: {metrics.piSqrtScore.toFixed(3)}</div>
             </div>
           )}
         </div>
@@ -77,3 +77,5 @@ export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
     </Card>
   );
 };
+
+export default HexaRadar;
