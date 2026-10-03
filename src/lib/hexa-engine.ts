@@ -4,76 +4,60 @@
  * Baseada no formalismo matemático de Guilherme Gonçalves Machado (2026)
  */
 
+export type RelationKey = 'similitude' | 'homology' | 'equivalence' | 'symmetry' | 'equilibrium' | 'compensation';
+
 export interface HexaMetrics {
-  similitude: number;     // ρ₁
-  homology: number;       // ρ₂
-  equivalence: number;    // ρ₃
-  symmetry: number;       // ρ₄
-  equilibrium: number;    // ρ₅
-  compensation: number;   // ρ₆
-  goldenNorm: number;     // f(A)[cite: 37]
-  piSqrtScore: number;    // Π(A)[cite: 40]
+  similitude: number;
+  homology: number;
+  equivalence: number;
+  symmetry: number;
+  equilibrium: number;
+  compensation: number;
+  goldenNorm: number;
+  piSqrtScore: number;
 }
 
-// Razão Áurea (φ)
-const PHI = (1 + Math.sqrt(5)) / 2; // ≈ 1.61803398875
+const PHI = (1 + Math.sqrt(5)) / 2;
 
-/**
- * Calcula a Norma Áurea f(A) ponderada pelas potências da razão áurea.
- * f(A) = sqrt( sum( φ^(k-1) * [f_ρk(A)]^2 ) )[cite: 37]
- */
 export const calculateGoldenNorm = (vector: number[]): number => {
-  const sum = vector.reduce((acc, val, index) => {
-    const weight = Math.pow(PHI, index);
-    return acc + weight * (val * val);
-  }, 0);
+  const sum = vector.reduce((acc, val, index) => acc + Math.pow(PHI, index) * val * val, 0);
   return Math.sqrt(sum);
 };
 
-/**
- * Aplica o Operador Transcendental Π-radical.
- * Π(A) = [f(A)]^(1/π)[cite: 40]
- */
 export const calculatePiSqrtScore = (goldenNorm: number): number => {
   if (goldenNorm <= 0) return 0;
   return Math.pow(goldenNorm, 1 / Math.PI);
 };
 
-/**
- * Avaliação determinística do vetor de significância com base nos perfis estruturais
- */
 export const analyzeSignificance = (text: string): HexaMetrics => {
-  if (!text || text.trim().length === 0) {
+  if (!text?.trim()) {
     return {
       similitude: 0, homology: 0, equivalence: 0,
       symmetry: 0, equilibrium: 0, compensation: 0,
-      goldenNorm: 0, piSqrtScore: 0
+      goldenNorm: 0, piSqrtScore: 0,
     };
   }
 
-  const words = text.trim().split(/\s+/).filter(Boolean).length;
-  const hasLogicalConnectors = /portanto|logo|assim|se|então|quando|como/i.test(text);
-  const hasDeepTerms = /algoritmo|matriz|compensação|emergência|sistema|operador|estrutura/i.test(text);
+  const normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const words = normalized.split(/\s+/).filter(Boolean);
+  const uniqueWords = new Set(words).size;
+  const sentences = normalized.split(/[.!?]+/).map((part) => part.trim()).filter(Boolean).length;
+  const logicalConnectors = (normalized.match(/\b(portanto|logo|assim|se|entao|quando|porque|pois|implica|caso)\b/g) ?? []).length;
+  const structuralTerms = (normalized.match(/\b(algoritmo|matriz|sistema|operador|estrutura|funcao|relacao|rede|processo|regra|modelo)\b/g) ?? []).length;
+  const contrastTerms = (normalized.match(/\b(mas|porem|porém|embora|enquanto|complementar|compensacao|emergencia|emergente)\b/g) ?? []).length;
+  const diversity = words.length ? uniqueWords / words.length : 0;
+  const normalizedLength = Math.min(1, words.length / 60);
 
-  const similitude = Math.min(1, 0.4 + (words / 50));
-  const homology = hasLogicalConnectors ? 0.85 : 0.50;
-  const equivalence = Math.min(1, similitude * 0.95);
-  const symmetry = hasLogicalConnectors ? 0.75 : 0.45;
-  const equilibrium = 0.80;
-  const compensation = hasDeepTerms ? 0.90 : 0.30;
+  const similitude = Math.min(1, 0.20 + normalizedLength * 0.55 + diversity * 0.25);
+  const homology = Math.min(1, 0.25 + structuralTerms / 8);
+  const equivalence = Math.min(1, 0.25 + logicalConnectors / 6 + diversity * 0.15);
+  const symmetry = Math.min(1, 0.20 + Math.min(sentences, 8) / 12 + logicalConnectors / 12);
+  const equilibrium = Math.max(0, Math.min(1, 0.85 - Math.abs(0.5 - diversity) * 0.7 - Math.abs(0.5 - normalizedLength) * 0.25));
+  const compensation = Math.min(1, 0.20 + contrastTerms / 5 + structuralTerms / 12);
 
   const vector = [similitude, homology, equivalence, symmetry, equilibrium, compensation];
   const goldenNorm = calculateGoldenNorm(vector);
   const piSqrtScore = calculatePiSqrtScore(goldenNorm);
 
-  return {
-    similitude,
-    homology,
-    equivalence,
-    symmetry,
-    equilibrium,
-    compensation,
-    goldenNorm,
-    piSqrtScore
-  };
+  return { similitude, homology, equivalence, symmetry, equilibrium, compensation, goldenNorm, piSqrtScore };
 };
