@@ -4,6 +4,7 @@ import ComparisonAnalyzer from "@/components/ComparisonAnalyzer";
 import MetricGlossary from "@/components/MetricGlossary";
 import SimulationMode from "@/components/SimulationMode";
 import HistoryManager from "@/components/HistoryManager";
+import ThesisAccordion from "@/components/ThesisAccordion";
 import { Hexagon, Layers, Zap, BookOpen, Beaker, History } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -38,6 +39,7 @@ const Index = () => {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 pt-6 md:px-6">
+        <ThesisAccordion />
         <Tabs defaultValue="single" className="w-full">
           <TabsList className="mb-6 h-auto w-full justify-start gap-1 overflow-x-auto border border-white/10 bg-slate-900/80 p-1 md:w-fit">
             {tabs.map(({ value, label, icon: Icon }) => (

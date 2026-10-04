@@ -124,8 +124,9 @@ const SimulationMode = () => {
                   <div className="mt-1 font-mono text-2xl font-semibold text-slate-100">{goldenNorm.toFixed(4)}</div>
                 </div>
                 <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-                  <div className="text-[11px] uppercase tracking-widest text-slate-500">Média do vetor</div>
+                  <div className="text-[11px] uppercase tracking-widest text-slate-500">Média aritmética das seis dimensões</div>
                   <div className="mt-1 font-mono text-2xl font-semibold text-slate-100">{average.toFixed(3)}</div>
+                  <div className="mt-1 text-[10px] leading-snug text-slate-600">Indicador auxiliar da interface; não integra o formalismo π√f(A).</div>
                 </div>
               </div>
 
