@@ -75,10 +75,21 @@ export const SignificanceAnalyzer: React.FC = () => {
           </div>
           <CardTitle className="text-2xl text-white">Analise um artefato</CardTitle>
           <CardDescription className="max-w-xl text-slate-400">
-            O motor HexaSign estima, por meio de proxies determinísticos, os seis graus relacionais. A IA é apenas uma camada de observação e não pode alterar o resultado determinístico.
+            Comece pela questão: como as partes deste artefato se relacionam? O motor HexaSign estima, por meio de proxies determinísticos, os seis graus relacionais. A IA é apenas uma camada de observação e não pode alterar o resultado determinístico.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
+            <li><span className="font-mono text-amber-300/80">1</span> Artefato</li>
+            <li aria-hidden>→</li>
+            <li><span className="font-mono text-amber-300/80">2</span> Seis dimensões</li>
+            <li aria-hidden>→</li>
+            <li><span className="font-mono text-amber-300/80">3</span> Perfil Π(A)</li>
+            <li aria-hidden>→</li>
+            <li><span className="font-mono text-amber-300/80">4</span> Formalismo (aba Método)</li>
+            <li aria-hidden>→</li>
+            <li><span className="font-mono text-amber-300/80">5</span> Observação da IA</li>
+          </ol>
           <Textarea
             aria-label="Artefato para análise"
             placeholder="Cole aqui o texto, código ou saída de um modelo..."
@@ -101,7 +112,7 @@ export const SignificanceAnalyzer: React.FC = () => {
             </div>
           </div>
           <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-xs text-slate-500">
-            <span className="font-semibold text-slate-300">AI safety:</span> o modelo observa fatos já calculados; o engine determinístico continua sendo a autoridade matemática.
+            <span className="font-semibold text-slate-300">Camada de observação:</span> a matemática calcula; a IA apenas observa e interpreta os números já calculados — o engine determinístico continua sendo a autoridade matemática. O que o proxy não mede permanece explicitamente não determinado.
           </div>
           {aiError && <div className="rounded-lg border border-red-900/60 bg-red-950/20 p-3 text-xs text-red-300">{aiError}</div>}
           {aiRejection && (
@@ -135,16 +146,17 @@ export const SignificanceAnalyzer: React.FC = () => {
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {([
-                ['ρ₁', 'Similitude', metrics.similitude],
-                ['ρ₂', 'Homologia', metrics.homology],
-                ['ρ₃', 'Equivalência', metrics.equivalence],
-                ['ρ₄', 'Simetria', metrics.symmetry],
-                ['ρ₅', 'Equilíbrio', metrics.equilibrium],
-                ['ρ₆', 'Compensação', metrics.compensation],
-              ] as const).map(([rho, label, value]) => (
+                ['ρ₁', 'Similitude', 'Superfície', metrics.similitude],
+                ['ρ₂', 'Homologia', 'Estrutura', metrics.homology],
+                ['ρ₃', 'Equivalência', 'Substituição', metrics.equivalence],
+                ['ρ₄', 'Simetria', 'Transformação', metrics.symmetry],
+                ['ρ₅', 'Equilíbrio', 'Equilíbrio', metrics.equilibrium],
+                ['ρ₆', 'Compensação', 'Complementaridade emergente', metrics.compensation],
+              ] as const).map(([rho, label, lens, value]) => (
                 <div key={rho} className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
                   <div className="font-mono text-xs text-amber-300">{rho}</div>
-                  <div className="mt-1 text-xs text-slate-500">{label}</div>
+                  <div className="mt-1 text-xs text-slate-400">{label}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-600">Lente · {lens}</div>
                   <div className="mt-1 font-mono text-lg font-semibold text-slate-100">{(value * 100).toFixed(1)}%</div>
                 </div>
               ))}

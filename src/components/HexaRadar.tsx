@@ -7,12 +7,12 @@ interface HexaRadarProps {
 }
 
 const RELATIONS = [
-  ['similitude', 'ρ₁', 'Similitude'],
-  ['homology', 'ρ₂', 'Homologia'],
-  ['equivalence', 'ρ₃', 'Equivalência'],
-  ['symmetry', 'ρ₄', 'Simetria'],
-  ['equilibrium', 'ρ₅', 'Equilíbrio'],
-  ['compensation', 'ρ₆', 'Compensação'],
+  ['similitude', 'ρ₁', 'Similitude', 'Superfície'],
+  ['homology', 'ρ₂', 'Homologia', 'Estrutura'],
+  ['equivalence', 'ρ₃', 'Equivalência', 'Substituição'],
+  ['symmetry', 'ρ₄', 'Simetria', 'Transformação'],
+  ['equilibrium', 'ρ₅', 'Equilíbrio', 'Equilíbrio'],
+  ['compensation', 'ρ₆', 'Compensação', 'Complementaridade emergente'],
 ] as const;
 
 export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
@@ -44,6 +44,7 @@ export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
                 <div className="flex items-center gap-2">
                   <span className="rounded-md border border-amber-400/20 bg-amber-400/5 px-2 py-0.5 font-mono text-xs text-amber-300">{relation[1]}</span>
                   <span className="text-sm font-medium text-slate-200">{relation[2]}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-600">· {relation[3]}</span>
                 </div>
                 <span className="font-mono text-sm font-semibold text-slate-100">{(value * 100).toFixed(1)}%</span>
               </div>
