@@ -21,10 +21,10 @@ export const ComparisonAnalyzer: React.FC = () => {
       <Card className="bg-slate-950/40 border-slate-800 text-slate-100 backdrop-blur-xl shadow-2xl">
         <CardHeader className="text-center">
           <CardTitle className="text-xl font-mono text-amber-400 tracking-wider">
-            COMPARAÇÃO HEXARRELACIONAL CROSS-ARTEFATO
+            COMPARAR PERFIS HEXARRELACIONAIS
           </CardTitle>
           <CardDescription className="text-slate-400">
-            Compare a topologia semiótica e o score Π-radical entre dois modelos, códigos ou textos.
+            Compare como dois artefatos se comportam nas seis dimensões do HexaSign — textos, códigos ou respostas de IA. Cada perfil é calculado localmente pelo engine determinístico.
           </CardDescription>
         </CardHeader>
       </Card>

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { analyzeSignificance, HexaMetrics } from '@/lib/hexa-engine';
-import { requestMaaSObservation } from '@/lib/ai/client';
+import { requestMaaSObservation, ObservationRejectedError } from '@/lib/ai/client';
 import type { AIObservationResult } from '@/lib/ai/types';
 import HexaRadar from './HexaRadar';
 import { CheckCircle2, Sparkles, ShieldCheck, Loader2 } from 'lucide-react';
@@ -17,6 +17,7 @@ export const SignificanceAnalyzer: React.FC = () => {
   const [aiResult, setAiResult] = useState<AIObservationResult | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [aiRejection, setAiRejection] = useState<string[] | null>(null);
 
   const handleAnalyze = () => {
     const text = inputText.trim();
@@ -46,6 +47,7 @@ export const SignificanceAnalyzer: React.FC = () => {
     if (!metrics || !inputText.trim()) return;
     setAiLoading(true);
     setAiError(null);
+    setAiRejection(null);
     try {
       const result = await requestMaaSObservation({ text: inputText.trim(), metrics });
       setAiResult(result);
@@ -53,7 +55,11 @@ export const SignificanceAnalyzer: React.FC = () => {
         setAiError('A resposta do modelo não passou pela validação de evidência e foi retida.');
       }
     } catch (error) {
-      setAiError(error instanceof Error ? error.message : 'Falha na observação MaaS');
+      if (error instanceof ObservationRejectedError) {
+        setAiRejection(error.codes);
+      } else {
+        setAiError(error instanceof Error ? error.message : 'Falha na observação MaaS');
+      }
     } finally {
       setAiLoading(false);
     }
@@ -98,6 +104,23 @@ export const SignificanceAnalyzer: React.FC = () => {
             <span className="font-semibold text-slate-300">AI safety:</span> o modelo observa fatos já calculados; o engine determinístico continua sendo a autoridade matemática.
           </div>
           {aiError && <div className="rounded-lg border border-red-900/60 bg-red-950/20 p-3 text-xs text-red-300">{aiError}</div>}
+          {aiRejection && (
+            <div className="rounded-lg border border-amber-400/40 bg-amber-950/20 p-4 space-y-2">
+              <p className="text-sm font-semibold text-amber-200">
+                A observação da IA foi recusada por exceder os limites metodológicos do laboratório.
+              </p>
+              <p className="text-xs leading-relaxed text-amber-100/80">
+                Os resultados determinísticos acima permanecem válidos. O HexaSign não permite que
+                uma estimativa proxy seja apresentada como demonstração de uma relação formal.
+              </p>
+              <details className="text-[11px] text-slate-500">
+                <summary className="cursor-pointer hover:text-slate-400">Detalhe técnico</summary>
+                <ul className="mt-1 list-inside list-disc font-mono">
+                  {aiRejection.map((code) => <li key={code}>{code}</li>)}
+                </ul>
+              </details>
+            </div>
+          )}
         </CardContent>
       </Card>
 

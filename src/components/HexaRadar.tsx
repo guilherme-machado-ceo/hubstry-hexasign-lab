@@ -25,9 +25,9 @@ export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
       <div className="mb-5 flex items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
-            <Activity className="h-4 w-4" /> Vetor hexarrelacional
+            <Activity className="h-4 w-4" /> Perfil hexarrelacional
           </div>
-          <p className="mt-1 text-xs text-slate-500">Vetor contínuo de graus estimados das seis relações ρ₁…ρ₆.</p>
+          <p className="mt-1 text-xs text-slate-500">Vetor contínuo dos graus estimados f_ρ₁(A)…f_ρ₆(A).</p>
         </div>
         <div className="font-mono text-right">
           <div className="text-[10px] uppercase tracking-widest text-slate-500">Π(A)</div>
@@ -64,7 +64,7 @@ export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
           <div className="mt-1 font-mono text-lg font-semibold text-slate-100">{goldenNorm.toFixed(4)}</div>
         </div>
         <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-          <div className="text-[10px] uppercase tracking-widest text-slate-500">Relação ativa</div>
+          <div className="text-[10px] uppercase tracking-widest text-slate-500">Dimensões estimadas</div>
           <div className="mt-1 font-mono text-lg font-semibold text-amber-200">{values.filter(([, value]) => value > 0).length}/6</div>
         </div>
       </div>
