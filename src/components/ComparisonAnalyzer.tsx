@@ -33,11 +33,11 @@ export const ComparisonAnalyzer: React.FC = () => {
         {/* Artefato A */}
         <Card className="bg-slate-900/60 border-slate-800 flex flex-col">
           <CardHeader>
-            <CardTitle className="text-md font-mono text-slate-300">ARTEFATO [A] - LINHA DE BASE</CardTitle>
+            <CardTitle className="text-md font-mono text-slate-300">TEXTO A — referência</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 flex-1 flex flex-col">
             <Textarea
-              placeholder="Insira o texto ou código original aqui..."
+              placeholder="Cole aqui o primeiro texto — por exemplo, a versão original de um documento, código ou resposta de IA..."
               value={textA}
               onChange={(e) => setTextA(e.target.value)}
               className="min-h-[150px] bg-slate-950/50 border-slate-700 text-slate-100 font-mono text-sm resize-none"
@@ -53,11 +53,11 @@ export const ComparisonAnalyzer: React.FC = () => {
         {/* Artefato B */}
         <Card className="bg-slate-900/60 border-slate-800 flex flex-col">
           <CardHeader>
-            <CardTitle className="text-md font-mono text-amber-500">ARTEFATO [B] - EVOLUÇÃO / ALVO</CardTitle>
+            <CardTitle className="text-md font-mono text-amber-500">TEXTO B — comparação</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 flex-1 flex flex-col">
             <Textarea
-              placeholder="Insira o texto refatorado ou resposta otimizada aqui..."
+              placeholder="Cole aqui o segundo texto — por exemplo, a versão revisada, ou a resposta de outra IA ao mesmo pedido..."
               value={textB}
               onChange={(e) => setTextB(e.target.value)}
               className="min-h-[150px] bg-slate-950/50 border-slate-700 text-slate-100 font-mono text-sm resize-none"
