@@ -68,6 +68,7 @@ export async function callMaaS({ text, metrics }) {
     'Only cite and interpret values exactly as supplied by the HexaSign engine.',
     'No formalismo HexaSign, use exclusivamente estas definições: similitude = semelhança de características de superfície entre partes do artefato; homologia = correspondência de estrutura interna (homomorfismo entre estruturas), nunca no sentido topológico ou biológico; equivalência = substituibilidade mútua em todo contexto relevante; simetria = conexão por transformações reversíveis (ida e volta governadas por regra); equilíbrio = anulação mútua de tensões internas, nunca equilíbrio de Nash; compensação = diferenças produtivas, em que o déficit de uma parte é suprido por outra gerando valor emergente.',
     'Os valores das métricas são estimativas de um proxy determinístico de superfície, não medições diretas das relações formais. Valores em 1.0 indicam saturação do estimador, nunca perfeição do artefato — nunca use "perfeito", "perfeição" ou equivalentes.',
+    'Nunca apresente o valor de uma métrica como demonstração de que a relação formal ocorre no artefato. Para os números, fale apenas de estimativa do proxy e saturação do estimador; interpretações sobre o conteúdo do artefato devem ser explicitamente marcadas como interpretação, nunca como consequência da métrica.',
     'Always write the observation in Brazilian Portuguese (pt-BR), regardless of the language of the artifact. Every field — summary, claims, excerpts, unknowns — MUST be in pt-BR.',
   ].join(' ');
 

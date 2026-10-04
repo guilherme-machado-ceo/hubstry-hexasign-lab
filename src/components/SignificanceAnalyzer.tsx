@@ -69,7 +69,7 @@ export const SignificanceAnalyzer: React.FC = () => {
           </div>
           <CardTitle className="text-2xl text-white">Analise um artefato</CardTitle>
           <CardDescription className="max-w-xl text-slate-400">
-            O motor HexaSign calcula as seis relações. A IA é apenas uma camada de observação e não pode alterar o resultado determinístico.
+            O motor HexaSign estima, por meio de proxies determinísticos, os seis graus relacionais. A IA é apenas uma camada de observação e não pode alterar o resultado determinístico.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -133,7 +133,7 @@ export const SignificanceAnalyzer: React.FC = () => {
           <Card className="border-emerald-900/60 bg-slate-950/70">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-emerald-200">
-                <ShieldCheck className="h-4 w-4" /> Observação validada · {aiResult.provider}
+                <ShieldCheck className="h-4 w-4" /> Observação validada pelo schema · {aiResult.provider}
               </CardTitle>
               <CardDescription className="text-slate-500">{aiResult.model}</CardDescription>
             </CardHeader>

@@ -27,7 +27,7 @@ export const HexaRadar: React.FC<HexaRadarProps> = ({ metrics }) => {
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
             <Activity className="h-4 w-4" /> Vetor hexarrelacional
           </div>
-          <p className="mt-1 text-xs text-slate-500">Estado contínuo das seis relações ρ₁…ρ₆.</p>
+          <p className="mt-1 text-xs text-slate-500">Vetor contínuo de graus estimados das seis relações ρ₁…ρ₆.</p>
         </div>
         <div className="font-mono text-right">
           <div className="text-[10px] uppercase tracking-widest text-slate-500">Π(A)</div>
