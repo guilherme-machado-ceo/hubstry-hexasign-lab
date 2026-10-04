@@ -95,14 +95,34 @@ export async function callMaaS({ text, metrics }) {
     tool_choice: { type: 'function', function: { name: 'hexasign_observation' } },
   };
 
-  const response = await fetch(`${baseUrl}/chat/completions`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
+  const RETRYABLE_STATUSES = new Set([502, 504, 520]);
+  const RETRY_DELAY_MS = Number(process.env.MAAS_RETRY_DELAY_MS ?? 15000);
+  const MAX_ATTEMPTS = 2; // 1 tentativa + 1 retry
 
-  const body = await response.text();
-  if (!response.ok) throw new Error(`MaaS HTTP ${response.status}: ${body.slice(0, 500)}`);
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const sanitizeUpstreamError = (status, rawBody) => {
+    if (/<!doctype|<html/i.test(rawBody)) {
+      return `O gateway Digiti está temporariamente indisponível (HTTP ${status}). Tente novamente em instantes.`;
+    }
+    return `MaaS HTTP ${status}: ${rawBody.slice(0, 500)}`;
+  };
+
+  let response;
+  let body = '';
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    response = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    body = await response.text();
+    if (response.ok || !RETRYABLE_STATUSES.has(response.status) || attempt === MAX_ATTEMPTS) break;
+    console.error(JSON.stringify({ event: 'maas_retry', status: response.status, attempt }));
+    await sleep(RETRY_DELAY_MS);
+  }
+
+  if (!response.ok) throw new Error(sanitizeUpstreamError(response.status, body));
 
   const data = JSON.parse(body);
   const choice = data?.choices?.[0];
