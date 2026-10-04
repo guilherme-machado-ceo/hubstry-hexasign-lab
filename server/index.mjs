@@ -104,5 +104,7 @@ function serveStatic(req, res) {
 }
 
 http.createServer(route).listen(port, '0.0.0.0', () => {
-  console.log(`HexaSign Lab listening on :${port}`);
+  const service = process.env.K_SERVICE || 'local';
+  const revision = process.env.K_REVISION || 'local';
+  console.log(`HexaSign Lab listening on :${port} service=${service} revision=${revision}`);
 });

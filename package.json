@@ -91,5 +91,6 @@
       "@swc/core",
       "esbuild"
     ]
-  }
+  },
+  "packageManager": "pnpm@10.34.6"
 }

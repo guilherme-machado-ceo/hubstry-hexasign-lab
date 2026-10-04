@@ -16,7 +16,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 10.34.6
           run_install: false
 
       - name: Setup Node
@@ -27,6 +27,15 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Editorial guard
+        run: pnpm run check:editorial
+
+      - name: Type check
+        run: pnpm exec tsc -b
 
       - name: Build
         run: pnpm run build
