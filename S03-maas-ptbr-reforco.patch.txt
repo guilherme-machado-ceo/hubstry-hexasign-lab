@@ -1,0 +1,19 @@
+--- a/server/maas.mjs
++++ b/server/maas.mjs
+@@ -66,6 +66,7 @@
+     'Do not introduce external factual claims about the artifact.',
+     'Do not compute, derive, aggregate, average, normalize, estimate, or transform metric values.',
+     'Only cite and interpret values exactly as supplied by the HexaSign engine.',
++    'Always write the observation in Brazilian Portuguese (pt-BR), regardless of the language of the artifact. Every field — summary, claims, excerpts, unknowns — MUST be in pt-BR.',
+   ].join(' ');
+ 
+   const payload = {
+@@ -78,7 +79,7 @@
+         content: JSON.stringify({
+           artifact: text,
+           deterministic_hexa_metrics: metrics,
+-          instruction: 'Interpret only the supplied artifact and deterministic facts.',
++          instruction: 'Interpret only the supplied artifact and deterministic facts. Responda inteiramente em português brasileiro (pt-BR), em todos os campos.',
+         }),
+       },
+     ],

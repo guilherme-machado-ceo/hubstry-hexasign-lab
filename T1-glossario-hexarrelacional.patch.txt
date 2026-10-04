@@ -1,0 +1,203 @@
+--- a/src/components/MetricGlossary.tsx
++++ b/src/components/MetricGlossary.tsx
+@@ -1,5 +1,89 @@
+ import React from 'react';
+ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
++import { ExternalLink } from 'lucide-react';
++
++const ZENODO_URL = 'https://doi.org/10.5281/zenodo.18776401';
++
++interface RelationEntry {
++  symbol: string;
++  name: string;
++  l1: string;
++  l2: string;
++  l3: string;
++  paperRef: string;
++  note?: string;
++  engine: string;
++}
++
++const RELATIONS: RelationEntry[] = [
++  {
++    symbol: 'ρ₁',
++    name: 'Similitude',
++    l1: 'O quanto as partes de um texto se parecem entre si na superfície: o vocabulário, o tamanho, a "cara" do texto. É a primeira camada do significado — onde ele começa, não onde termina.',
++    l2: 'Similitude é a relação mais superficial da cadeia: dois elementos são similares quando estão próximos no espaço de características. Ela é reflexiva e simétrica, mas não é transitiva — se A se parece com B e B se parece com C, não é garantido que A se pareça com C (o efeito sorites, dos grãos de areia).',
++    l3: 'x ρ₁ y ⟺ d(φ(x), φ(y)) < ε, onde φ projeta os elementos num espaço de características e ε é um limiar de tolerância. Nota do paper (peirceana): "A similitude é onde a significância começa, não onde termina."',
++    paperRef: 'Def. 3.1',
++    note: 'Na semiótica peirceana, corresponde ao ícone (signo por semelhança) — ancoragem feita pelo próprio paper. Em matemática, "similaridade" nomeia transformações que preservam forma. Os usos convergem; o risco de confusão é baixo.',
++    engine: 'Comprimento do texto e variedade de vocábulos (min(1, 0.20 + min(1, palavras/60)·0.55 + diversidade·0.25)). Não compara pares de elementos nem mede distância em espaço de características.',
++  },
++  {
++    symbol: 'ρ₂',
++    name: 'Homologia',
++    l1: 'Se duas partes do texto têm a mesma "arquitetura" por dentro, ainda que pareçam diferentes por fora. Como o braço humano e a asa do morcego: formas distintas, mesma planta de construção.',
++    l2: 'Homologia é a correspondência de estrutura interna: dois elementos são homólogos quando existe um mapeamento que preserva a estrutura de um no outro. É a relação que enxerga organização além da aparência.',
++    l3: 'x ρ₂ y ⟺ ∃h : Struct(x) →~ Struct(y), onde Struct(x) é a estrutura algébrica (ou topológica, ou categórica) subjacente e h é um homomorfismo (mapeamento que preserva operações). Reflexiva e transitiva; simétrica apenas quando h é isomorfismo.',
++    paperRef: 'Def. 3.2',
++    note: 'Maior risco de ambiguidade das seis relações: "homologia" tem usos consolidados na biologia (ancestralidade comum) e na topologia algébrica (grupos de homologia). No HexaSign, vale exclusivamente a Def. 3.2: correspondência de estrutura via homomorfismo.',
++    engine: 'Conta a ocorrência de 11 palavras de vocabulário estrutural (algoritmo, matriz, sistema, operador, estrutura, função, relação, rede, processo, regra, modelo). Não detecta homomorfismos nem compara estruturas.',
++  },
++  {
++    symbol: 'ρ₃',
++    name: 'Equivalência',
++    l1: 'Quando duas partes podem trocar de lugar e nada muda no resultado. Não basta se parecerem ou ter a mesma estrutura: a troca precisa funcionar em qualquer contexto.',
++    l2: 'Equivalência é a substituibilidade funcional: dois elementos são equivalentes quando, inseridos em qualquer contexto relevante, produzem o mesmo efeito. É mais forte que a homologia — não basta corresponder em estrutura, a troca precisa ser funcional. Atenção: equivalente ≠ igual.',
++    l3: 'x ρ₃ y ⟺ ∀C ∈ 𝒞 : C[x] ≃ C[y], onde 𝒞 é a coleção de todos os contextos relevantes. É relação de equivalência no sentido técnico: reflexiva, simétrica e transitiva.',
++    paperRef: 'Def. 3.3',
++    note: 'Caso raro de convergência natural: o uso do paper coincide com o uso lógico-matemático consagrado. Ainda assim, a substituibilidade é sempre relativa à coleção de contextos 𝒞.',
++    engine: 'Conta conectivos lógicos (portanto, logo, assim, se, então, quando, porque, pois, implica, caso) e pondera a diversidade vocabular. Não testa substituibilidade em contexto algum.',
++  },
++  {
++    symbol: 'ρ₄',
++    name: 'Simetria',
++    l1: 'Quando existe uma "regra de ida e volta" entre duas partes: uma transformação que leva uma à outra — e cuja operação inversa traz de volta. Como um espelho governado por regra, não por acaso.',
++    l2: 'Simetria é a transformabilidade reversível: dois elementos são simétricos quando pertencem à mesma órbita sob um grupo de transformações — existe uma operação que os conecta nos dois sentidos. Mais exigente que a equivalência: a troca precisa ser governada por uma regra definida.',
++    l3: 'x ρ₄ y ⟺ ∃T ∈ 𝒢 : T(x) = y ∧ T⁻¹(y) = x, onde 𝒢 é um grupo de transformações. Equivalentemente: x e y pertencem à mesma órbita sob a ação de 𝒢. É relação de equivalência; suas classes são as órbitas.',
++    paperRef: 'Def. 3.4',
++    note: 'A definição exige reversibilidade (∃T e ∃T⁻¹), não involução (T = T⁻¹). A involutividade aparece apenas na demonstração do Teorema 3.1 e na tabela de símbolos do apêndice do paper — divergência registrada como candidata a errata.',
++    engine: 'Mede a regularidade da estrutura sentencial (número de frases, até 8) combinada com conectivos lógicos. Não identifica grupos de transformação nem órbitas.',
++  },
++  {
++    symbol: 'ρ₅',
++    name: 'Equilíbrio',
++    l1: 'Quando partes diferentes de um texto podem se contrapor e, juntas, formar um estado mais equilibrado — como os pratos de uma balança. Não é questão de serem iguais: é de se sustentarem mutuamente.',
++    l2: 'Equilíbrio é a anulação mútua de potenciais: dois elementos estão em equilíbrio quando suas tensões se cancelam, gerando estado estacionário. Não exige que sejam transformáveis um no outro — exige que coexistam de modo estável. Propriedade notável: não é reflexiva — só o elemento sem tensão está em equilíbrio consigo mesmo.',
++    l3: 'x ρ₅ y ⟺ Φ(x) + Φ(y) = 0 (condição estática), ou d/dt[Φ(x(t)) + Φ(y(t))] = 0 (estado estacionário), onde Φ é uma função potencial. Simétrica, não reflexiva em geral, não transitiva em geral.',
++    paperRef: 'Def. 3.5',
++    note: 'Não confundir com equilíbrio de Nash (teoria dos jogos), conceito distinto e não autorizado aqui. A analogia autorizada é a física do próprio paper: ΣF = 0, com seus estados estável e instável.',
++    engine: 'Mede o quão próximos do ponto médio estão a diversidade vocabular e o comprimento normalizado (uma "centralidade estatística"). Não computa funções potenciais nem anulação de tensões.',
++  },
++  {
++    symbol: 'ρ₆',
++    name: 'Compensação',
++    l1: 'A camada mais profunda: quando a fraqueza de uma parte é exatamente a força de outra — e o encontro das duas gera algo que nenhuma tinha sozinha. A diferença vira valor.',
++    l2: 'Compensação exige duas condições simultâneas: complementaridade (o déficit de um elemento é o superávit do outro) e emergência (a composição vale mais que a soma das partes). É a relação mais exigente da cadeia — e a mais rara.',
++    l3: 'x ρ₆ y ⟺ Δ(x) = −Δ(y) ∧ Ω(x ⊕ y) > Ω(x) + Ω(y), onde Δ é a função déficit/superávit, Ω a função de valor emergente e ⊕ a composição. Simétrica, não reflexiva, não transitiva em geral. Axioma 3: f_ρ₆(A) > 0 ⟹ Π(A) > Π_σ′(A).',
++    paperRef: 'Def. 3.6',
++    note: '"Compensação" não é relação canônica em nenhuma disciplina matemática — a Def. 3.6 é a única âncora, e ela é autoral. Não importar sentidos de economia ("trade-off"), finanças ou direito.',
++    engine: 'Conta vocábulos de contraste e emergência (mas, porém, embora, enquanto, complementar, compensação, emergência, emergente) combinados com os termos estruturais. Não detecta complementaridade de déficits nem valor emergente.',
++  },
++];
++
++const Layer: React.FC<{ label: string; children: React.ReactNode; className?: string }> = ({ label, children, className = '' }) => (
++  <div className={className}>
++    <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">{label}</p>
++    <p className="text-sm leading-relaxed text-slate-300">{children}</p>
++  </div>
++);
+ 
+ export const MetricGlossary: React.FC = () => {
+   return (
+@@ -10,40 +94,92 @@
+             FUNDAMENTAÇÃO TEÓRICA: ÁLGEBRA HEXARRELACIONAL
+           </CardTitle>
+           <CardDescription className="text-slate-400">
+-            Baseado no trabalho formal de Guilherme Gonçalves Machado (Zenodo, Fevereiro de 2026)[cite: 2].
++            Baseada no paper{' '}
++            <em>π√f(A): Uma Álgebra Hexa Relacional de Significância para Algoritmos</em>
++            {' '}(Guilherme Gonçalves Machado, Zenodo, 2026) ·{' '}
++            <a
++              href={ZENODO_URL}
++              target="_blank"
++              rel="noopener noreferrer"
++              className="inline-flex items-center gap-1 text-amber-300 hover:text-amber-200 underline underline-offset-2"
++            >
++              DOI 10.5281/zenodo.18776401 <ExternalLink className="h-3 w-3" />
++            </a>
+           </CardDescription>
+         </CardHeader>
+-        <CardContent className="space-y-6 font-mono text-sm">
+-          
++        <CardContent className="space-y-6 text-sm">
++          <div className="p-4 rounded-lg border border-amber-400/30 bg-amber-950/20">
++            <p className="text-xs uppercase tracking-widest text-amber-300 mb-2">Nota de leitura</p>
++            <p className="text-slate-300 leading-relaxed">
++              As descrições abaixo explicam o significado das relações <strong>no formalismo</strong>.
++              O engine experimental atual <strong>não identifica nem compara diretamente pares de
++              elementos</strong>; ele produz, para o artefato A, <strong>estimativas proxy</strong> dos
++              graus f_ρₖ(A) a partir de características superficiais observáveis. A camada
++              "Como é estimada nesta versão" de cada entrada descreve o cálculo efetivo.
++            </p>
++          </div>
++
+           <div className="p-4 bg-slate-900/60 rounded-lg border border-slate-700">
+-            <h3 className="text-lg font-bold text-amber-500 mb-2">As 6 Relações de Significância (ρ₁ a ρ₆)</h3>
+-            <p className="text-slate-400 text-xs mb-4">
+-              Formam uma hierarquia ontológica estrita de profundidade, onde cada relação superior implica logicamente a anterior[cite: 18, 30]:
++            <p className="text-slate-300 leading-relaxed">
++              O formalismo estabelece uma <strong>cadeia teórica de implicação</strong> entre as seis
++              relações: <code className="text-amber-300">ρ₆ ⇒ ρ₅ ⇒ ρ₄ ⇒ ρ₃ ⇒ ρ₂ ⇒ ρ₁</code> (Teorema 3.1).
++              Perfis observados podem apresentar <strong>desvios dessa cadeia</strong>; o formalismo os
++              trata como <strong>anomalias mensuráveis</strong> — não como erro, mas como diagnóstico
++              (Cap. 4 do paper).
+             </p>
+-            <ul className="space-y-3 text-slate-300">
+-              <li><strong className="text-amber-300">ρ₁ - Similitude:</strong> A relação mais superficial. Baseia-se na semelhança perceptual ou proximidade num espaço de características[cite: 19, 20].</li>
+-              <li><strong className="text-amber-300">ρ₂ - Homologia:</strong> Correspondência de estrutura interna entre elementos, formalizada por homomorfismos estruturais[cite: 20, 21].</li>
+-              <li><strong className="text-amber-300">ρ₃ - Equivalência:</strong> Substituibilidade funcional de um elemento por outro em qualquer contexto relevante[cite: 22, 23].</li>
+-              <li><strong className="text-amber-300">ρ₄ - Simetria:</strong> Governada por um grupo de transformações reversíveis (involutivas) que conectam os elementos[cite: 24, 25].</li>
+-              <li><strong className="text-amber-300">ρ₅ - Equilíbrio:</strong> Estabilidade dinâmica ou estática baseada na anulação mútua de potenciais, forças ou tensões estruturais[cite: 26, 27].</li>
+-              <li><strong className="text-amber-300">ρ₆ - Compensação:</strong> A relação mais profunda. Envolve a complementaridade estrita e a emergência de valor superior à soma das partes[cite: 28, 29].</li>
+-            </ul>
++          </div>
++
++          <div className="space-y-4">
++            {RELATIONS.map((rel) => (
++              <div key={rel.symbol} className="p-4 bg-slate-900/60 rounded-lg border border-slate-700 space-y-3">
++                <div className="flex flex-wrap items-center gap-3">
++                  <h3 className="text-lg font-bold text-amber-300 font-mono">
++                    {rel.symbol} — {rel.name}
++                  </h3>
++                  <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-amber-400/40 text-amber-300">
++                    estimador proxy
++                  </span>
++                  <span className="text-[10px] uppercase tracking-widest text-slate-500">
++                    {rel.paperRef} do paper
++                  </span>
++                </div>
++                <Layer label="Em linguagem simples">{rel.l1}</Layer>
++                <Layer label="No formalismo HexaSign">{rel.l2}</Layer>
++                <Layer label="Definição formal (paper)" className="border-l-2 border-amber-400/40 pl-3">
++                  <span className="font-mono text-xs">{rel.l3}</span>
++                </Layer>
++                {rel.note && <Layer label="Nota terminológica">{rel.note}</Layer>}
++                <Layer label="Como é estimada nesta versão" className="rounded-md bg-slate-950/70 border border-slate-800 p-3">
++                  <span className="text-slate-400">{rel.engine}</span>
++                </Layer>
++              </div>
++            ))}
+           </div>
+ 
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <div className="p-4 bg-slate-900/60 rounded-lg border border-slate-700">
+-              <h3 className="text-lg font-bold text-amber-500 mb-2">Norma Áurea f(A)</h3>
+-              <p className="mb-2">Pondera o vetor de significância utilizando as potências da razão áurea (φ ≈ 1.618)[cite: 36, 37].</p>
+-              <code className="text-amber-300 bg-slate-950 p-2 block rounded">f(A) = √( Σ [ φ^(k-1) · (ρ_k)² ] )</code>
++              <h3 className="text-lg font-bold text-amber-500 mb-2">Norma áurea f(A)</h3>
++              <p className="mb-2 text-slate-400">
++                Pondera o vetor de significância f⃗(A) pelas potências da razão áurea (φ ≈ 1.618),
++                dando mais peso às relações mais profundas (Def. 5.2).
++              </p>
++              <code className="text-amber-300 bg-slate-950 p-2 block rounded">f(A) = √( Σₖ φ^(k−1) · [f_ρₖ(A)]² )</code>
+             </div>
+ 
+             <div className="p-4 bg-slate-900/60 rounded-lg border border-slate-700">
+               <h3 className="text-lg font-bold text-amber-500 mb-2">Operador Π-radical (Π(A))</h3>
+-              <p className="mb-2">Aplica o expoente transcendente e irracional 1/π sobre a norma áurea[cite: 3, 40].</p>
++              <p className="mb-2 text-slate-400">
++                Aplica o expoente 1/π sobre a norma áurea, comprimindo o vetor em um único
++                escalar de significância (Def. 6.1).
++              </p>
+               <code className="text-amber-300 bg-slate-950 p-2 block rounded">Π(A) = [f(A)]^(1/π)</code>
+             </div>
+           </div>
+ 
++          <p className="text-xs text-slate-500 leading-relaxed">
++            Notação: ρᵢ é o nome da relação; f_ρᵢ(A) é o grau da relação no artefato; f⃗(A) é o vetor de
++            significância; f(A) é a norma áurea; Π(A) é o operador π-radical.
++          </p>
+         </CardContent>
+       </Card>
+     </div>

@@ -53,7 +53,7 @@ export const SignificanceOptimizer: React.FC = () => {
             SIMULADOR HEXARRELACIONAL
           </CardTitle>
           <CardDescription className="text-slate-400">
-            Ajuste os vetores relacionais (ρ₁ a ρ₆) para observar o comportamento determinístico em tempo real[cite: 37, 40].
+            Ajuste os vetores relacionais (ρ₁ a ρ₆) para observar o comportamento determinístico em tempo real.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 font-mono">
