@@ -3,7 +3,7 @@ const RELATION_KEYS = ['similitude','homology','equivalence','symmetry','equilib
 // T1.5b — blacklist de overclaim: padrões que transformam estimativa de proxy
 // em afirmação sobre a relação formal (regra de gate proposta por Luna).
 // Apenas padrões de AFIRMAÇÃO — mencionar o conceito com cautela não é rejeitado.
-const OVERCLAIM_PATTERNS = [
+export const OVERCLAIM_PATTERNS = [
   { re: /\bperfei(ção|to|ta|tos|tas)\b/i, code: 'OVERCLAIM_PERFECTION' },
   { re: /(forte|claro|evidente|completo|total|verdadeiro)\s+homomorfismo/i, code: 'OVERCLAIM_HOMOMORPHISM_ASSERTED' },
   { re: /homomorfismo\s+entre\s+(os|as|seus|suas)\b/i, code: 'OVERCLAIM_HOMOMORPHISM_ASSERTED' },

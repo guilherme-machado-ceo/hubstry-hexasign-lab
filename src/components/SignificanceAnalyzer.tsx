@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { analyzeSignificance, HexaMetrics } from '@/lib/hexa-engine';
+import { readProfile } from '@/lib/profile-reading';
 import { requestMaaSObservation, ObservationRejectedError } from '@/lib/ai/client';
 import type { AIObservationResult } from '@/lib/ai/types';
 import HexaRadar from './HexaRadar';
-import { CheckCircle2, Sparkles, ShieldCheck, Loader2 } from 'lucide-react';
+import { CheckCircle2, Sparkles, ShieldCheck, Loader2, BookOpen } from 'lucide-react';
 
 const HISTORY_KEY = 'hexa-history';
 
@@ -137,6 +138,38 @@ export const SignificanceAnalyzer: React.FC = () => {
 
       <div className="space-y-4">
         <HexaRadar metrics={metrics} />
+        {metrics && (() => {
+          const reading = readProfile(metrics);
+          return (
+            <Card className="border-slate-800 bg-slate-950/70">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-300">
+                  <BookOpen className="h-4 w-4 text-amber-300" /> Leitura do perfil
+                </CardTitle>
+                <CardDescription className="text-slate-500">
+                  Interpretação determinística do vetor estimado — não é demonstração das relações formais.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm leading-relaxed text-slate-300">
+                {([
+                  ['Panorama', reading.panorama],
+                  ['Destaques', reading.destaques],
+                  ['Estrutura', reading.estrutura],
+                ] as const).map(([section, lines]) => (
+                  lines.length > 0 && (
+                    <div key={section}>
+                      <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-slate-500">{section}</div>
+                      <ul className="list-inside list-disc space-y-1">
+                        {lines.map((line) => <li key={line}>{line}</li>)}
+                      </ul>
+                    </div>
+                  )
+                ))}
+                <p className="border-t border-slate-800 pt-3 text-xs text-slate-500">{reading.limitacao}</p>
+              </CardContent>
+            </Card>
+          );
+        })()}
         {metrics && (
           <Card className="border-slate-800 bg-slate-950/70">
             <CardHeader className="pb-3">
