@@ -31,11 +31,11 @@ export interface ProfileReading {
 // Crivo complementar específico da gramática determinística (M2).
 export const READING_FORBIDDEN_PATTERNS = [
   {
-    re: /\b(alta|alto|baixa|baixo|forte|fraca|fraco|elevada|elevado)\s+(similitude|homologia|equival[êe]ncia|simetria|equil[íi]brio|compensa[çc][ãa]o)\b|\b(similitude|homologia|equival[êe]ncia|simetria|equil[íi]brio|compensa[çc][ãa]o)\s+[ée]\s+(alta|alto|baixa|baixo|forte|fraca|fraco|elevada|elevado)\b/i,
+    re: /\b(alta|alto|baixa|baixo|forte|fraca|fraco|elevada|elevado)\s+(similitude|homologia|equival[êe]ncia|simetria|equil[íi]brio|compensa[çc][ãa]o)\b|\b(similitude|homologia|equival[êe]ncia|simetria|equil[íi]brio|compensa[çc][ãa]o)\s+(é|está|esta|apresenta)\s+(alta|alto|baixa|baixo|forte|fraca|fraco|elevada|elevado)\b/i,
     code: 'READING_ABS_MAGNITUDE',
   },
   {
-    re: /\bo\s+artefato\s+[ée]\s+(equilibrado|sim[ée]trico|homog[êe]neo|coeso|bom|ruim|fraco|forte|consistente|bem\s+escrito|mal\s+escrito)\b/i,
+    re: /\b(o|a|este|esta|esse|essa)?\s*(artefato|texto|c[óo]digo|documento)\s+(é|está|esta|apresenta|demonstra|possui|exibe)\s+(equilibrad[oa]|sim[ée]tric[oa]|homog[êe]ne[oa]|coes[oa]|bom|boa|ruim|frac[oa]|forte|consistente|excelente|perfeit[oa]|bem\s+escrit[oa]|mal\s+escrit[oa])\b/i,
     code: 'READING_ARTIFACT_QUALITY',
   },
   {
@@ -49,6 +49,10 @@ export const READING_FORBIDDEN_PATTERNS = [
   {
     re: /(\bα\b|\balfa\b|\banomalia\b|desvio\s+de\s+hierarquia)/i,
     code: 'READING_ANOMALY',
+  },
+  {
+    re: /\b(melhor|pior)\b/i,
+    code: 'READING_COMPARATIVE',
   },
 ] as const;
 
@@ -70,6 +74,12 @@ const listRhos = (
 
 export const readProfile = (metrics: HexaMetrics): ProfileReading => {
   const entries = RELACOES.map((r) => ({ ...r, v: Number(metrics[r.key]) }));
+  // Guarda de entrada (MS-01.1 P2-a): apenas valores finitos em [0,1].
+  for (const e of entries) {
+    if (!Number.isFinite(e.v) || e.v < 0 || e.v > 1) {
+      throw new Error(`readProfile: valor inválido em ${e.key} (${e.v})`);
+    }
+  }
   const values = entries.map((e) => e.v);
   const max = Math.max(...values);
   const min = Math.min(...values);
@@ -92,18 +102,21 @@ export const readProfile = (metrics: HexaMetrics): ProfileReading => {
   for (const s of saturated) {
     destaques.push(`${s.rho} (${s.nome}) atinge a saturação do estimador.`);
   }
-  // M3 — vetor homogêneo: R6 tem precedência; R2–R5 são suprimidas.
-  if (!homogeneous) {
-    // R2/R3 — maior valor; omite quando o máximo já está listado como saturação (redundante).
-    const maxIsSaturated = maxTied.every((e) => e.v >= 1 - EPS_EMPATE);
-    if (!maxIsSaturated) {
-      destaques.push(
-        maxTied.length === 1
-          ? `${maxTied[0].rho} (${maxTied[0].nome}) apresenta o maior valor estimado do perfil (${pct(max)}).`
-          : `${listRhos(maxTied)} dividem o maior valor estimado do perfil (${pct(max)}).`,
-      );
-    }
-    // R4/R5 — menor valor relativo.
+  // M3′ (MS-01.1) — supressão por EMPATE, não por amplitude: um extremo só é
+  // declarado quando seu grupo empatado tem ≤ 4 dimensões; grupos de 5–6 são
+  // implícitos pela exceção declarada do outro lado. (M3 original suprimia por
+  // amp ≤ 0,15 e escondia a dimensão não-saturada em vetores como [1×5, 0.9].)
+  const maxIsSaturated = maxTied.every((e) => e.v >= 1 - EPS_EMPATE);
+  // R2/R3 — maior valor; omite quando o máximo já está listado como saturação.
+  if (!maxIsSaturated && maxTied.length <= 4) {
+    destaques.push(
+      maxTied.length === 1
+        ? `${maxTied[0].rho} (${maxTied[0].nome}) apresenta o maior valor estimado do perfil (${pct(max)}).`
+        : `${listRhos(maxTied)} dividem o maior valor estimado do perfil (${pct(max)}).`,
+    );
+  }
+  // R4/R5 — menor valor relativo.
+  if (minTied.length <= 4) {
     destaques.push(
       minTied.length === 1
         ? `${minTied[0].rho} (${minTied[0].nome}) apresenta o menor valor relativo do perfil (${pct(min)}).`
