@@ -47,17 +47,17 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 #### Critérios gerais
 
 1. QUANDO um mapeamento for avaliado, O SISTEMA DEVE calcular ρ₁ a ρ₆ conforme as Definições 4 a 9 [v2 §3] e as convenções operacionais abaixo, com valores finitos no intervalo [0, 1].
-2. SE a fonte ou o mapeamento não oferecer material avaliável para uma relação, ENTÃO O SISTEMA DEVE reportar o valor como indefinido (`null`), nunca como zero ou `NaN`.
-3. QUANDO os seis limiares binários forem fornecidos pela configuração, O SISTEMA DEVE reportar a versão binária de cada relação definida. Uma relação indefinida permanece `null`. Sem esses limiares, o perfil binário DEVE ser omitido.
+2. SE as convenções específicas de uma relação determinarem que não há material avaliável, ENTÃO O SISTEMA DEVE reportar o valor como indefinido (`null`), nunca como zero ou `NaN`.
+3. QUANDO os seis limiares binários forem fornecidos pela configuração, O SISTEMA DEVE reportar a versão binária de cada relação definida. Uma relação indefinida permanece `null`. Assim, o perfil limiarizado admite 3⁶ = 729 estados; os 64 estados de `{0,1}⁶` são o subconjunto sem valores indefinidos. Sem esses limiares, o perfil binário DEVE ser omitido.
 4. O SISTEMA DEVE registrar no resultado a versão da definição usada para cada uma das seis relações.
 5. Valores intermediários que participem de ordenação DEVEM ser quantizados a doze casas decimais antes da comparação, conforme o Requisito 7.
 
 #### ρ₁, similitude
 
 6. Atributos são comuns quando têm o mesmo nome e tipo; atributos numéricos também DEVEM ter a mesma unidade. Um atributo presente nos dois lados com tipos diferentes ou, no caso numérico, unidades diferentes permanece uma única vez na união e contribui zero para a concordância.
-7. Um atributo presente em apenas uma entidade contribui zero para o numerador e um para o denominador da similitude local.
+7. Para cada entidade da fonte com ao menos um atributo, O SISTEMA DEVE calcular uma contribuição local. Se a entidade não estiver mapeada, sua contribuição é zero. Se estiver mapeada, atributo presente em apenas um lado contribui zero para o numerador e um para o denominador local.
 8. Para atributos numéricos, dois valores iguais a zero DEVEM ter concordância 1. Nos demais casos, aplica-se a fórmula da Definição 4.
-9. Uma entidade pareada sem qualquer atributo na união tem similitude local indefinida e é omitida da média. Se nenhum par tiver similitude local definida, ρ₁ DEVE ser `null`.
+9. ρ₁ DEVE ser a soma das contribuições locais dividida pela quantidade de entidades da fonte com ao menos um atributo. Entidades da fonte sem atributos ficam fora, mesmo quando mapeadas para uma entidade-alvo com atributos. Se nenhuma entidade da fonte tiver atributos, ρ₁ DEVE ser `null`.
 
 #### ρ₂, homologia
 
@@ -69,8 +69,8 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 #### ρ₃, equivalência
 
 14. O papel de uma entidade DEVE considerar somente ocorrências diretas como argumento de relações. Para predicados simétricos, a posição é representada por uma posição canônica única, independente da ordem.
-15. O índice de Jaccard entre dois conjuntos de papéis vazios DEVE ser 1. Se o mapeamento não contiver pares, ρ₃ DEVE ser `null`.
-16. As propriedades de simetria e transitividade de ρ₃ só são assumidas sob um vocabulário normalizado por correspondências unitárias, não conflitantes e compatíveis com o Requisito 1.10.
+15. Todas as entidades da fonte DEVEM entrar no denominador de ρ₃. Entidade não mapeada contribui zero. Para entidade mapeada, a contribuição é o índice de Jaccard entre os papéis; dois conjuntos de papéis vazios têm Jaccard 1. Se a fonte não tiver entidades, ρ₃ DEVE ser `null`.
+16. Reflexividade, simetria e transitividade se aplicam à igualdade binária local de papéis sob vocabulário normalizado por correspondências unitárias, não conflitantes e compatíveis com o Requisito 1.10. O escore agregado ρ₃ é direcional por usar todas as entidades da fonte como denominador.
 
 #### ρ₄, simetria
 
@@ -100,7 +100,7 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 
 #### Conformidade teórica
 
-34. A implementação DEVE satisfazer as Proposições 1 e 2 da teoria v2 sob as precondições declaradas: isomorfismo implica ρ₃ binário igual a 1 sob vocabulário compatível; e `ρ₂ = 1` implica preservação das oposições predicativas e das instâncias de emergência, sem inferir complementaridade de capacidades.
+34. A implementação DEVE satisfazer as Proposições 1 e 2 da teoria v2 sob as precondições declaradas: isomorfismo implica ρ₃ binário igual a 1 sob vocabulário compatível; e `ρ₂ = 1`, junto da compatibilidade de classe exigida pelo Requisito 1.10, preserva instâncias de oposição como oposição e instâncias de emergência como emergência, sem garantir a complementaridade por capacidades.
 
 ### Requisito 3: modalidades de analogia
 
@@ -176,7 +176,7 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 
 1. O SISTEMA DEVE oferecer uma CLI (Command-Line Interface, interface de linha de comando) com os comandos `mapear`, `inferir`, `buscar` e `validar`.
 2. O SISTEMA DEVE oferecer uma API HTTP com os mesmos três comandos de criação, recebendo e devolvendo JSON.
-3. O SISTEMA DEVE oferecer uma página web que carregue dois domínios, execute `mapear` e exiba perfil, mapeamento, diagnóstico, alertas e inferências.
+3. O SISTEMA DEVE oferecer uma página web que carregue dois domínios, execute `mapear` e exiba perfil, mapeamento, diagnóstico, alertas e inferências. A busca e a avaliação dos mapeamentos DEVEM rodar em um Web Worker.
 4. Os limites configuráveis padrão por domínio DEVEM ser: 200 entidades, 1.000 relações, 200 predicados, aridade 16, profundidade relacional 100 e 100 atributos por entidade.
 5. O limite padrão de biblioteca DEVE ser 100 alvos. `k` NÃO DEVE exceder o tamanho da biblioteca.
 6. A busca gulosa DEVE interromper-se com erro determinístico de orçamento antes de exceder os limites configurados de hipóteses locais e núcleos. O padrão é 250.000 hipóteses locais e 50.000 núcleos materializados ou pendentes.
@@ -190,13 +190,13 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 
 #### Critérios de aceitação
 
-1. O SISTEMA DEVE incluir um conjunto de casos clássicos da literatura do SME, codificados à mão, com o mapeamento e as inferências candidatas esperados (H1). Cada caso DEVE declarar as inferências esperadas antes da execução; por exemplo, no par sistema solar/átomo, a relação causal entre atração e órbita projetada no átomo.
-2. H1 só é aprovado quando o mapeamento está correto e todas as inferências esperadas estão presentes em todos os casos. Inferências extras DEVEM ser listadas e contadas separadamente, mas não reprovam H1.
-3. O SISTEMA DEVE incluir um gerador determinístico de 40 pares controlados, dez por categoria de Gentner (H3).
-4. O teste H4 DEVE comparar o SHA-256 da saída canônica, e não apenas o hash da entrada, em 1.000 execuções com coleções de entrada embaralhadas. A igualdade deve ser de 100% em Node.js e Chrome, ambos sobre o motor V8, executados em duas máquinas ou trabalhadores independentes. O pré-registro DEVE declarar como limitação conhecida que outros motores JavaScript podem divergir no último dígito de `Math.log` em casos na fronteira da tolerância de ρ₄.
+1. O SISTEMA DEVE incluir um conjunto de casos clássicos da literatura do SME, codificados à mão e executados na modalidade homológica, com o mapeamento e as inferências candidatas esperados (H1). Cada caso DEVE declarar as inferências esperadas antes da execução; por exemplo, no par sistema solar/átomo, a relação causal entre atração e órbita projetada no átomo.
+2. H1 só é aprovado quando o mapeamento está correto e todas as inferências esperadas estão presentes em todos os casos. Inferências extras DEVEM ser listadas e contadas separadamente, mas não reprovam H1. Em caso de fracasso, DEVEM ser examinadas primeiro a codificação dos domínios e depois a busca.
+3. H3 DEVE ser descrito como teste de regressão do diagnóstico de Gentner, não como validação independente, porque seu gerador determinístico usa as mesmas regras do classificador. Seus 40 pares, dez por categoria, DEVEM incluir casos claros e casos próximos dos limiares. O sucesso exige acurácia de classificação de pelo menos 0,85.
+4. O teste H4 DEVE comparar o SHA-256 da saída canônica, e não apenas o hash da entrada, em 1.000 execuções com coleções de entrada embaralhadas. O conjunto exato das 1.000 entradas DEVE ser fixado no pré-registro por manifesto de identificadores e resumos canônicos ou por regra determinística e semente que o reproduzam integralmente. A igualdade deve ser de 100% em Node.js e Chrome, ambos sobre o motor V8, executados em duas máquinas ou trabalhadores independentes. O pré-registro DEVE declarar como limitação conhecida que outros motores JavaScript podem divergir no último dígito de `Math.log` em casos na fronteira da tolerância de ρ₄.
 5. O teste H4 é uma validação grande e só DEVE ser executado mediante solicitação expressa do autor.
-6. O SISTEMA DEVE incluir uma busca exata para domínios de até oito entidades e um relatório da perda da busca gulosa (H5). O sucesso exige perda mediana zero e perda máxima não superior a 5%.
-7. Para cada caso de H5, `exato` e `guloso` são os valores do primeiro critério da tupla da modalidade no melhor resultado de cada busca, depois do filtro obrigatório. Ausência de resultado elegível vale zero. A perda é `(exato - guloso) / exato`; quando ambos forem zero, a perda é definida como zero. A fórmula, a população de casos e o tratamento de empates DEVEM ser registrados antes da execução.
+6. O SISTEMA DEVE incluir uma busca exata para domínios de até oito entidades e um relatório da perda da busca gulosa (H5), sobre casos produzidos por um gerador determinístico fixado no pré-registro. O sucesso exige perda mediana zero e perda máxima não superior a 5%; a conclusão fica limitada a domínios com até oito entidades.
+7. Para cada caso de H5, `exato` e `guloso` são os valores do primeiro critério da tupla da modalidade no melhor resultado de cada busca, depois do filtro obrigatório. Ausência de resultado elegível vale zero. A perda é `(exato - guloso) / exato`; quando ambos forem zero, a perda é definida como zero. A fórmula, o gerador, a população de casos e o tratamento de empates DEVEM ser registrados antes da execução.
 8. Os critérios de H1 a H5, inclusive H2 pós-MVP, DEVEM ser gravados em arquivo versionado e commitados antes da primeira implementação ou execução de código de validação.
 9. Resultados experimentais DEVEM ser gravados separadamente do pré-registro, com versão do motor, versão e hash da configuração, ambiente, hash das entradas e hash das saídas. Um fracasso DEVE ser registrado e não pode ser corrigido por alteração retroativa de limiar.
 

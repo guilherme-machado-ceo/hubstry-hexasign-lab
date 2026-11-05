@@ -10,9 +10,11 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
 
 - [ ] 1. Pré-registro e configuração
   - Criar `validacao/criterios.v1.md` com H1 a H5, métricas, populações, limiares de sucesso, tratamento de empates e decisões em caso de fracasso, conforme a teoria v2 e o Requisito 10.
-  - Registrar H1 com mapeamentos e inferências candidatas esperados; exigir todas as inferências esperadas e apenas listar e contar inferências extras.
-  - Registrar H5 com perda `(exato - guloso) / exato` no primeiro critério da tupla da modalidade, perda zero quando ambos forem zero, mediana zero e máxima não superior a 5%.
+  - Registrar H1 na modalidade homológica, com mapeamentos e inferências candidatas esperados; exigir todas as inferências esperadas e apenas listar e contar inferências extras. Em caso de fracasso, fixar a ordem de exame: primeiro a codificação dos domínios, depois a busca.
+  - Registrar H3 como teste de regressão do diagnóstico de Gentner, com casos claros e casos próximos dos limiares, reconhecendo que o gerador usa as mesmas regras do classificador.
+  - Registrar H5 com casos de um gerador determinístico, perda `(exato - guloso) / exato` no primeiro critério da tupla da modalidade, perda zero quando ambos forem zero, mediana zero, máxima não superior a 5% e conclusão limitada a oito entidades.
   - Registrar H4 como igualdade de 100% dos hashes da saída canônica em Node.js e Chrome, ambos sobre V8, em duas máquinas ou trabalhadores independentes.
+  - Fixar no pré-registro o conjunto exato das 1.000 entradas de H4 por manifesto de identificadores e resumos ou por regra determinística e semente que o reproduzam integralmente.
   - Registrar como limitação de H4 que outros motores JavaScript podem divergir no último dígito de `Math.log` em casos na fronteira da tolerância de ρ₄.
   - Registrar H2 como validação pós-MVP, sem executá-la.
   - Criar `config/modalidades.v1.json` com os valores provisórios do design, inclusive `semanticaRho6: "emergencia-v1"`, ordem homológica, tolerâncias e limites de recurso.
@@ -44,14 +46,16 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
 
 - [ ] 4. As seis relações
   - [ ] 4.1 Implementar ρ₁ similitude.
-    - Cobrir zero-zero, atributo ausente, união vazia, mapeamento vazio, tipo ou unidade incompatível, números extremos e média com pares locais indefinidos.
+    - Cobrir zero-zero, atributo ausente, união vazia, tipo ou unidade incompatível, números extremos, entidade-fonte sem atributos e contribuição zero de entidade-fonte avaliável não mapeada.
+    - Verificar que o denominador é a quantidade fixa de entidades da fonte com ao menos um atributo, impedindo que um mapeamento mínimo obtenha vantagem por baixa cobertura.
     - _Requisitos: 2.1, 2.2, 2.5–2.9_
   - [ ] 4.2 Implementar ρ₂ homologia e detecção de isomorfismo.
     - Resolver relações aninhadas em ordem topológica; fonte sem relações produz `null`; argumentos sem imagem contam como não preservados.
     - Testar identidade e distinguir preservação relacional completa do suporte de isomorfismo total.
     - _Requisitos: 2.1, 2.2, 2.10–2.13_
   - [ ] 4.3 Implementar ρ₃ equivalência por papéis diretos.
-    - Cobrir Jaccard vazio-vazio, posição `*`, mapeamento vazio e correspondências unitárias.
+    - Cobrir Jaccard vazio-vazio, posição `*`, fonte vazia, correspondências unitárias e contribuição zero de entidade-fonte não mapeada.
+    - Verificar que todas as entidades da fonte entram no denominador e que o escore agregado é direcional.
     - _Requisitos: 2.1–2.3, 2.14–2.16_
   - [ ] 4.4 Implementar ρ₄ simetria.
     - Usar mediana dos logaritmos das razões alvo/fonte, tolerância logarítmica e somente razões positivas e finitas.
@@ -60,7 +64,7 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - _Requisitos: 2.1–2.3, 2.17–2.22_
   - [ ] 4.5 Implementar ρ₅ equilíbrio.
     - Enumerar pares não ordenados, aceitar no máximo um potencial, cobrir zero-zero, unidades, pares parcialmente mapeados, oposição e mudança de mecanismo.
-    - Testar que resíduos de ajuste nunca são usados.
+    - Escrever teste de propriedade que altera atributos não declarados como potencial e verifica que ρ₅ não muda.
     - _Requisitos: 1.6, 1.7, 2.1–2.3, 2.23–2.28_
   - [ ] 4.6 Implementar ρ₆ compensação com a semântica provisória `emergencia-v1`.
     - Cobrir disjunção dois a dois, cobertura das capacidades exigidas, capacidades extras, argumento sem imagem e fonte sem emergência.
@@ -70,7 +74,7 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - _Requisitos: 2.1–2.5, 4.2_
   - [ ] 4.8 Testar as Proposições 1 e 2 da teoria v2 como conformidade teórica independente.
     - Isomorfismo implica ρ₃ binário igual a 1 sob vocabulário compatível.
-    - `ρ₂ = 1` implica preservação das oposições predicativas e das instâncias de emergência; complementaridade por atributos não é inferida.
+    - `ρ₂ = 1`, com compatibilidade de classe nas correspondências, implica oposição preservada como oposição e emergência preservada como emergência; complementaridade por capacidades não é garantida.
     - _Requisito: 2.34; teoria v2 §4, Proposições 1 e 2_
 
 - [ ] 5. Busca e orçamento
@@ -78,6 +82,7 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - Aplicar o limite configurado antes de materialização desproporcional.
     - _Requisitos: 4.1, 9.6, 9.8_
   - [ ] 5.2 Implementar núcleos estruturalmente consistentes com travessia iterativa, memoização de sub-relações, injetividade e chave canônica.
+    - Definir relação de nível mais alto como aquela que não é argumento de nenhuma outra relação do domínio.
     - Aplicar os limites de profundidade e núcleos.
     - _Requisitos: 4.1, 7.9, 9.4, 9.6, 9.8_
   - [ ] 5.3 Implementar profundidade e sistematicidade como preservação ponderada por `1 + profundidade`.
@@ -87,6 +92,7 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - _Requisitos: 3.1–3.3, 4.1, 7.5, 7.9_
   - [ ] 5.5 Implementar busca exata por ramificação e poda admissível para até oito entidades.
     - Considerar o espaço de 1.441.729 mapeamentos parciais injetivos em 8×8 antes da poda.
+    - Para ρ₁ e ρ₃, calcular o limite superior com denominador fixo e contribuição máxima 1 para cada entidade ainda não decidida.
     - Não podar igualdade enquanto a chave canônica puder alterar o desempate.
     - Registrar nós visitados, podados e avaliados.
     - _Requisitos: 9.7, 10.6, 10.7_
@@ -125,19 +131,21 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
   - Incluir entre as expectativas do caso sistema solar/átomo a relação causal entre atração e órbita projetada no átomo.
   - Rodar a modalidade homológica e gravar o resultado sem alterar critérios ou limiares.
   - Exigir todas as inferências esperadas; listar e contar inferências extras sem reprovar H1.
-  - Se algum mapeamento ou inferência esperada falhar, registrar o fracasso e consultar o autor antes de prosseguir para outra validação.
+  - Se algum mapeamento ou inferência esperada falhar, registrar o fracasso, examinar primeiro a codificação dos domínios e depois a busca, e consultar o autor antes de prosseguir para outra validação.
   - _Requisitos: 10.1, 10.2, 10.9_
 
-- [ ] 10. Validação H3, H4 e H5
-  - [ ] 10.1 Implementar o gerador determinístico de 40 pares controlados, dez por categoria de Gentner, e o relatório de acurácia H3.
+- [ ] 10. Testes H3, H4 e H5
+  - [ ] 10.1 Implementar o gerador determinístico de 40 pares, dez por categoria, e o relatório de acurácia H3 como teste de regressão do diagnóstico de Gentner.
+    - Incluir casos claros e casos próximos dos limiares e declarar que o gerador usa as mesmas regras do classificador.
     - _Requisitos: 10.3, 10.9_
   - [ ] 10.2 Preparar o teste H4 para 1.000 execuções com coleções-set embaralhadas, comparando o SHA-256 da saída canônica em Node.js e Chrome, ambos sobre V8, em duas máquinas ou trabalhadores independentes.
+    - Usar somente o conjunto de entradas fixado no pré-registro e verificar seus identificadores ou resumos antes da execução.
     - Registrar no relatório a limitação conhecida para outros motores JavaScript na fronteira de `Math.log` em ρ₄.
     - Não executar H4 sem pedido expresso do autor.
     - _Requisitos: 7.1–7.9, 10.4, 10.5, 10.9_
-  - [ ] 10.3 Comparar a busca gulosa com a exata em domínios de até oito entidades, usando a métrica pré-registrada.
+  - [ ] 10.3 Comparar a busca gulosa com a exata em domínios de até oito entidades, usando a métrica pré-registrada e casos de um gerador determinístico fixado no pré-registro.
     - Calcular a perda como `(exato - guloso) / exato` no primeiro critério da tupla da modalidade; usar zero quando ambos forem zero.
-    - Verificar perda mediana zero e perda máxima não superior a 5%.
+    - Verificar perda mediana zero e perda máxima não superior a 5% e limitar explicitamente a conclusão a domínios com até oito entidades.
     - Registrar contagens de nós, podas, tempo e pico de memória, sem alterar a regra de poda após observar os resultados.
     - _Requisitos: 9.7, 10.6, 10.7, 10.9_
   - [ ] 10.4 Gravar cada relatório em `validacao/resultados/`, separado do pré-registro, com versões, ambientes, hashes da configuração, entradas e saídas.
@@ -152,6 +160,7 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
 
 - [ ] 12. Página web mínima
   - Substituir a página atual por uma tela que carrega dois domínios JSON, escolhe a modalidade, executa `mapear` e exibe perfil, mapeamento, diagnóstico, alertas e inferências.
+  - Executar a busca e a avaliação dos mapeamentos em um Web Worker, mantendo a thread principal dedicada à entrada, ao cancelamento e à apresentação.
   - Aplicar os mesmos limites antes da busca e calcular SHA-256 com `crypto.subtle` sobre os bytes do canonizador compartilhado.
   - Garantir que cancelamento da interface não apresente resultado parcial como completo.
   - _Requisitos: 7.8, 9.3, 9.4, 9.8, 9.9_

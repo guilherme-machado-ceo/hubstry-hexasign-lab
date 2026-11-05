@@ -19,18 +19,18 @@ A contribuição que a v2 propõe ocupa exatamente esse limite. Em vez de uma no
 
 A v1 define o domínio da teoria como o conjunto de todos os algoritmos (p. 7). O relatório do Claude Science mostra que esse domínio torna a função f não computável, por força do teorema de Rice, segundo o qual propriedades semânticas não triviais de programas são indecidíveis. A v2 substitui esse domínio por objetos finitos e explicitamente descritos.
 
-**Definição 1 (domínio).** Um domínio é uma quádrupla D = (E, A, R, P), em que:
+**Definição 1 (domínio).** Um domínio é uma quádrupla D = (E, A, P, R), em que:
 
 - E é um conjunto finito de entidades, cada uma com identificador único;
 - A atribui a cada entidade um conjunto de atributos tipados, categóricos ou numéricos, estes com unidade declarada;
-- P é um conjunto de predicados, cada um com aridade, ordem dos argumentos e classe;
-- R é um conjunto finito de instâncias de relação p(x₁, …, xₖ), cujos argumentos são entidades ou outras instâncias de relação.
+- P é um conjunto de predicados, cada um com aridade, ordem dos argumentos, classe e um campo que declara se o predicado é simétrico;
+- R é um conjunto finito de instâncias de relação p(x₁, …, xₖ), cujos argumentos são entidades ou outras instâncias de relação, sem ciclos no grafo de dependência entre relações.
 
 A possibilidade de relações sobre relações merece destaque. Ela permite representar estruturas de ordem superior, como "a diferença de pressão causa o fluxo", em que "causa" relaciona duas outras relações. Na teoria de Gentner, é justamente a preservação dessas estruturas profundas que distingue uma analogia sólida de uma coincidência de superfície.
 
 As classes de predicado são três. A classe **comum** abrange as relações ordinárias. A classe **oposição** marca pares de entidades que se contrapõem, como direito e dever, ou entrada e saída. A classe **emergência** marca relações que só existem para a composição de duas ou mais entidades. As duas últimas classes não são ornamentais: elas dão às relações ρ₅ e ρ₆ o conteúdo concreto que a v1 deixou indefinido.
 
-**Definição 2 (correspondência entre vocabulários).** Os predicados de dois domínios correspondem quando têm o mesmo nome. Opcionalmente, uma tabela de correspondência fornecida na entrada declara predicados diferentes como correspondentes, com um peso entre 0 e 1. A tabela é dado de entrada, e não inferência do motor, o que preserva o determinismo.
+**Definição 2 (correspondência entre vocabulários).** Os predicados de dois domínios correspondem quando têm o mesmo nome e são compatíveis em aridade, classe e campo de simetria. Opcionalmente, uma tabela de correspondência fornecida na entrada declara predicados de nomes diferentes como correspondentes, também preservando aridade, classe e simetria, com um peso entre 0 e 1. A tabela é dado de entrada, e não inferência do motor, o que preserva o determinismo.
 
 **Definição 3 (mapeamento).** Um mapeamento M entre uma fonte S e um alvo T é uma função parcial e injetiva das entidades de S nas entidades de T. A injetividade é o critério de correspondência um-a-um do SME. O mapeamento induz uma imagem sobre as relações: a relação p(x₁, …, xₖ) de S corresponde à relação q(y₁, …, yₖ) de T quando p e q correspondem e cada yᵢ é a imagem de xᵢ. Para predicados declarados simétricos, a ordem dos argumentos é ignorada.
 
@@ -40,9 +40,9 @@ Na v1, cada relação é um teste: dadas duas coisas, verifica-se se elas se rel
 
 ### 3.1 ρ₁, similitude: proximidade de atributos
 
-**Definição 4.** Para cada par (s, M(s)), a similitude de atributos é a soma das concordâncias nos atributos comuns, dividida pelo número de atributos presentes em pelo menos uma das duas entidades. Um atributo categórico concorda com valor 1 quando os valores são iguais. Um atributo numérico concorda com valor 1 − min(1, |x − y| / (|x| + |y|)). Um atributo presente nas duas entidades, mas com tipos diferentes ou, no caso numérico, unidades diferentes, permanece na união e contribui zero para a concordância. O valor de ρ₁(M) é a média dessas similitudes sobre as entidades mapeadas.
+**Definição 4.** Para cada entidade s da fonte que possui ao menos um atributo, define-se uma contribuição local. Se s não está mapeada, sua contribuição é zero. Se s está mapeada, a contribuição é a soma das concordâncias nos atributos comuns de s e M(s), dividida pelo número de atributos presentes em pelo menos uma das duas entidades. Um atributo categórico concorda com valor 1 quando os valores são iguais. Um atributo numérico concorda com valor 1 − min(1, |x − y| / (|x| + |y|)). Um atributo presente nas duas entidades, mas com tipos diferentes ou, no caso numérico, unidades diferentes, permanece na união e contribui zero para a concordância. O valor de ρ₁(M) é a soma das contribuições locais dividida pela quantidade de entidades da fonte que possuem ao menos um atributo. Entidades da fonte sem atributos ficam fora do cálculo; se nenhuma entidade da fonte possui atributos, ρ₁(M) é indefinido.
 
-A definição é um caso particular da Def. 3.1 da v1 (p. 19-20), em que a projeção φ é o vetor de atributos e a distância d decorre da concordância. As propriedades declaradas na v1 se preservam: a versão binária é reflexiva e simétrica, mas não transitiva.
+A definição é um caso particular da Def. 3.1 da v1 (p. 19-20), em que a projeção φ é o vetor de atributos e a distância d decorre da concordância. A relação binária local preserva as propriedades declaradas na v1: é reflexiva e simétrica, mas não transitiva. O escore agregado ρ₁(M) é direcional, porque seu denominador mede a cobertura das entidades avaliáveis da fonte.
 
 ### 3.2 ρ₂, homologia: preservação de estrutura
 
@@ -54,9 +54,9 @@ Quando ρ₂(M) = 1, o mapeamento é um homomorfismo de S em T, em concordância
 
 A Def. 3.3 da v1 exige substituibilidade em todos os contextos de uma coleção 𝒞 (p. 23). Quantificar sobre todos os contextos possíveis não é computável, como observa o relatório (item M3). A v2 resolve a dificuldade fixando um conjunto finito de contextos, extraído do próprio domínio: as posições que cada entidade ocupa nas relações.
 
-**Definição 6.** O papel de uma entidade é o conjunto de pares (predicado, posição de argumento) em que ela aparece. A equivalência entre s e M(s) é o índice de Jaccard entre seus papéis, isto é, o tamanho da interseção dividido pelo tamanho da união, calculado sob a correspondência de predicados. O valor de ρ₃(M) é a média sobre as entidades mapeadas.
+**Definição 6.** O papel de uma entidade é o conjunto de pares (predicado, posição de argumento) em que ela aparece. Para cada entidade s da fonte, sua contribuição é zero quando s não está mapeada. Quando s está mapeada, sua contribuição é o índice de Jaccard entre os papéis de s e M(s), isto é, o tamanho da interseção dividido pelo tamanho da união, calculado sob a correspondência de predicados. O valor de ρ₃(M) é a soma das contribuições dividida pela quantidade total de entidades da fonte. Se a fonte não possui entidades, ρ₃(M) é indefinido.
 
-A versão binária, igualdade de papéis, é reflexiva, simétrica e transitiva, porque é igualdade de uma função das entidades. Cabe observar a diferença em relação a ρ₂. A homologia exige que as mesmas instâncias de relação se correspondam. A equivalência exige apenas que as entidades desempenhem os mesmos papéis, ainda que em configurações distintas. Essa é precisamente a noção de analogia funcional da TICA: elementos que cumprem a mesma função em seus respectivos sistemas.
+A relação binária local dada pela igualdade de papéis é reflexiva, simétrica e transitiva, porque é igualdade de uma função das entidades. O escore agregado ρ₃(M) é direcional, porque seu denominador mede a cobertura de todas as entidades da fonte. Cabe observar a diferença em relação a ρ₂. A homologia exige que as mesmas instâncias de relação se correspondam. A equivalência exige apenas que as entidades desempenhem os mesmos papéis, ainda que em configurações distintas. Essa é precisamente a noção de analogia funcional da TICA: elementos que cumprem a mesma função em seus respectivos sistemas.
 
 ### 3.4 ρ₄, simetria: invariância sob um grupo de transformações
 
@@ -82,15 +82,15 @@ A Def. 3.6 da v1 combina duas exigências: complementaridade, Δ(x) = −Δ(y), 
 
 **[Decisão do autor]** O relatório do Claude Science propõe outra leitura de ρ₆, como "acréscimo extrínseco", útil para auditar a fidelidade de textos gerados por IA (inteligência artificial). Aquela leitura transforma a compensação em sinal de risco e afasta-se do sentido original. A presente proposta preserva o sentido da v1. As duas leituras não são incompatíveis, mas pertencem a produtos distintos, e a escolha cabe ao autor.
 
-## 4. Perfil, ordem parcial e diagnóstico
+## 4. Perfil, implicações demonstradas e diagnóstico
 
-O perfil de um mapeamento é o vetor (ρ₁, …, ρ₆), com entradas possivelmente indefinidas. A versão binária é um ponto do reticulado {0,1}⁶ de 64 perfis da v1 (Def. 4.2, p. 33). Na v2, contudo, os 64 perfis são todos legítimos, e não apenas sete.
+O perfil de um mapeamento é o vetor (ρ₁, …, ρ₆), com entradas possivelmente indefinidas. Na versão limiarizada, cada coordenada pode assumir 0, 1 ou indefinido; portanto, há 3⁶ = 729 estados possíveis. Os 64 perfis de {0,1}⁶ da v1 (Def. 4.2, p. 33) são exatamente o subconjunto em que as seis relações estão definidas. Na v2, todos os 729 estados são legítimos.
 
-A mudança decorre do diagnóstico do relatório. O Teorema 3.1 da v1, a cadeia ρ₆ ⇒ ρ₅ ⇒ ρ₄ ⇒ ρ₃ ⇒ ρ₂ ⇒ ρ₁ (p. 30-31), não decorre das definições, e o Axioma 2 de monotonia (p. 58) é contrariado pelos próprios exemplos da v1. A v2 substitui ambos por uma ordem parcial que contém apenas implicações demonstráveis a partir das Definições 4 a 9. Duas proposições são candidatas, ambas com esboço de demonstração a completar.
+A mudança decorre do diagnóstico do relatório. O Teorema 3.1 da v1, a cadeia ρ₆ ⇒ ρ₅ ⇒ ρ₄ ⇒ ρ₃ ⇒ ρ₂ ⇒ ρ₁ (p. 30-31), não decorre das definições, e o Axioma 2 de monotonia (p. 58) é contrariado pelos próprios exemplos da v1. A v2 substitui ambos por um conjunto de implicações demonstradas a partir das Definições 4 a 9. As duas proposições abaixo compõem esse conjunto e recebem esboços de demonstração.
 
 **Proposição 1.** Se M é um isomorfismo, então a versão binária de ρ₃ vale para todas as entidades mapeadas. *Esboço:* o isomorfismo preserva cada instância de relação nos dois sentidos, portanto cada par (predicado, posição) de s reaparece em M(s), e vice-versa.
 
-**Proposição 2.** Se ρ₂(M) = 1, então os pares de equilíbrio definidos por predicados de oposição e as instâncias de emergência de S têm imagem em T. *Esboço:* essas estruturas são relações de S, e o homomorfismo preserva todas elas. A complementaridade de capacidades, por depender de atributos, não é garantida.
+**Proposição 2.** Se ρ₂(M) = 1, então toda instância de oposição de S tem como imagem uma instância de oposição em T, e toda instância de emergência de S tem como imagem uma instância de emergência em T. *Esboço:* oposição e emergência são classes de predicado; como as correspondências exigem compatibilidade de classe, e ρ₂(M) = 1 preserva todas as relações da fonte, essas instâncias são preservadas enquanto tais. A complementaridade de capacidades, por depender de atributos, não é garantida.
 
 Cabe notar que nenhuma das proposições liga a homologia à similitude. A ausência é deliberada e reproduz a distinção central de Gentner entre semelhança de atributos e semelhança de relações. Dessa distinção resulta o diagnóstico mais útil do motor, que retoma a ideia de anomalia da v1 (Def. 4.4, p. 35):
 
@@ -125,7 +125,7 @@ O motor oferece três operações, todas determinísticas.
 
 ## 7. Busca determinística
 
-Encontrar o melhor mapeamento entre duas estruturas é um problema combinatório difícil. A v2 adota, por isso, o procedimento guloso do SME, com regras de desempate fixas.
+Encontrar o melhor mapeamento entre duas estruturas é um problema combinatório difícil. A v2 adota, por isso, o procedimento guloso do SME, com regras de desempate fixas. Uma relação é de **nível mais alto** quando não é argumento de nenhuma outra relação do mesmo domínio.
 
 1. **Hipóteses locais.** Formam-se pares de instâncias de relação com predicados correspondentes e mesma aridade. Nas modalidades heurística e funcional, formam-se também pares de entidades por atributos e por papéis.
 2. **Núcleos.** Para cada par de relações de nível mais alto, desce-se recursivamente pelos argumentos e forma-se o maior mapeamento consistente com a injetividade.
@@ -150,7 +150,7 @@ Duas correções do relatório se aplicam diretamente. O ângulo entre perfis, �
 | M2, relações como especificações | Adotado | Definições 4 a 9, com versão e direção |
 | M3, ∀C não computável | Adotado | Contextos finitos dados pelos papéis (Def. 6) |
 | M4, ρ₅ e ρ₆ para fidelidade | Não adotado | Substituído por leitura fiel à v1 (Defs. 8 e 9); decisão do autor |
-| M5 e M6, cadeia e monotonia | Adotados | Ordem parcial demonstrável e diagnóstico (Seção 4) |
+| M5 e M6, cadeia e monotonia | Adotados | Conjunto de implicações demonstradas e diagnóstico (Seção 4) |
 | M7, irracionalidade de Π | Adotado | Removida do núcleo; pode ficar como problema aberto de teoria dos números |
 | M8 e M9, Π e pesos áureos | Adotados | Exibição opcional e pesos como política (Seção 8) |
 | M10, erros numéricos | Adotado | Errata da v1 com os valores recalculados (arquivos de verificação do relatório) |
@@ -167,17 +167,19 @@ Os critérios abaixo devem ser registrados, com data, antes de qualquer experime
 
 | Hipótese | Teste | Sucesso | Decisão em caso de fracasso |
 |---|---|---|---|
-| H1. O motor reproduz analogias clássicas | Casos codificados à mão da literatura do SME, como sistema solar e átomo de Rutherford, e fluxo de água e fluxo de calor, com mapeamentos e inferências candidatas esperados | Mapeamento de entidades correto e todas as inferências esperadas presentes em todos os casos; inferências extras são listadas e contadas, mas não reprovam H1 | Revisar a busca e a inferência antes de qualquer outro teste |
+| H1. O motor reproduz analogias clássicas | Casos codificados à mão da literatura do SME, executados na modalidade homológica, como sistema solar e átomo de Rutherford, e fluxo de água e fluxo de calor, com mapeamentos e inferências candidatas esperados | Mapeamento de entidades correto e todas as inferências esperadas presentes em todos os casos; inferências extras são listadas e contadas, mas não reprovam H1 | Em caso de fracasso, examinar primeiro a codificação dos domínios e depois a busca |
 | H2. O motor acerta mapeamentos fora dos exemplos clássicos | Subconjunto de 20 pares do conjunto SCAN (Czinczoll et al., 2022), que reúne analogias científicas e criativas com mapeamentos de referência, codificados como domínios | Acerto de entidades ≥ 70% e não inferior a um modelo de linguagem usado como linha de base | Abaixo de 50%: rever a representação dos domínios |
-| H3. O perfil distingue as categorias de Gentner | 40 pares construídos por perturbação controlada, dez por categoria | Acurácia de classificação ≥ 0,85 | Abaixo de 0,70: rever ρ₁ e ρ₂ |
-| H4. O motor é determinístico | 1.000 execuções com a ordem da entrada embaralhada, em Node.js e Chrome, ambos sobre o motor V8, em duas máquinas | Resumo da saída idêntico em 100% dos casos | Qualquer divergência bloqueia a publicação |
-| H5. A busca gulosa é suficiente | Comparação com a busca exata em domínios de até oito entidades | Perda mediana nula e máxima ≤ 5% | Perda maior: expor a busca exata como opção |
+| H3. O diagnóstico de Gentner não sofre regressão | 40 pares produzidos por gerador determinístico que aplica as mesmas regras do classificador, dez por categoria, incluindo casos claros e casos próximos dos limiares | Acurácia de classificação ≥ 0,85 | Abaixo de 0,70: rever ρ₁ e ρ₂ |
+| H4. O motor é determinístico | 1.000 execuções sobre um conjunto de entradas fixado no pré-registro, com a ordem das coleções embaralhada, em Node.js e Chrome, ambos sobre o motor V8, em duas máquinas | Resumo da saída idêntico em 100% dos casos | Qualquer divergência bloqueia a publicação |
+| H5. A busca gulosa é suficiente até oito entidades | Casos produzidos por gerador determinístico, comparando a busca gulosa com a exata em domínios de até oito entidades | Perda mediana nula e máxima ≤ 5% | Perda maior: expor a busca exata como opção |
 
 Em H1, cada caso deve declarar antes da execução as inferências esperadas. No par sistema solar/átomo, por exemplo, pode-se registrar a projeção no átomo da relação causal entre atração e órbita. O relatório separa inferências esperadas encontradas, esperadas ausentes e extras.
 
-Em H5, a perda de um caso é a diferença relativa no primeiro critério da tupla da modalidade entre o melhor resultado exato e o melhor resultado guloso: (exato − guloso)/exato. Ausência de resultado elegível corresponde a valor zero. Quando ambos os valores são zero, a perda é definida como zero.
+H3 é um teste de regressão da implementação do diagnóstico, e não uma validação independente das categorias de Gentner, porque o gerador aplica as mesmas regras do classificador. Os casos próximos dos limiares verificam as fronteiras e a quantização; os casos claros verificam cada quadrante sem depender da fronteira.
 
-H4 fica deliberadamente restrita a Node.js e Chrome, que usam o mesmo motor V8. Esta é uma limitação conhecida: outros motores JavaScript podem divergir no último dígito de `Math.log` em casos situados na fronteira da tolerância de ρ₄.
+Em H5, a perda de um caso é a diferença relativa no primeiro critério da tupla da modalidade entre o melhor resultado exato e o melhor resultado guloso: (exato − guloso)/exato. Ausência de resultado elegível corresponde a valor zero. Quando ambos os valores são zero, a perda é definida como zero. O conjunto de casos e o gerador determinístico devem ser fixados no pré-registro. A conclusão de H5 vale somente para domínios com até oito entidades.
+
+H4 fica deliberadamente restrita a Node.js e Chrome, que usam o mesmo motor V8. O pré-registro fixa o conjunto das 1.000 entradas por um manifesto de identificadores e resumos canônicos, ou por uma regra determinística e uma semente que reproduzam exatamente o mesmo conjunto. Esta é uma limitação conhecida: outros motores JavaScript podem divergir no último dígito de `Math.log` em casos situados na fronteira da tolerância de ρ₄.
 
 A disponibilidade, o conteúdo e a licença do conjunto SCAN devem ser conferidos antes do registro.
 
@@ -196,6 +198,7 @@ O mercado de interesse é o PLN (processamento de linguagem natural) aplicado à
 5. **ρ₄.** O grupo de escala usa tolerância no domínio logarítmico, conforme a Definição 7 desta versão, e o grupo monótono usa Kendall τ-b.
 6. **ρ₅.** O MVP admite no máximo um atributo potencial por domínio.
 7. **Validação e publicação posteriores.** A execução de H2 com o conjunto SCAN e a publicação em provedor de nuvem ficam fora da spec do MVP.
+8. **Cobertura de ρ₁ e ρ₃.** Os dois escores usam denominadores fixos sobre entidades da fonte e atribuem contribuição zero às entidades avaliáveis não mapeadas, para que mapeamentos mínimos não superem analogias amplas apenas por baixa cobertura.
 
 ### 12.2 Pendências teóricas e editoriais
 

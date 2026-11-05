@@ -147,7 +147,7 @@ interface VersoesRelacoes {
 }
 ```
 
-IDs são únicos dentro do próprio namespace. As referências discriminadas eliminam ambiguidade entre IDs de entidade e relação. Strings são normalizadas para NFC antes da validação de unicidade.
+IDs são únicos dentro do próprio namespace. As referências discriminadas eliminam ambiguidade entre IDs de entidade e relação. Strings são normalizadas para NFC antes da validação de unicidade. Quando presente, `PerfilBinario` admite 3⁶ = 729 estados; os 64 estados de `{0,1}⁶` são o subconjunto sem `null`.
 
 O esquema rejeita:
 
@@ -241,7 +241,9 @@ Toda função retorna `null` quando não existe material avaliável. `NaN`, infi
 
 ### ρ₁
 
-A união de atributos forma o denominador local. Atributo ausente de um lado contribui zero. Um atributo presente nos dois lados com tipos diferentes ou, no caso numérico, unidades diferentes permanece uma única vez na união e contribui zero. O caso numérico zero-zero vale 1. Pares sem atributo algum são omitidos da média; se todos forem omitidos, o resultado é `null`.
+Para cada entidade da fonte com ao menos um atributo, calcula-se uma contribuição local. Se a entidade não estiver mapeada, a contribuição é zero. Se estiver mapeada, a união de atributos forma o denominador local: atributo ausente de um lado contribui zero; atributo presente nos dois lados com tipos diferentes ou, no caso numérico, unidades diferentes permanece uma única vez na união e contribui zero. O caso numérico zero-zero vale 1.
+
+ρ₁ é a soma dessas contribuições dividida pela quantidade de entidades da fonte com ao menos um atributo. Entidades da fonte sem atributos ficam fora, mesmo se estiverem mapeadas para entidades-alvo com atributos. Se a fonte não tiver nenhuma entidade com atributos, o resultado é `null`. Esse denominador fixo penaliza cobertura incompleta do mapeamento.
 
 A diferença numérica deve evitar overflow por uma forma escalada equivalente quando os valores forem muito grandes.
 
@@ -255,7 +257,7 @@ Como relações estruturalmente duplicadas são inválidas, uma busca indexada p
 
 ### ρ₃
 
-Papéis são pares `(predicadoNormalizado, posição)`. Apenas ocorrências diretas contam. Predicados simétricos usam a posição `*`. Jaccard vazio-vazio vale 1. O mapeamento vazio produz `null`.
+Papéis são pares `(predicadoNormalizado, posição)`. Apenas ocorrências diretas contam. Predicados simétricos usam a posição `*`. Todas as entidades da fonte entram no denominador de ρ₃. Entidade não mapeada contribui zero; entidade mapeada contribui seu índice de Jaccard, com Jaccard vazio-vazio igual a 1. Fonte sem entidades produz `null`. O denominador fixo penaliza cobertura incompleta e torna o escore agregado direcional.
 
 ### ρ₄
 
@@ -310,7 +312,7 @@ As hipóteses são produzidas por iterador em ordem canônica. A implementação
 
 ### Núcleos
 
-Cada par de relações de nível mais alto é percorrido iterativamente, não por recursão irrestrita. A expansão segue argumentos em ordem canônica, consulta resultados memoizados para sub-relações compartilhadas e rejeita qualquer conflito de injetividade.
+Uma relação é de nível mais alto quando não aparece como argumento de nenhuma outra relação do domínio. Cada par dessas relações de nível mais alto é percorrido iterativamente, não por recursão irrestrita. A expansão segue argumentos em ordem canônica, consulta resultados memoizados para sub-relações compartilhadas e rejeita qualquer conflito de injetividade.
 
 A chave de um núcleo é a serialização canônica de seus pares de entidade e pares de relação. Núcleos repetidos são descartados.
 
@@ -340,7 +342,9 @@ A poda deve ser admissível:
 
 - uma ramificação pode ser descartada quando não consegue mais alcançar o limiar obrigatório;
 - para ρ₂ e sistematicidade, o limite superior soma às relações já preservadas todas as relações ainda não decididas como se pudessem ser preservadas;
-- para ρ₁ e ρ₃, contribuições ainda não decididas recebem limite superior 1;
+- para ρ₁, o denominador é a quantidade fixa de entidades da fonte com atributos, e o limite superior é `(soma das contribuições já decididas + entidades avaliáveis ainda não decididas) / denominador`;
+- para ρ₃, o denominador é a quantidade fixa de entidades da fonte, e o limite superior é `(soma das contribuições já decididas + entidades ainda não decididas) / denominador`;
+- em ambos, cada entidade ainda não decidida recebe contribuição máxima 1;
 - uma ramificação só é descartada por ranking quando sua melhor tupla possível é estritamente inferior à pior tupla incumbente;
 - igualdade não pode ser podada enquanto a chave canônica ainda puder alterar o desempate.
 
@@ -529,17 +533,22 @@ Erros públicos têm código, caminho e mensagem estáveis:
 
 Na API, entrada inválida usa 400, tamanho excessivo usa 413 e falha interna usa 500. Cancelamento é distinto de erro e nunca devolve payload parcial como completo.
 
+## Página web
+
+A página executa a busca e a avaliação dos mapeamentos em um Web Worker. A thread principal cuida apenas de entrada, cancelamento e apresentação. As mensagens entre a página e o worker usam os mesmos contratos canônicos; resultados parciais de um worker cancelado não são apresentados como completos.
+
 ## Estratégia de testes e validação
 
 O executor é o Vitest já previsto na pilha. Aleatoriedade é permitida somente nos testes de propriedade, com semente registrada quando o caso precisar ser reproduzido.
 
 - Testes unitários por relação cobrem valores conhecidos e todos os casos-limite normativos.
 - Testes de propriedade cobrem identidade, simetria quando aplicável, composição de homomorfismos e invariância da canonização sob permutação de coleções-set.
-- As Proposições 1 e 2 da teoria têm testes próprios de conformidade teórica, sem serem tratadas como implementação do Requisito 2.4.
-- H1 usa casos clássicos com mapeamentos e inferências candidatas esperados. Todas as inferências esperadas devem estar presentes; inferências extras são listadas e contadas, sem reprovar H1.
-- H3 usa 40 pares determinísticos.
-- H4 compara o SHA-256 da saída canônica em 1.000 execuções em Node.js e Chrome, ambos sobre V8, em duas máquinas ou trabalhadores independentes. H4 só é executado mediante solicitação do autor. Outros motores JavaScript ficam registrados como limitação conhecida, pois podem divergir no último dígito de `Math.log` na fronteira da tolerância de ρ₄.
-- H5 compara a busca gulosa com a exata e registra nós visitados e podados. A perda é `(exato - guloso) / exato`, usando o primeiro critério da tupla da modalidade nos melhores resultados depois do filtro; ausência de resultado elegível vale zero e, quando ambos forem zero, a perda é zero. O sucesso exige perda mediana zero e máxima de 5%.
+- Para ρ₅, um teste de propriedade altera atributos não declarados como potencial e verifica que o resultado não muda.
+- As Proposições 1 e 2 da teoria têm testes próprios de conformidade teórica, sem serem tratadas como implementação do Requisito 2.4. O teste da Proposição 2 verifica, com correspondências de classe compatível, oposição preservada como oposição e emergência preservada como emergência, sem exigir complementaridade por capacidades.
+- H1 usa os casos clássicos na modalidade homológica, com mapeamentos e inferências candidatas esperados. Todas as inferências esperadas devem estar presentes; inferências extras são listadas e contadas, sem reprovar H1. Em caso de fracasso, examinam-se primeiro a codificação dos domínios e depois a busca.
+- H3 é um teste de regressão do diagnóstico de Gentner, pois seu gerador determinístico usa as mesmas regras do classificador. Os 40 pares incluem casos claros e casos próximos dos limiares.
+- H4 compara o SHA-256 da saída canônica em 1.000 execuções em Node.js e Chrome, ambos sobre V8, em duas máquinas ou trabalhadores independentes. O conjunto exato de entradas é fixado no pré-registro por manifesto de identificadores e resumos, ou por regra determinística e semente. H4 só é executado mediante solicitação do autor. Outros motores JavaScript ficam registrados como limitação conhecida, pois podem divergir no último dígito de `Math.log` na fronteira da tolerância de ρ₄.
+- H5 usa casos de um gerador determinístico fixado no pré-registro, compara a busca gulosa com a exata e registra nós visitados e podados. A perda é `(exato - guloso) / exato`, usando o primeiro critério da tupla da modalidade nos melhores resultados depois do filtro; ausência de resultado elegível vale zero e, quando ambos forem zero, a perda é zero. O sucesso exige perda mediana zero e máxima de 5%, e a conclusão vale somente até oito entidades.
 
 O pré-registro em `validacao/criterios.v1.md` é imutável depois de commitado. Resultados ficam em `validacao/resultados/`, separados dos critérios. Fracassos são registrados sem alteração retroativa de limiares.
 
