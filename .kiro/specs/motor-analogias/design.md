@@ -48,7 +48,8 @@ src/motor/
   index.ts
 config/modalidades.v1.json
 validacao/
-  criterios.v1.md
+  criterios.v1.md       # registro original preservado
+  criterios.v1.1.md     # versão vigente para H1
   casos-classicos/
   gerador-gentner.ts
   resultados/
@@ -545,12 +546,12 @@ O executor é o Vitest já previsto na pilha. Aleatoriedade é permitida somente
 - Testes de propriedade cobrem identidade, simetria quando aplicável, composição de homomorfismos e invariância da canonização sob permutação de coleções-set.
 - Para ρ₅, um teste de propriedade altera atributos não declarados como potencial e verifica que o resultado não muda.
 - As Proposições 1 e 2 da teoria têm testes próprios de conformidade teórica, sem serem tratadas como implementação do Requisito 2.4. O teste da Proposição 2 verifica, com correspondências de classe compatível, oposição preservada como oposição e emergência preservada como emergência, sem exigir complementaridade por capacidades.
-- H1 usa os casos clássicos na modalidade homológica, com mapeamentos e inferências candidatas esperados. Todas as inferências esperadas devem estar presentes; inferências extras são listadas e contadas, sem reprovar H1. Em caso de fracasso, examinam-se primeiro a codificação dos domínios e depois a busca.
+- H1 usa os casos clássicos na modalidade homológica, com mapeamentos e inferências candidatas esperados, conforme `validacao/criterios.v1.1.md`. Somente em H1, o melhor candidato é escolhido pela tupla total homológica antes do filtro de ρ₂; o relatório registra separadamente seu ρ₂ e se ele passaria no filtro normal. Todas as inferências esperadas devem estar presentes; inferências extras são listadas e contadas, sem reprovar H1. Em caso de fracasso, examinam-se primeiro a codificação dos domínios e depois a busca.
 - H3 é um teste de regressão do diagnóstico de Gentner, pois seu gerador determinístico usa as mesmas regras do classificador. Os 40 pares incluem casos claros e casos próximos dos limiares.
 - H4 compara o SHA-256 da saída canônica em 1.000 execuções em Node.js e Chrome, ambos sobre V8, em duas máquinas ou trabalhadores independentes. O conjunto exato de entradas é fixado no pré-registro por manifesto de identificadores e resumos, ou por regra determinística e semente. H4 só é executado mediante solicitação do autor. Outros motores JavaScript ficam registrados como limitação conhecida, pois podem divergir no último dígito de `Math.log` na fronteira da tolerância de ρ₄.
 - H5 usa casos de um gerador determinístico fixado no pré-registro, compara a busca gulosa com a exata e registra nós visitados e podados. A perda é `(exato - guloso) / exato`, usando o primeiro critério da tupla da modalidade nos melhores resultados depois do filtro; ausência de resultado elegível vale zero e, quando ambos forem zero, a perda é zero. O sucesso exige perda mediana zero e máxima de 5%, e a conclusão vale somente até oito entidades.
 
-O pré-registro em `validacao/criterios.v1.md` é imutável depois de commitado. Resultados ficam em `validacao/resultados/`, separados dos critérios. Fracassos são registrados sem alteração retroativa de limiares.
+O pré-registro original em `validacao/criterios.v1.md` é preservado. A versão vigente para H1 é `validacao/criterios.v1.1.md`; ela altera somente H1 antes de qualquer execução e antes da entrega dos casos independentes. Ambos são imutáveis depois de commitados. Resultados ficam em `validacao/resultados/`, separados dos critérios. Fracassos são registrados sem alteração retroativa de limiares.
 
 ## Pós-MVP
 

@@ -2,15 +2,15 @@
 
 A ordem abaixo é normativa para o MVP. As tarefas devem ser executadas uma por vez. Ao fim de cada tarefa, os testes pertinentes devem ser executados, a tarefa deve ser marcada como concluída e um resumo curto deve ser apresentado ao autor antes da próxima tarefa.
 
-A Tarefa 1 é um portão: `validacao/criterios.v1.md` e `config/modalidades.v1.json` devem ser commitados antes da criação ou execução de qualquer código de validação, teste experimental ou gerador. Nenhum limiar pré-registrado pode ser alterado para acomodar um resultado posterior. Fracassos devem ser registrados e submetidos ao autor.
+A Tarefa 1 é um portão: `validacao/criterios.v1.md`, sua emenda `validacao/criterios.v1.1.md` vigente para H1 e `config/modalidades.v1.json` devem ser commitados antes da criação ou execução de qualquer código de validação, teste experimental ou gerador. Nenhum limiar pré-registrado pode ser alterado para acomodar um resultado posterior. Fracassos devem ser registrados e submetidos ao autor.
 
 Validações grandes, especialmente H4 com 1.000 execuções, só podem ser executadas mediante pedido expresso do autor.
 
 ## MVP
 
 - [ ] 1. Pré-registro e configuração
-  - Criar `validacao/criterios.v1.md` com H1 a H5, métricas, populações, limiares de sucesso, tratamento de empates e decisões em caso de fracasso, conforme a teoria v2 e o Requisito 10.
-  - Registrar H1 na modalidade homológica, com mapeamentos e inferências candidatas esperados; exigir todas as inferências esperadas e apenas listar e contar inferências extras. Em caso de fracasso, fixar a ordem de exame: primeiro a codificação dos domínios, depois a busca.
+  - Criar `validacao/criterios.v1.md` com H1 a H5 e preservar essa versão. Registrar em `validacao/criterios.v1.1.md` a emenda vigente que altera somente H1 antes de qualquer execução e antes da entrega dos casos independentes. Ambos contêm métricas, populações, limiares de sucesso, tratamento de empates e decisões em caso de fracasso, conforme a teoria v2 e o Requisito 10.
+  - Registrar H1 na modalidade homológica, com mapeamentos e inferências candidatas esperados. Conforme `validacao/criterios.v1.1.md`, julgar o primeiro candidato pela tupla total homológica sem aplicar o filtro de ρ₂; registrar separadamente seu ρ₂ e se ele passaria no filtro. Exigir todas as inferências esperadas e apenas listar e contar inferências extras. Em caso de fracasso, fixar a ordem de exame: primeiro a codificação dos domínios, depois a busca.
   - Registrar H3 como teste de regressão do diagnóstico de Gentner, com casos claros e casos próximos dos limiares, reconhecendo que o gerador usa as mesmas regras do classificador.
   - Registrar H5 com casos de um gerador determinístico, perda `(exato - guloso) / exato` no primeiro critério da tupla da modalidade, perda zero quando ambos forem zero, mediana zero, máxima não superior a 5% e conclusão limitada a oito entidades.
   - Registrar H4 como igualdade de 100% dos hashes da saída canônica em Node.js e Chrome, ambos sobre V8, em duas máquinas ou trabalhadores independentes.
@@ -129,7 +129,7 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
 - [ ] 9. Casos clássicos (H1)
   - Codificar à mão, em `validacao/casos-classicos/`, ao menos os casos sistema solar/átomo de Rutherford e fluxo de água/fluxo de calor, com mapeamentos e inferências candidatas esperados.
   - Incluir entre as expectativas do caso sistema solar/átomo a relação causal entre atração e órbita projetada no átomo.
-  - Rodar a modalidade homológica e gravar o resultado sem alterar critérios ou limiares.
+  - Rodar a modalidade homológica. Para H1, usar `validacao/criterios.v1.1.md`: selecionar o primeiro candidato pela tupla total homológica sem aplicar o filtro de ρ₂ e registrar separadamente o valor de ρ₂ e se ele passaria no filtro normal.
   - Exigir todas as inferências esperadas; listar e contar inferências extras sem reprovar H1.
   - Se algum mapeamento ou inferência esperada falhar, registrar o fracasso, examinar primeiro a codificação dos domínios e depois a busca, e consultar o autor antes de prosseguir para outra validação.
   - _Requisitos: 10.1, 10.2, 10.9_
