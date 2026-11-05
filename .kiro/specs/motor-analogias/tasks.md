@@ -117,14 +117,14 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - Criar referências tipadas, IDs hipotéticos `hip:<dominioFonte>:<entidadeFonte>` e IDs de relações projetadas `proj:<dominioFonte>:<relacaoFonte>`, com componentes percentualmente codificados, sem colisão e com suporte direto canônico.
     - _Requisitos: 5.1–5.6_
 
-- [ ] 7. Operações e CLI
-  - [ ] 7.1 Implementar os contratos completos de `mapear` e `inferir` em `src/motor/operacoes.ts`, incluindo metadados, versões, hashes e melhor candidato rejeitado.
+- [x] 7. Operações e CLI
+  - [x] 7.1 Implementar os contratos completos de `mapear` e `inferir` em `src/motor/operacoes.ts`, incluindo metadados, versões, hashes e melhor candidato rejeitado.
     - _Requisitos: 4.1–4.6, 5.1–5.6_
-  - [ ] 7.2 Implementar `buscar` com biblioteca limitada, um representante elegível por alvo, heap top-k, contadores de descarte e desempate total.
+  - [x] 7.2 Implementar `buscar` com biblioteca limitada, um representante elegível por alvo, heap top-k, contadores de descarte e desempate total.
     - _Requisitos: 6.1–6.5, 9.5, 9.8_
-  - [ ] 7.3 Implementar `scripts/motor-cli.ts` com `mapear`, `inferir`, `buscar` e `validar`, códigos de saída estáveis e erros estruturados.
+  - [x] 7.3 Implementar `scripts/motor-cli.ts` com `mapear`, `inferir`, `buscar` e `validar`, códigos de saída estáveis e erros estruturados.
     - _Requisitos: 9.1, 9.4–9.8_
-  - [ ] 7.4 Verificar por análise de imports e teste arquitetural que `src/motor/` não usa aleatoriedade, relógio, rede, modelos de linguagem ou APIs específicas de ambiente.
+  - [x] 7.4 Verificar por análise de imports e teste arquitetural que `src/motor/` não usa aleatoriedade, relógio, rede, modelos de linguagem ou APIs específicas de ambiente.
     - _Requisito: 7.2_
 
 - [ ] 9. Casos clássicos (H1)

@@ -5,4 +5,5 @@ export * from "./nucleos";
 export * from "./orcamento";
 export * from "./ranking";
 export * from "./sistematicidade";
+export * from "./top-k";
 export * from "./tipos";
