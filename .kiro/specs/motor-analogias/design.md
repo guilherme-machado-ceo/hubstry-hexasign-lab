@@ -241,7 +241,7 @@ Toda função retorna `null` quando não existe material avaliável. `NaN`, infi
 
 ### ρ₁
 
-A união de atributos forma o denominador local. Atributo ausente de um lado contribui zero. Tipos diferentes ou unidades numéricas diferentes não são atributos comuns. O caso numérico zero-zero vale 1. Pares sem atributo algum são omitidos da média; se todos forem omitidos, o resultado é `null`.
+A união de atributos forma o denominador local. Atributo ausente de um lado contribui zero. Um atributo presente nos dois lados com tipos diferentes ou, no caso numérico, unidades diferentes permanece uma única vez na união e contribui zero. O caso numérico zero-zero vale 1. Pares sem atributo algum são omitidos da média; se todos forem omitidos, o resultado é `null`.
 
 A diferença numérica deve evitar overflow por uma forma escalada equivalente quando os valores forem muito grandes.
 
@@ -433,7 +433,7 @@ interface Inferencia {
   predicado: string;
   argsAlvo: Referencia[];
   entidadesHipoteticas: EntidadeHipotetica[];
-  suporte: string[];
+  suporte: Referencia[];
 }
 
 interface ResultadoInferir extends MetadadosResultado {
@@ -442,9 +442,11 @@ interface ResultadoInferir extends MetadadosResultado {
 }
 ```
 
-Relações formam um grafo não dirigido para fins de suporte. Duas relações são adjacentes quando uma referencia a outra ou quando suas expansões contêm a mesma entidade. Uma relação sem imagem é projetável se estiver no componente de alguma relação preservada.
+Uma relação da fonte sem imagem só é projetável quando ao menos um argumento direto já tem imagem no alvo. Uma referência de entidade tem imagem quando a entidade participa do mapeamento; uma referência de relação tem imagem quando a sub-relação correspondente existe no alvo. Pertencer ao mesmo componente conectado ou compartilhar uma entidade apenas de forma indireta não basta.
 
-A projeção ocorre em ordem topológica. Uma sub-relação projetada recebe um ID determinístico antes de ser referenciada. IDs hipotéticos usam componentes percentualmente codificados no formato `hip:<dominioFonte>:<entidadeFonte>`; o prefixo é reservado e proibido na entrada. Colisões são verificadas mesmo assim.
+A projeção preserva referências tipadas e ocorre em ordem topológica. Uma sub-relação sem imagem só é projetada recursivamente se ela própria tiver ao menos um argumento direto com imagem. Se um argumento relacional não tiver imagem nem projeção válida, a relação que o contém não é emitida. `suporte` contém exatamente os argumentos diretos que já tinham imagem, em ordem canônica.
+
+Uma sub-relação projetada recebe um ID determinístico antes de ser referenciada. IDs hipotéticos usam componentes percentualmente codificados no formato `hip:<dominioFonte>:<entidadeFonte>`; o prefixo é reservado e proibido na entrada. Colisões são verificadas mesmo assim.
 
 ### `buscar`
 
@@ -534,10 +536,10 @@ O executor é o Vitest já previsto na pilha. Aleatoriedade é permitida somente
 - Testes unitários por relação cobrem valores conhecidos e todos os casos-limite normativos.
 - Testes de propriedade cobrem identidade, simetria quando aplicável, composição de homomorfismos e invariância da canonização sob permutação de coleções-set.
 - As Proposições 1 e 2 da teoria têm testes próprios de conformidade teórica, sem serem tratadas como implementação do Requisito 2.4.
-- H1 usa casos clássicos.
+- H1 usa casos clássicos com mapeamentos e inferências candidatas esperados. Todas as inferências esperadas devem estar presentes; inferências extras são listadas e contadas, sem reprovar H1.
 - H3 usa 40 pares determinísticos.
-- H4 compara o SHA-256 da saída canônica em 1.000 execuções, Node.js e navegador, em duas máquinas ou trabalhadores independentes. H4 só é executado mediante solicitação do autor.
-- H5 compara a busca gulosa com a exata, registra nós visitados e podados e exige perda mediana zero e máxima de 5%.
+- H4 compara o SHA-256 da saída canônica em 1.000 execuções em Node.js e Chrome, ambos sobre V8, em duas máquinas ou trabalhadores independentes. H4 só é executado mediante solicitação do autor. Outros motores JavaScript ficam registrados como limitação conhecida, pois podem divergir no último dígito de `Math.log` na fronteira da tolerância de ρ₄.
+- H5 compara a busca gulosa com a exata e registra nós visitados e podados. A perda é `(exato - guloso) / exato`, usando o primeiro critério da tupla da modalidade nos melhores resultados depois do filtro; ausência de resultado elegível vale zero e, quando ambos forem zero, a perda é zero. O sucesso exige perda mediana zero e máxima de 5%.
 
 O pré-registro em `validacao/criterios.v1.md` é imutável depois de commitado. Resultados ficam em `validacao/resultados/`, separados dos critérios. Fracassos são registrados sem alteração retroativa de limiares.
 

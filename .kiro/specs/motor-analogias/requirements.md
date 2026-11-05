@@ -54,7 +54,7 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 
 #### ρ₁, similitude
 
-6. Atributos só são comuns quando têm o mesmo nome e tipo. Atributos numéricos também DEVEM ter a mesma unidade.
+6. Atributos são comuns quando têm o mesmo nome e tipo; atributos numéricos também DEVEM ter a mesma unidade. Um atributo presente nos dois lados com tipos diferentes ou, no caso numérico, unidades diferentes permanece uma única vez na união e contribui zero para a concordância.
 7. Um atributo presente em apenas uma entidade contribui zero para o numerador e um para o denominador da similitude local.
 8. Para atributos numéricos, dois valores iguais a zero DEVEM ter concordância 1. Nos demais casos, aplica-se a fórmula da Definição 4.
 9. Uma entidade pareada sem qualquer atributo na união tem similitude local indefinida e é omitida da média. Se nenhum par tiver similitude local definida, ρ₁ DEVE ser `null`.
@@ -134,10 +134,10 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 #### Critérios de aceitação
 
 1. A operação autônoma `inferir` DEVE receber fonte, alvo, um mapeamento validado, configuração e, opcionalmente, tabela de correspondência. A operação `mapear` DEVE reutilizar a mesma função pura de inferência.
-2. Uma relação da fonte sem imagem é projetável quando pertence ao mesmo componente conectado de ao menos uma relação preservada. Duas relações são conectadas quando uma referencia a outra ou quando compartilham, direta ou recursivamente, uma entidade da fonte.
-3. A projeção DEVE ser recursiva para relações que recebem outras relações como argumentos e DEVE preservar referências tipadas na saída.
+2. Uma relação da fonte sem imagem só é projetável quando ao menos um argumento direto já tem imagem no alvo: uma referência de entidade tem imagem quando a entidade está mapeada; uma referência de relação tem imagem quando a sub-relação da fonte possui relação correspondente no alvo.
+3. A projeção DEVE preservar referências tipadas. Uma sub-relação sem imagem só pode ser projetada recursivamente quando ela própria satisfizer o critério do item 2; se um argumento relacional não tiver imagem nem projeção válida, a relação que o contém NÃO DEVE ser emitida.
 4. QUANDO uma entidade projetada não tiver correspondente, O SISTEMA DEVE criar uma entidade hipotética com identificador determinístico iniciado por `hip:`, derivado do identificador do domínio-fonte e da entidade-fonte, e marcá-la como hipotética.
-5. O SISTEMA DEVE associar a cada inferência candidata as relações preservadas do mesmo componente que a sustentam, em ordem canônica.
+5. O SISTEMA DEVE associar a cada inferência candidata, como suporte, os argumentos diretos que já tinham imagem, representados por referências tipadas e ordenados canonicamente. Compartilhar uma entidade apenas de forma indireta ou pertencer ao mesmo componente conectado NÃO É suporte suficiente.
 6. A operação DEVE rejeitar mapeamentos não injetivos, referências inexistentes e colisões de identificadores antes de produzir inferências.
 
 ### Requisito 6: operação buscar
@@ -190,14 +190,15 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 
 #### Critérios de aceitação
 
-1. O SISTEMA DEVE incluir um conjunto de casos clássicos da literatura do SME, codificados à mão, com o mapeamento esperado (H1).
-2. O SISTEMA DEVE incluir um gerador determinístico de 40 pares controlados, dez por categoria de Gentner (H3).
-3. O teste H4 DEVE comparar o SHA-256 da saída canônica, e não apenas o hash da entrada, em 1.000 execuções com coleções de entrada embaralhadas. A igualdade deve ser de 100% em pelo menos um ambiente Node.js e um navegador, executados em duas máquinas ou trabalhadores independentes.
-4. O teste H4 é uma validação grande e só DEVE ser executado mediante solicitação expressa do autor.
-5. O SISTEMA DEVE incluir uma busca exata para domínios de até oito entidades e um relatório da perda da busca gulosa (H5). O sucesso exige perda mediana zero e perda máxima não superior a 5%.
-6. A perda de H5 DEVE usar a pontuação normativa da modalidade, com fórmula, população de casos e tratamento de empates registrados antes da execução.
-7. Os critérios de H1 a H5, inclusive H2 pós-MVP, DEVEM ser gravados em arquivo versionado e commitados antes da primeira implementação ou execução de código de validação.
-8. Resultados experimentais DEVEM ser gravados separadamente do pré-registro, com versão do motor, versão e hash da configuração, ambiente, hash das entradas e hash das saídas. Um fracasso DEVE ser registrado e não pode ser corrigido por alteração retroativa de limiar.
+1. O SISTEMA DEVE incluir um conjunto de casos clássicos da literatura do SME, codificados à mão, com o mapeamento e as inferências candidatas esperados (H1). Cada caso DEVE declarar as inferências esperadas antes da execução; por exemplo, no par sistema solar/átomo, a relação causal entre atração e órbita projetada no átomo.
+2. H1 só é aprovado quando o mapeamento está correto e todas as inferências esperadas estão presentes em todos os casos. Inferências extras DEVEM ser listadas e contadas separadamente, mas não reprovam H1.
+3. O SISTEMA DEVE incluir um gerador determinístico de 40 pares controlados, dez por categoria de Gentner (H3).
+4. O teste H4 DEVE comparar o SHA-256 da saída canônica, e não apenas o hash da entrada, em 1.000 execuções com coleções de entrada embaralhadas. A igualdade deve ser de 100% em Node.js e Chrome, ambos sobre o motor V8, executados em duas máquinas ou trabalhadores independentes. O pré-registro DEVE declarar como limitação conhecida que outros motores JavaScript podem divergir no último dígito de `Math.log` em casos na fronteira da tolerância de ρ₄.
+5. O teste H4 é uma validação grande e só DEVE ser executado mediante solicitação expressa do autor.
+6. O SISTEMA DEVE incluir uma busca exata para domínios de até oito entidades e um relatório da perda da busca gulosa (H5). O sucesso exige perda mediana zero e perda máxima não superior a 5%.
+7. Para cada caso de H5, `exato` e `guloso` são os valores do primeiro critério da tupla da modalidade no melhor resultado de cada busca, depois do filtro obrigatório. Ausência de resultado elegível vale zero. A perda é `(exato - guloso) / exato`; quando ambos forem zero, a perda é definida como zero. A fórmula, a população de casos e o tratamento de empates DEVEM ser registrados antes da execução.
+8. Os critérios de H1 a H5, inclusive H2 pós-MVP, DEVEM ser gravados em arquivo versionado e commitados antes da primeira implementação ou execução de código de validação.
+9. Resultados experimentais DEVEM ser gravados separadamente do pré-registro, com versão do motor, versão e hash da configuração, ambiente, hash das entradas e hash das saídas. Um fracasso DEVE ser registrado e não pode ser corrigido por alteração retroativa de limiar.
 
 ## Pós-MVP
 

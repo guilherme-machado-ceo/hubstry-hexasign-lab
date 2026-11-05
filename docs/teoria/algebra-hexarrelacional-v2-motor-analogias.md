@@ -40,7 +40,7 @@ Na v1, cada relação é um teste: dadas duas coisas, verifica-se se elas se rel
 
 ### 3.1 ρ₁, similitude: proximidade de atributos
 
-**Definição 4.** Para cada par (s, M(s)), a similitude de atributos é a soma das concordâncias nos atributos comuns, dividida pelo número de atributos presentes em pelo menos uma das duas entidades. Um atributo categórico concorda com valor 1 quando os valores são iguais. Um atributo numérico concorda com valor 1 − min(1, |x − y| / (|x| + |y|)). O valor de ρ₁(M) é a média dessas similitudes sobre as entidades mapeadas.
+**Definição 4.** Para cada par (s, M(s)), a similitude de atributos é a soma das concordâncias nos atributos comuns, dividida pelo número de atributos presentes em pelo menos uma das duas entidades. Um atributo categórico concorda com valor 1 quando os valores são iguais. Um atributo numérico concorda com valor 1 − min(1, |x − y| / (|x| + |y|)). Um atributo presente nas duas entidades, mas com tipos diferentes ou, no caso numérico, unidades diferentes, permanece na união e contribui zero para a concordância. O valor de ρ₁(M) é a média dessas similitudes sobre as entidades mapeadas.
 
 A definição é um caso particular da Def. 3.1 da v1 (p. 19-20), em que a projeção φ é o vetor de atributos e a distância d decorre da concordância. As propriedades declaradas na v1 se preservam: a versão binária é reflexiva e simétrica, mas não transitiva.
 
@@ -119,7 +119,7 @@ O motor oferece três operações, todas determinísticas.
 
 1. **Mapear.** Dados uma fonte, um alvo e uma modalidade, o motor devolve até três mapeamentos ordenados, cada um com perfil, diagnóstico e inferências candidatas.
 2. **Buscar.** Dados uma fonte, uma biblioteca de domínios e uma modalidade, o motor devolve os alvos mais análogos, em ordem. Essa operação corresponde, no programa de Gentner e Forbus, ao modelo MAC/FAC de recuperação analógica.
-3. **Inferir.** Para um mapeamento, o motor projeta no alvo as relações da fonte que não têm imagem. Cada projeção é uma inferência candidata. Quando um argumento não tem correspondente no alvo, o motor cria uma entidade hipotética, marcada como tal. Só são projetadas relações conectadas à estrutura já mapeada, para que a inferência tenha suporte.
+3. **Inferir.** Para um mapeamento, o motor projeta no alvo as relações da fonte que não têm imagem. Cada projeção é uma inferência candidata. Uma relação só é projetável quando ao menos um de seus argumentos diretos já tem imagem no alvo: uma entidade está mapeada ou uma sub-relação tem relação correspondente. Quando um argumento-entidade não tem correspondente, o motor cria uma entidade hipotética, marcada como tal. Uma sub-relação sem imagem só pode ser projetada recursivamente se ela própria satisfizer o mesmo critério; se um argumento relacional não puder ser resolvido, a relação que o contém não é emitida. O suporte registrado para a inferência é formado pelos argumentos diretos que já tinham imagem.
 
 É a terceira operação que justifica falar em criação de analogias. Ela não se limita a reconhecer correspondências; produz conteúdo novo sobre o alvo, com a indicação explícita de qual estrutura da fonte o sustenta e com que perfil.
 
@@ -167,11 +167,17 @@ Os critérios abaixo devem ser registrados, com data, antes de qualquer experime
 
 | Hipótese | Teste | Sucesso | Decisão em caso de fracasso |
 |---|---|---|---|
-| H1. O motor reproduz analogias clássicas | Casos codificados à mão da literatura do SME, como sistema solar e átomo de Rutherford, e fluxo de água e fluxo de calor | Mapeamento de entidades correto em todos os casos | Revisar a busca antes de qualquer outro teste |
+| H1. O motor reproduz analogias clássicas | Casos codificados à mão da literatura do SME, como sistema solar e átomo de Rutherford, e fluxo de água e fluxo de calor, com mapeamentos e inferências candidatas esperados | Mapeamento de entidades correto e todas as inferências esperadas presentes em todos os casos; inferências extras são listadas e contadas, mas não reprovam H1 | Revisar a busca e a inferência antes de qualquer outro teste |
 | H2. O motor acerta mapeamentos fora dos exemplos clássicos | Subconjunto de 20 pares do conjunto SCAN (Czinczoll et al., 2022), que reúne analogias científicas e criativas com mapeamentos de referência, codificados como domínios | Acerto de entidades ≥ 70% e não inferior a um modelo de linguagem usado como linha de base | Abaixo de 50%: rever a representação dos domínios |
 | H3. O perfil distingue as categorias de Gentner | 40 pares construídos por perturbação controlada, dez por categoria | Acurácia de classificação ≥ 0,85 | Abaixo de 0,70: rever ρ₁ e ρ₂ |
-| H4. O motor é determinístico | 1.000 execuções com a ordem da entrada embaralhada, em duas máquinas | Resumo da saída idêntico em 100% dos casos | Qualquer divergência bloqueia a publicação |
+| H4. O motor é determinístico | 1.000 execuções com a ordem da entrada embaralhada, em Node.js e Chrome, ambos sobre o motor V8, em duas máquinas | Resumo da saída idêntico em 100% dos casos | Qualquer divergência bloqueia a publicação |
 | H5. A busca gulosa é suficiente | Comparação com a busca exata em domínios de até oito entidades | Perda mediana nula e máxima ≤ 5% | Perda maior: expor a busca exata como opção |
+
+Em H1, cada caso deve declarar antes da execução as inferências esperadas. No par sistema solar/átomo, por exemplo, pode-se registrar a projeção no átomo da relação causal entre atração e órbita. O relatório separa inferências esperadas encontradas, esperadas ausentes e extras.
+
+Em H5, a perda de um caso é a diferença relativa no primeiro critério da tupla da modalidade entre o melhor resultado exato e o melhor resultado guloso: (exato − guloso)/exato. Ausência de resultado elegível corresponde a valor zero. Quando ambos os valores são zero, a perda é definida como zero.
+
+H4 fica deliberadamente restrita a Node.js e Chrome, que usam o mesmo motor V8. Esta é uma limitação conhecida: outros motores JavaScript podem divergir no último dígito de `Math.log` em casos situados na fronteira da tolerância de ρ₄.
 
 A disponibilidade, o conteúdo e a licença do conjunto SCAN devem ser conferidos antes do registro.
 

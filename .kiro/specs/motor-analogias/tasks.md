@@ -10,13 +10,15 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
 
 - [ ] 1. Pré-registro e configuração
   - Criar `validacao/criterios.v1.md` com H1 a H5, métricas, populações, limiares de sucesso, tratamento de empates e decisões em caso de fracasso, conforme a teoria v2 e o Requisito 10.
-  - Registrar H5 com perda mediana zero e perda máxima não superior a 5%.
-  - Registrar H4 como igualdade de 100% dos hashes da saída canônica em Node.js e navegador, em duas máquinas ou trabalhadores independentes.
+  - Registrar H1 com mapeamentos e inferências candidatas esperados; exigir todas as inferências esperadas e apenas listar e contar inferências extras.
+  - Registrar H5 com perda `(exato - guloso) / exato` no primeiro critério da tupla da modalidade, perda zero quando ambos forem zero, mediana zero e máxima não superior a 5%.
+  - Registrar H4 como igualdade de 100% dos hashes da saída canônica em Node.js e Chrome, ambos sobre V8, em duas máquinas ou trabalhadores independentes.
+  - Registrar como limitação de H4 que outros motores JavaScript podem divergir no último dígito de `Math.log` em casos na fronteira da tolerância de ρ₄.
   - Registrar H2 como validação pós-MVP, sem executá-la.
   - Criar `config/modalidades.v1.json` com os valores provisórios do design, inclusive `semanticaRho6: "emergencia-v1"`, ordem homológica, tolerâncias e limites de recurso.
   - Registrar na configuração que somente o peso de correspondência 1 é permitido no MVP e que a agregação teórica está ausente.
   - Fazer commit apenas dos artefatos de pré-registro e configuração antes de qualquer código de validação.
-  - _Requisitos: 2.29, 3.5, 7.7, 10.3, 10.5, 10.6, 10.7_
+  - _Requisitos: 2.29, 3.5, 7.7, 10.1–10.8_
 
 - [ ] 2. Esquema, validação e canonização
   - [ ] 2.1 Implementar os tipos, a normalização NFC e o validador próprio em `src/motor/esquema.ts`: referências tipadas, números finitos, esquema de atributos, unidades, capacidades, namespaces, aridade, classes, no máximo um potencial, prefixo `hip:` reservado, duplicatas estruturais, referências inexistentes, ciclos e profundidade.
@@ -87,7 +89,7 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - Considerar o espaço de 1.441.729 mapeamentos parciais injetivos em 8×8 antes da poda.
     - Não podar igualdade enquanto a chave canônica puder alterar o desempate.
     - Registrar nós visitados, podados e avaliados.
-    - _Requisitos: 9.7, 10.5, 10.6_
+    - _Requisitos: 9.7, 10.6, 10.7_
   - [ ] 5.6 Testar erros determinísticos de orçamento sem executar as validações grandes.
     - _Requisitos: 9.6, 9.8, 9.9_
 
@@ -101,9 +103,11 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - _Requisito: 3.4_
   - [ ] 6.3 Implementar classificação de Gentner, diagnóstico indeterminado e alerta de aparência superficial.
     - _Requisitos: 4.3–4.5_
-  - [ ] 6.4 Implementar inferências conectadas e projeção recursiva em `src/motor/inferencia.ts`.
+  - [ ] 6.4 Implementar inferências com suporte direto e projeção recursiva em `src/motor/inferencia.ts`.
     - Validar o mapeamento recebido pelo comando autônomo.
-    - Criar referências tipadas, IDs hipotéticos determinísticos sem colisão e suporte canônico.
+    - Projetar uma relação sem imagem somente quando ao menos um argumento direto tiver imagem; não usar adjacência por entidade compartilhada ou componente conectado.
+    - Projetar sub-relações sem imagem somente quando elas próprias satisfizerem o critério de suporte direto.
+    - Criar referências tipadas, IDs hipotéticos determinísticos sem colisão e suporte direto canônico.
     - _Requisitos: 5.1–5.6_
 
 - [ ] 7. Operações e CLI
@@ -117,24 +121,28 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - _Requisito: 7.2_
 
 - [ ] 9. Casos clássicos (H1)
-  - Codificar à mão, em `validacao/casos-classicos/`, ao menos os casos sistema solar/átomo de Rutherford e fluxo de água/fluxo de calor, com mapeamentos esperados.
+  - Codificar à mão, em `validacao/casos-classicos/`, ao menos os casos sistema solar/átomo de Rutherford e fluxo de água/fluxo de calor, com mapeamentos e inferências candidatas esperados.
+  - Incluir entre as expectativas do caso sistema solar/átomo a relação causal entre atração e órbita projetada no átomo.
   - Rodar a modalidade homológica e gravar o resultado sem alterar critérios ou limiares.
-  - Se algum caso falhar, registrar o fracasso e consultar o autor antes de prosseguir para outra validação.
-  - _Requisitos: 10.1, 10.8_
+  - Exigir todas as inferências esperadas; listar e contar inferências extras sem reprovar H1.
+  - Se algum mapeamento ou inferência esperada falhar, registrar o fracasso e consultar o autor antes de prosseguir para outra validação.
+  - _Requisitos: 10.1, 10.2, 10.9_
 
 - [ ] 10. Validação H3, H4 e H5
   - [ ] 10.1 Implementar o gerador determinístico de 40 pares controlados, dez por categoria de Gentner, e o relatório de acurácia H3.
-    - _Requisitos: 10.2, 10.8_
-  - [ ] 10.2 Preparar o teste H4 para 1.000 execuções com coleções-set embaralhadas, comparando o SHA-256 da saída canônica em Node.js e navegador, em duas máquinas ou trabalhadores independentes.
+    - _Requisitos: 10.3, 10.9_
+  - [ ] 10.2 Preparar o teste H4 para 1.000 execuções com coleções-set embaralhadas, comparando o SHA-256 da saída canônica em Node.js e Chrome, ambos sobre V8, em duas máquinas ou trabalhadores independentes.
+    - Registrar no relatório a limitação conhecida para outros motores JavaScript na fronteira de `Math.log` em ρ₄.
     - Não executar H4 sem pedido expresso do autor.
-    - _Requisitos: 7.1–7.9, 10.3, 10.4, 10.8_
+    - _Requisitos: 7.1–7.9, 10.4, 10.5, 10.9_
   - [ ] 10.3 Comparar a busca gulosa com a exata em domínios de até oito entidades, usando a métrica pré-registrada.
+    - Calcular a perda como `(exato - guloso) / exato` no primeiro critério da tupla da modalidade; usar zero quando ambos forem zero.
     - Verificar perda mediana zero e perda máxima não superior a 5%.
     - Registrar contagens de nós, podas, tempo e pico de memória, sem alterar a regra de poda após observar os resultados.
-    - _Requisitos: 9.7, 10.5, 10.6, 10.8_
+    - _Requisitos: 9.7, 10.6, 10.7, 10.9_
   - [ ] 10.4 Gravar cada relatório em `validacao/resultados/`, separado do pré-registro, com versões, ambientes, hashes da configuração, entradas e saídas.
     - Registrar resultados negativos integralmente e consultar o autor antes de qualquer revisão da busca ou da representação.
-    - _Requisito: 10.8_
+    - _Requisito: 10.9_
 
 - [ ] 11. API HTTP
   - Acrescentar a `server/` as rotas `POST /api/mapear`, `POST /api/inferir` e `POST /api/buscar`.
@@ -149,6 +157,8 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
   - _Requisitos: 7.8, 9.3, 9.4, 9.8, 9.9_
 
 ## Pós-MVP
+
+A Tarefa 8 (agregação teórica) foi movida para o Pós-MVP.
 
 As tarefas abaixo não fazem parte da entrega do MVP, não devem ser iniciadas durante sua implementação e exigem aprovação ou spec própria.
 
