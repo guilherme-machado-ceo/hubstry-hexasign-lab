@@ -22,12 +22,17 @@ export function compararPontosDeCodigo(a: string, b: string): number {
   }
 }
 
+export function arredondar12(valor: number): number {
+  if (!Number.isFinite(valor)) throw new TypeError("valor deve ser finito");
+  const arredondado = Math.round(valor * 1e12) / 1e12;
+  return Object.is(arredondado, -0) ? 0 : arredondado;
+}
+
 export function quantizar12(escore: number): number {
   if (!Number.isFinite(escore) || escore < 0 || escore > 1) {
     throw new TypeError("escore deve ser finito e estar entre 0 e 1");
   }
-  const quantizado = Math.round(escore * 1e12) / 1e12;
-  return Object.is(quantizado, -0) ? 0 : quantizado;
+  return arredondar12(escore);
 }
 
 export function numeroCanonico(valor: number): string {

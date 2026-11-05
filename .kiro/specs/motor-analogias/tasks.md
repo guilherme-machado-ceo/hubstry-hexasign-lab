@@ -44,35 +44,35 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
   - Confirmar por teste que pesos diferentes de 1 são rejeitados e nunca chegam à pontuação.
   - _Requisitos: 1.9, 1.10, 2.10, 2.14–2.16_
 
-- [ ] 4. As seis relações
-  - [ ] 4.1 Implementar ρ₁ similitude.
+- [x] 4. As seis relações
+  - [x] 4.1 Implementar ρ₁ similitude.
     - Cobrir zero-zero, atributo ausente, união vazia, tipo ou unidade incompatível, números extremos, entidade-fonte sem atributos e contribuição zero de entidade-fonte avaliável não mapeada.
     - Verificar que o denominador é a quantidade fixa de entidades da fonte com ao menos um atributo, impedindo que um mapeamento mínimo obtenha vantagem por baixa cobertura.
     - _Requisitos: 2.1, 2.2, 2.5–2.9_
-  - [ ] 4.2 Implementar ρ₂ homologia e detecção de isomorfismo.
+  - [x] 4.2 Implementar ρ₂ homologia e detecção de isomorfismo.
     - Resolver relações aninhadas em ordem topológica; fonte sem relações produz `null`; argumentos sem imagem contam como não preservados.
     - Testar identidade e distinguir preservação relacional completa do suporte de isomorfismo total.
     - _Requisitos: 2.1, 2.2, 2.10–2.13_
-  - [ ] 4.3 Implementar ρ₃ equivalência por papéis diretos.
+  - [x] 4.3 Implementar ρ₃ equivalência por papéis diretos.
     - Cobrir Jaccard vazio-vazio, posição `*`, fonte vazia, correspondências unitárias e contribuição zero de entidade-fonte não mapeada.
     - Verificar que todas as entidades da fonte entram no denominador e que o escore agregado é direcional.
     - _Requisitos: 2.1–2.3, 2.14–2.16_
-  - [ ] 4.4 Implementar ρ₄ simetria.
+  - [x] 4.4 Implementar ρ₄ simetria.
     - Usar mediana dos logaritmos das razões alvo/fonte, tolerância logarítmica e somente razões positivas e finitas.
     - Usar Kendall τ-b e cobrir empates, denominador zero, atributo ausente, unidade incompatível e quantidade par de observações.
     - Testar a simetria sob inversão dos domínios para o grupo de escala.
     - _Requisitos: 2.1–2.3, 2.17–2.22_
-  - [ ] 4.5 Implementar ρ₅ equilíbrio.
+  - [x] 4.5 Implementar ρ₅ equilíbrio.
     - Enumerar pares não ordenados, aceitar no máximo um potencial, cobrir zero-zero, unidades, pares parcialmente mapeados, oposição e mudança de mecanismo.
     - Escrever teste de propriedade que altera atributos não declarados como potencial e verifica que ρ₅ não muda.
     - _Requisitos: 1.6, 1.7, 2.1–2.3, 2.23–2.28_
-  - [ ] 4.6 Implementar ρ₆ compensação com a semântica provisória `emergencia-v1`.
+  - [x] 4.6 Implementar ρ₆ compensação com a semântica provisória `emergencia-v1`.
     - Cobrir disjunção dois a dois, cobertura das capacidades exigidas, capacidades extras, argumento sem imagem e fonte sem emergência.
     - _Requisitos: 1.6, 2.1–2.3, 2.29–2.33_
-  - [ ] 4.7 Agregar o perfil, o perfil binário opcional e as versões das seis definições.
+  - [x] 4.7 Agregar o perfil, o perfil binário opcional e as versões das seis definições.
     - Rejeitar `NaN`, infinito e valor fora de [0, 1].
     - _Requisitos: 2.1–2.5, 4.2_
-  - [ ] 4.8 Testar as Proposições 1 e 2 da teoria v2 como conformidade teórica independente.
+  - [x] 4.8 Testar as Proposições 1 e 2 da teoria v2 como conformidade teórica independente.
     - Isomorfismo implica ρ₃ binário igual a 1 sob vocabulário compatível.
     - `ρ₂ = 1`, com compatibilidade de classe nas correspondências, implica oposição preservada como oposição e emergência preservada como emergência; complementaridade por capacidades não é garantida.
     - _Requisito: 2.34; teoria v2 §4, Proposições 1 e 2_
