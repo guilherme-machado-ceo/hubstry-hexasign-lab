@@ -1,0 +1,11 @@
+item,valor_paper,valor_recalculado
+Tabela 6.1 (p.43): f=0.001,0.1,0.111
+Tabela 6.1 (p.43): f=0.01,0.178,0.231
+Tabela 6.1 (p.43): f=0.1,0.468,0.48
+Tabela 6.1 (p.44): f=10,2.072,2.081
+Tabela 6.1 (p.44): f=100,4.282,4.331
+PiRoot(5) (p.75-76),1.762,1.669
+Ponto em que as duas leituras coincidem (p.10),282.17,0.00184
+f_max norma áurea (p.38),5.236,5.236
+"HPG |H_16| com a,b<=16 coprimos (HPG p.4-5)",80.0,159.0
+HPG |H_16| com a<=b (frações de Farey),80.0,80.0
