@@ -1,0 +1,499 @@
+{
+  "id": "h1-b-claude",
+  "caso": "fluxo de água e fluxo de calor",
+  "origemBibliografica": "Falkenhainer, B.; Forbus, K. D.; Gentner, D. (1989). The Structure-Mapping Engine: algorithm and examples. Artificial Intelligence, 41(1).",
+  "codificacao": {
+    "codificador": "Claude Opus 5.5 (API Anthropic)",
+    "data": "2026-11-05",
+    "independencia": "codificado sem acesso ao motor nem à outra codificação; domínios copiados sem alteração",
+    "respostaBruta": "brutos/claude-opus-5-5-caso-B.md"
+  },
+  "modalidade": "homologica",
+  "fonte": {
+    "id": "b-fluxo-agua",
+    "esquemaAtributos": {
+      "transparente": {
+        "tipo": "categorico"
+      },
+      "estado_fisico": {
+        "tipo": "categorico"
+      },
+      "superficie": {
+        "tipo": "categorico"
+      },
+      "pressao": {
+        "tipo": "numerico",
+        "unidade": "Pa",
+        "grupo": "escala"
+      },
+      "diametro": {
+        "tipo": "numerico",
+        "unidade": "cm",
+        "grupo": "escala"
+      }
+    },
+    "entidades": [
+      {
+        "id": "bequer",
+        "atributos": {
+          "transparente": "sim",
+          "pressao": 102300,
+          "diametro": 8
+        },
+        "capacidades": []
+      },
+      {
+        "id": "frasco",
+        "atributos": {
+          "pressao": 101600,
+          "diametro": 2
+        },
+        "capacidades": []
+      },
+      {
+        "id": "agua",
+        "atributos": {
+          "estado_fisico": "liquido",
+          "superficie": "plana"
+        },
+        "capacidades": []
+      },
+      {
+        "id": "cano",
+        "atributos": {},
+        "capacidades": []
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "pressao",
+        "aridade": 1,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "diametro",
+        "aridade": 1,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "maior",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "fluxo",
+        "aridade": 4,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "causa",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "r_pressao_bequer",
+        "predicado": "pressao",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "bequer"
+          }
+        ]
+      },
+      {
+        "id": "r_pressao_frasco",
+        "predicado": "pressao",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "frasco"
+          }
+        ]
+      },
+      {
+        "id": "r_maior_pressao",
+        "predicado": "maior",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "r_pressao_bequer"
+          },
+          {
+            "tipo": "relacao",
+            "id": "r_pressao_frasco"
+          }
+        ]
+      },
+      {
+        "id": "r_fluxo_agua",
+        "predicado": "fluxo",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "bequer"
+          },
+          {
+            "tipo": "entidade",
+            "id": "frasco"
+          },
+          {
+            "tipo": "entidade",
+            "id": "agua"
+          },
+          {
+            "tipo": "entidade",
+            "id": "cano"
+          }
+        ]
+      },
+      {
+        "id": "r_causa",
+        "predicado": "causa",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "r_maior_pressao"
+          },
+          {
+            "tipo": "relacao",
+            "id": "r_fluxo_agua"
+          }
+        ]
+      },
+      {
+        "id": "r_diametro_bequer",
+        "predicado": "diametro",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "bequer"
+          }
+        ]
+      },
+      {
+        "id": "r_diametro_frasco",
+        "predicado": "diametro",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "frasco"
+          }
+        ]
+      },
+      {
+        "id": "r_maior_diametro",
+        "predicado": "maior",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "r_diametro_bequer"
+          },
+          {
+            "tipo": "relacao",
+            "id": "r_diametro_frasco"
+          }
+        ]
+      }
+    ]
+  },
+  "alvo": {
+    "id": "b-fluxo-calor",
+    "esquemaAtributos": {
+      "estado_fisico": {
+        "tipo": "categorico"
+      },
+      "superficie": {
+        "tipo": "categorico"
+      },
+      "temperatura": {
+        "tipo": "numerico",
+        "unidade": "K",
+        "grupo": "escala"
+      }
+    },
+    "entidades": [
+      {
+        "id": "cafe",
+        "atributos": {
+          "estado_fisico": "liquido",
+          "superficie": "plana",
+          "temperatura": 353.15
+        },
+        "capacidades": []
+      },
+      {
+        "id": "cubo_gelo",
+        "atributos": {
+          "temperatura": 263.15
+        },
+        "capacidades": []
+      },
+      {
+        "id": "calor",
+        "atributos": {},
+        "capacidades": []
+      },
+      {
+        "id": "barra",
+        "atributos": {},
+        "capacidades": []
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "temperatura",
+        "aridade": 1,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "maior",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "fluxo",
+        "aridade": 4,
+        "classe": "comum",
+        "simetrico": false
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "r_temperatura_cafe",
+        "predicado": "temperatura",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cafe"
+          }
+        ]
+      },
+      {
+        "id": "r_temperatura_gelo",
+        "predicado": "temperatura",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cubo_gelo"
+          }
+        ]
+      },
+      {
+        "id": "r_maior_temperatura",
+        "predicado": "maior",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "r_temperatura_cafe"
+          },
+          {
+            "tipo": "relacao",
+            "id": "r_temperatura_gelo"
+          }
+        ]
+      },
+      {
+        "id": "r_fluxo_calor",
+        "predicado": "fluxo",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cafe"
+          },
+          {
+            "tipo": "entidade",
+            "id": "cubo_gelo"
+          },
+          {
+            "tipo": "entidade",
+            "id": "calor"
+          },
+          {
+            "tipo": "entidade",
+            "id": "barra"
+          }
+        ]
+      }
+    ]
+  },
+  "correspondencias": [
+    {
+      "fonte": "pressao",
+      "alvo": "temperatura",
+      "peso": 1
+    }
+  ],
+  "mapeamentoEsperado": [
+    [
+      "agua",
+      "calor"
+    ],
+    [
+      "bequer",
+      "cafe"
+    ],
+    [
+      "cano",
+      "barra"
+    ],
+    [
+      "frasco",
+      "cubo_gelo"
+    ]
+  ],
+  "inferenciasEsperadas": [
+    {
+      "relacaoFonte": "r_causa",
+      "idProjetado": "proj:b-fluxo-agua:r_causa",
+      "predicado": "causa",
+      "argsAlvo": [
+        {
+          "tipo": "relacao",
+          "id": "r_maior_temperatura"
+        },
+        {
+          "tipo": "relacao",
+          "id": "r_fluxo_calor"
+        }
+      ],
+      "entidadesHipoteticas": []
+    }
+  ],
+  "observacoes": [
+    "Inferência clássica: causa(maior(temperatura), fluxo).",
+    "A correspondência pressao→temperatura foi declarada pelo codificador como fato da literatura (casamento de funções do SME) e incluída por decisão do autor (ADR-013), após a leitura das codificações e sem execução do motor.",
+    "Declaradas pelo codificador como não esperadas (ramo do diâmetro); se o motor as produzir, contam como extras.",
+    "Controle declarado pelo codificador: domínio 'b-controle-cafe-servido'; informativo, fora do critério de H1."
+  ],
+  "controleInformativo": {
+    "id": "b-controle-cafe-servido",
+    "esquemaAtributos": {
+      "estado_fisico": {
+        "tipo": "categorico"
+      },
+      "superficie": {
+        "tipo": "categorico"
+      },
+      "temperatura": {
+        "tipo": "numerico",
+        "unidade": "K",
+        "grupo": "escala"
+      }
+    },
+    "entidades": [
+      {
+        "id": "cafe_xicara",
+        "atributos": {
+          "estado_fisico": "liquido",
+          "superficie": "plana",
+          "temperatura": 352.15
+        },
+        "capacidades": []
+      },
+      {
+        "id": "cubo_gelo_balde",
+        "atributos": {
+          "temperatura": 264.15
+        },
+        "capacidades": []
+      },
+      {
+        "id": "bandeja",
+        "atributos": {},
+        "capacidades": []
+      },
+      {
+        "id": "garcom",
+        "atributos": {},
+        "capacidades": []
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "sobre",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "serve",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "ao_lado_de",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": true
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "r_sobre_cafe",
+        "predicado": "sobre",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cafe_xicara"
+          },
+          {
+            "tipo": "entidade",
+            "id": "bandeja"
+          }
+        ]
+      },
+      {
+        "id": "r_sobre_gelo",
+        "predicado": "sobre",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cubo_gelo_balde"
+          },
+          {
+            "tipo": "entidade",
+            "id": "bandeja"
+          }
+        ]
+      },
+      {
+        "id": "r_serve_cafe",
+        "predicado": "serve",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "garcom"
+          },
+          {
+            "tipo": "entidade",
+            "id": "cafe_xicara"
+          }
+        ]
+      },
+      {
+        "id": "r_ao_lado",
+        "predicado": "ao_lado_de",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cafe_xicara"
+          },
+          {
+            "tipo": "entidade",
+            "id": "cubo_gelo_balde"
+          }
+        ]
+      }
+    ]
+  }
+}

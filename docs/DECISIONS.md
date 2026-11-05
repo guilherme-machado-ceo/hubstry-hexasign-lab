@@ -5,6 +5,162 @@ Formato: ADR leve (status, data, decisão, motivo, impacto). Decisões novas ent
 
 ---
 
+## ADR-014 — Inferências podem introduzir predicados ausentes no alvo
+Status: accepted (implementação pendente, antes da execução de H1)
+Date: 2026-11-05
+Decided by: autor da teoria
+
+Decision:
+Quando o predicado de uma relação projetável da fonte não tem correspondente no alvo, a
+inferência candidata usa o próprio predicado da fonte, com sua declaração (aridade, classe e
+simetria), e o marca como predicado novo no alvo. Se o alvo declarar um predicado homônimo
+incompatível em aridade, classe ou simetria, a inferência não é emitida e o conflito é
+registrado na saída.
+
+Reason:
+A implementação da Tarefa 6 só projeta relações cujo predicado já tem correspondente no alvo.
+Com essa regra, o motor nunca propõe um tipo de relação que o alvo ainda não conhece, e a
+operação de criação perde o seu propósito: nos casos clássicos, a relação causal que a fonte
+sugere não seria projetada porque o alvo não declara `causa`. No SME, as inferências
+candidatas transportam os predicados da fonte para o alvo. A lacuna foi apontada por um dos
+codificadores independentes (Claude Opus 5.5, caso B, problema P4) e confirmada na leitura do
+código, sem execução do motor.
+
+Impact:
+Teoria v2 §6, design (contrato `inferir` e `Inferencia`), `src/motor/inferencia.ts` e testes.
+Nenhum critério do pré-registro muda.
+
+---
+
+## ADR-013 — Casos clássicos de H1: codificação independente e congelamento
+Status: accepted
+Date: 2026-11-05
+Decided by: autor da teoria
+
+Decision:
+H1 usa quatro casos, congelados em `validacao/casos-classicos/`: sistema solar e átomo de
+Rutherford, e fluxo de água e fluxo de calor, cada um codificado de forma independente por dois
+modelos de famílias distintas (GLM-5.3, via Digiti/Huawei MaaS, e Claude Opus 5.5, via API da
+Anthropic). Os domínios foram copiados sem alteração; as expectativas foram apenas convertidas
+para o formato de identificadores `proj:`. H1 só passa se os quatro casos passarem. No caso B
+codificado pelo Claude, inclui-se a correspondência de peso 1 `pressao → temperatura`, que o
+próprio codificador declarou como fato da literatura (casamento de funções do SME). Os
+domínios de controle de aparência superficial acompanham cada caso como informação, fora do
+critério de H1. As respostas brutas dos codificadores ficam em `validacao/casos-classicos/brutos/`.
+
+Reason:
+O pré-registro exige que a representação não seja ajustada ao motor. Duas codificações
+independentes testam também a robustez do motor a escolhas de representação, e as duas
+convergiram no mapeamento de entidades. A correspondência do caso B foi decidida depois da
+leitura das codificações, com base na regra do SME e sem execução do motor; sem ela, o caso
+fracassaria pela ausência de funções no modelo de dados, e não pela busca.
+
+Impact:
+`validacao/casos-classicos/`. Limitações conhecidas: o modelo de dados não tem termos
+funcionais (as duas codificações os adaptaram de formas diferentes); H1 não exercita ρ₄, ρ₅ e ρ₆.
+
+---
+
+## ADR-012 — Correções de design detectadas antes e durante a implementação
+Status: accepted
+Date: 2026-11-05
+Decided by: autor da teoria
+
+Decision:
+(1) Os núcleos da busca nascem de hipóteses-raiz, isto é, hipóteses locais que não são argumento
+de nenhuma outra hipótese consistente, formadas em qualquer nível, como no SME; a regra anterior,
+baseada nas relações de topo de cada domínio, foi abandonada. (2) Relações projetadas têm
+identificador determinístico `proj:<dominioFonte>:<relacaoFonte>`, com prefixo reservado.
+(3) Em ρ₄, o escore de um atributo de escala é a fração dos pares dentro da tolerância.
+
+Reason:
+(1) Com a regra anterior, o caso do átomo não produziria mapeamento algum, porque o par de topo
+`causa ↔ causa` falha na descida; o defeito foi revelado pela codificação independente dos casos.
+(2) As inferências esperadas precisam ser comparáveis por forma canônica. (3) A palavra "fração"
+se perdeu numa reescrita da Definição 7, e o implementador parou diante da ambiguidade.
+
+Impact:
+Commit `600fcf1`: teoria §3.4 e §7, design, validador e testes.
+
+---
+
+## ADR-011 — Pré-registro da validação e emenda H1 v1.1
+Status: accepted
+Date: 2026-11-05
+Decided by: autor da teoria
+
+Decision:
+Os critérios de H1 a H5 foram registrados em `validacao/criterios.v1.md`, com
+`config/modalidades.v1.json`, antes de qualquer código de validação (commit `78f51cc`). A emenda
+v1.1 (`validacao/criterios.v1.1.md`, commit `35fa4d8`) altera somente H1: o sucesso é julgado
+sobre o melhor candidato pela tupla homológica sem o filtro de ρ₂, que passa a ser diagnóstico.
+
+Reason:
+As inferências candidatas são relações da fonte sem imagem no alvo e, por isso, reduzem ρ₂; uma
+codificação fiel pode ficar abaixo de 0,6 e H1 fracassaria pelo limiar, e não pela busca. A
+emenda foi feita antes de qualquer execução e antes da entrega dos casos independentes. Os
+casos confirmaram o risco: o mapeamento clássico do fluxo de calor tem ρ₂ = 0,5 numa das
+codificações.
+
+Impact:
+H1. Fica aberta, para depois do MVP, a calibração do limiar homológico num motor de criação de
+analogias.
+
+---
+
+## ADR-010 — Decisões operacionais do MVP do motor de analogias
+Status: accepted (provisórias onde indicado)
+Date: 2026-11-05
+Decided by: autor da teoria
+
+Decision:
+- ρ₆ usa provisoriamente a semântica de complementaridade com emergência (`semanticaRho6:
+  "emergencia-v1"`); a escolha teórica com a leitura de "acréscimo extrínseco" segue aberta.
+- Modalidade homológica: filtro por ρ₂; ordenação por sistematicidade, depois ρ₁, depois chave
+  canônica.
+- Correspondências entre predicados só com peso 1.
+- Norma áurea e operador Π fora do MVP.
+- ρ₄: tolerância no domínio logarítmico e Kendall τ-b no grupo monótono.
+- ρ₅: no máximo um atributo potencial por domínio.
+- ρ₁ e ρ₃ com denominador fixo sobre as entidades da fonte (cobertura).
+- H2 (conjunto SCAN) e publicação em nuvem fora do MVP.
+
+Reason:
+Fechar ambiguidades apontadas pelas revisões independentes (Kiro e GLM-5.3) sem inventar
+semântica; preservar o sentido da v1 onde possível; manter o MVP enxuto. A cobertura evita que
+mapeamentos mínimos superem analogias amplas.
+
+Impact:
+Teoria v2 §3, §5 e §12; spec `.kiro/specs/motor-analogias/`; configuração v1.
+
+---
+
+## ADR-009 — HexaSign como motor determinístico de criação de analogias
+Status: accepted
+Date: 2026-11-05
+Decided by: autor da teoria
+
+Decision:
+O HexaSign passa a ser um motor determinístico que cria analogias heurísticas, funcionais e
+homológicas entre domínios descritos como estruturas relacionais, avaliadas pelas seis relações
+de significância. A base teórica é a proposta de núcleo normativo da versão 2 da Álgebra
+Hexarrelacional (`docs/teoria/algebra-hexarrelacional-v2-motor-analogias.md`), que incorpora o
+diagnóstico de implementabilidade do Claude Science
+(`docs/teoria/claude-science-2026-11-05/`). A análise de texto por heurísticas lexicais deixa
+de ser a direção do produto.
+
+Reason:
+A intenção original da teoria era instrumentalizar analogias. A v1 é uma teoria de avaliação, sem
+procedimento de criação; o SME (Falkenhainer, Forbus e Gentner, 1989) mostra que a criação
+determinística de analogias é viável, e a tipologia de seis relações e três modalidades é a
+contribuição própria.
+
+Impact:
+Substitui a direção de produto dos ADR-003 a ADR-008, que tratam da camada de IA sobre análise
+de texto. Spec do MVP em `.kiro/specs/motor-analogias/`.
+
+---
+
 ## ADR-008 — Guard anti-overclaim (T1.5)
 Status: accepted
 Date: 2026-10-04

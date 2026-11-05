@@ -1,0 +1,451 @@
+{
+  "id": "h1-a-glm",
+  "caso": "sistema solar e átomo de Rutherford",
+  "origemBibliografica": "Gentner, D. (1983). Structure-mapping: a theoretical framework for analogy. Cognitive Science, 7(2); Falkenhainer, B.; Forbus, K. D.; Gentner, D. (1989). The Structure-Mapping Engine: algorithm and examples. Artificial Intelligence, 41(1).",
+  "codificacao": {
+    "codificador": "GLM-5.3 (Digiti/Huawei MaaS)",
+    "data": "2026-11-05",
+    "independencia": "codificado sem acesso ao motor nem à outra codificação; domínios copiados sem alteração",
+    "respostaBruta": "brutos/glm-5.3-lote-1.md"
+  },
+  "modalidade": "homologica",
+  "fonte": {
+    "id": "sistema-solar",
+    "esquemaAtributos": {
+      "massa": {
+        "tipo": "numerico",
+        "unidade": "kg",
+        "grupo": "escala"
+      },
+      "temperatura": {
+        "tipo": "numerico",
+        "unidade": "K",
+        "grupo": "escala"
+      },
+      "cor": {
+        "tipo": "categorico"
+      }
+    },
+    "entidades": [
+      {
+        "id": "sol",
+        "atributos": {
+          "massa": 1.989e+30,
+          "temperatura": 5778,
+          "cor": "amarela"
+        },
+        "capacidades": [
+          "atrair"
+        ]
+      },
+      {
+        "id": "planeta",
+        "atributos": {
+          "massa": 5.972e+24
+        },
+        "capacidades": [
+          "orbitar"
+        ]
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "massa-maior",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "atrai",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": true
+      },
+      {
+        "nome": "orbita",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "causa",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "r-massa-maior",
+        "predicado": "massa-maior",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "sol"
+          },
+          {
+            "tipo": "entidade",
+            "id": "planeta"
+          }
+        ]
+      },
+      {
+        "id": "r-atri",
+        "predicado": "atrai",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "sol"
+          },
+          {
+            "tipo": "entidade",
+            "id": "planeta"
+          }
+        ]
+      },
+      {
+        "id": "r-orbita",
+        "predicado": "orbita",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "planeta"
+          },
+          {
+            "tipo": "entidade",
+            "id": "sol"
+          }
+        ]
+      },
+      {
+        "id": "r-causa-massa-atri",
+        "predicado": "causa",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "r-massa-maior"
+          },
+          {
+            "tipo": "relacao",
+            "id": "r-atri"
+          }
+        ]
+      },
+      {
+        "id": "r-causa-atri-orbita",
+        "predicado": "causa",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "r-atri"
+          },
+          {
+            "tipo": "relacao",
+            "id": "r-orbita"
+          }
+        ]
+      }
+    ]
+  },
+  "alvo": {
+    "id": "atomo-rutherford",
+    "esquemaAtributos": {
+      "massa": {
+        "tipo": "numerico",
+        "unidade": "kg",
+        "grupo": "escala"
+      },
+      "carga": {
+        "tipo": "numerico",
+        "unidade": "e",
+        "grupo": "escala",
+        "potencial": true
+      }
+    },
+    "entidades": [
+      {
+        "id": "nucleo",
+        "atributos": {
+          "massa": 1.673e-27,
+          "carga": 1
+        },
+        "capacidades": [
+          "atrair"
+        ]
+      },
+      {
+        "id": "eletron",
+        "atributos": {
+          "massa": 9.109e-31,
+          "carga": -1
+        },
+        "capacidades": [
+          "orbitar"
+        ]
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "carga-oposta",
+        "aridade": 2,
+        "classe": "oposicao",
+        "simetrico": true
+      },
+      {
+        "nome": "massa-maior",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "atrai",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": true
+      },
+      {
+        "nome": "orbita",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "causa",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "r-carga-oposta",
+        "predicado": "carga-oposta",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "nucleo"
+          },
+          {
+            "tipo": "entidade",
+            "id": "eletron"
+          }
+        ]
+      },
+      {
+        "id": "r-massa-maior",
+        "predicado": "massa-maior",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "nucleo"
+          },
+          {
+            "tipo": "entidade",
+            "id": "eletron"
+          }
+        ]
+      },
+      {
+        "id": "r-atri",
+        "predicado": "atrai",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "nucleo"
+          },
+          {
+            "tipo": "entidade",
+            "id": "eletron"
+          }
+        ]
+      },
+      {
+        "id": "r-orbita",
+        "predicado": "orbita",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "eletron"
+          },
+          {
+            "tipo": "entidade",
+            "id": "nucleo"
+          }
+        ]
+      },
+      {
+        "id": "r-causa-carga-atri",
+        "predicado": "causa",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "r-carga-oposta"
+          },
+          {
+            "tipo": "relacao",
+            "id": "r-atri"
+          }
+        ]
+      }
+    ]
+  },
+  "correspondencias": [],
+  "mapeamentoEsperado": [
+    [
+      "planeta",
+      "eletron"
+    ],
+    [
+      "sol",
+      "nucleo"
+    ]
+  ],
+  "inferenciasEsperadas": [
+    {
+      "relacaoFonte": "r-causa-atri-orbita",
+      "idProjetado": "proj:sistema-solar:r-causa-atri-orbita",
+      "predicado": "causa",
+      "argsAlvo": [
+        {
+          "tipo": "relacao",
+          "id": "r-atri"
+        },
+        {
+          "tipo": "relacao",
+          "id": "r-orbita"
+        }
+      ],
+      "entidadesHipoteticas": []
+    },
+    {
+      "relacaoFonte": "r-causa-massa-atri",
+      "idProjetado": "proj:sistema-solar:r-causa-massa-atri",
+      "predicado": "causa",
+      "argsAlvo": [
+        {
+          "tipo": "relacao",
+          "id": "r-massa-maior"
+        },
+        {
+          "tipo": "relacao",
+          "id": "r-atri"
+        }
+      ],
+      "entidadesHipoteticas": []
+    }
+  ],
+  "observacoes": [
+    "Inferência clássica: causa(atrai, orbita). A segunda inferência foi declarada pelo codificador como não clássica, mas esperada.",
+    "Controle declarado pelo codificador: domínio 'acelerador' (aparência superficial); informativo, fora do critério de H1."
+  ],
+  "controleInformativo": {
+    "id": "acelerador",
+    "esquemaAtributos": {
+      "massa": {
+        "tipo": "numerico",
+        "unidade": "kg",
+        "grupo": "escala"
+      },
+      "carga": {
+        "tipo": "numerico",
+        "unidade": "e",
+        "grupo": "escala",
+        "potencial": true
+      },
+      "raio": {
+        "tipo": "numerico",
+        "unidade": "m",
+        "grupo": "escala"
+      }
+    },
+    "entidades": [
+      {
+        "id": "proton",
+        "atributos": {
+          "massa": 1.673e-27,
+          "carga": 1
+        },
+        "capacidades": [
+          "colidir"
+        ]
+      },
+      {
+        "id": "eletron-livre",
+        "atributos": {
+          "massa": 9.109e-31,
+          "carga": -1
+        },
+        "capacidades": [
+          "colidir"
+        ]
+      },
+      {
+        "id": "anel",
+        "atributos": {
+          "raio": 100
+        },
+        "capacidades": [
+          "acelerar"
+        ]
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "acelera",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "colide",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": true
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "r-acelera-proton",
+        "predicado": "acelera",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "anel"
+          },
+          {
+            "tipo": "entidade",
+            "id": "proton"
+          }
+        ]
+      },
+      {
+        "id": "r-acelera-eletron",
+        "predicado": "acelera",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "anel"
+          },
+          {
+            "tipo": "entidade",
+            "id": "eletron-livre"
+          }
+        ]
+      },
+      {
+        "id": "r-colide",
+        "predicado": "colide",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "proton"
+          },
+          {
+            "tipo": "entidade",
+            "id": "eletron-livre"
+          }
+        ]
+      }
+    ]
+  }
+}
