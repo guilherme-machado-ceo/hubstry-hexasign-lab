@@ -187,7 +187,7 @@ function textoNormalizado(
   caminho: string,
   erros: ErroValidacao[],
   codigo: CodigoErroValidacao,
-  opcoes: { naoVazio?: boolean; proibirHip?: boolean } = {},
+  opcoes: { naoVazio?: boolean; proibirPrefixoReservado?: boolean } = {},
 ): string | undefined {
   if (typeof valor !== "string") {
     erros.push({ codigo, caminho, mensagem: "deve ser texto" });
@@ -201,8 +201,11 @@ function textoNormalizado(
   if (opcoes.naoVazio && normalizado.length === 0) {
     erros.push({ codigo, caminho, mensagem: "não pode ser vazio" });
   }
-  if (opcoes.proibirHip && normalizado.startsWith("hip:")) {
-    erros.push({ codigo, caminho, mensagem: "usa o prefixo reservado hip:" });
+  if (
+    opcoes.proibirPrefixoReservado &&
+    (normalizado.startsWith("hip:") || normalizado.startsWith("proj:"))
+  ) {
+    erros.push({ codigo, caminho, mensagem: "usa prefixo reservado hip: ou proj:" });
   }
   return normalizado;
 }
@@ -277,7 +280,7 @@ function listaTextosUnicos(
   valor.forEach((item, indice) => {
     const normalizado = textoNormalizado(item, ponteiro(caminho, indice), erros, codigo, {
       naoVazio: true,
-      proibirHip: true,
+      proibirPrefixoReservado: true,
     });
     if (normalizado === undefined) return;
     if (vistos.has(normalizado)) {
@@ -313,7 +316,7 @@ function objetoNormalizado(
         ponteiro(caminho, chave),
         erros,
         "DOMINIO_INVALIDO",
-        { naoVazio: true, proibirHip: true },
+        { naoVazio: true, proibirPrefixoReservado: true },
       );
       if (normalizada === undefined) return;
       if (vistos.has(normalizada)) {
@@ -351,7 +354,7 @@ export function validarDominio(
 
   const id = textoNormalizado(entrada.id, "/id", erros, "DOMINIO_INVALIDO", {
     naoVazio: true,
-    proibirHip: true,
+    proibirPrefixoReservado: true,
   });
 
   const esquemaAtributos: Record<string, DefinicaoAtributo> = {};
@@ -456,7 +459,7 @@ export function validarDominio(
         ponteiro(caminho, "id"),
         erros,
         "DOMINIO_INVALIDO",
-        { naoVazio: true, proibirHip: true },
+        { naoVazio: true, proibirPrefixoReservado: true },
       );
       if (entidadeId !== undefined) {
         if (idsEntidades.has(entidadeId)) {
@@ -548,7 +551,7 @@ export function validarDominio(
         ponteiro(caminho, "nome"),
         erros,
         "DOMINIO_INVALIDO",
-        { naoVazio: true, proibirHip: true },
+        { naoVazio: true, proibirPrefixoReservado: true },
       );
       const aridade = numeroFinito(
         original.aridade,
@@ -674,14 +677,14 @@ export function validarDominio(
         ponteiro(caminho, "id"),
         erros,
         "DOMINIO_INVALIDO",
-        { naoVazio: true, proibirHip: true },
+        { naoVazio: true, proibirPrefixoReservado: true },
       );
       const predicadoNome = textoNormalizado(
         original.predicado,
         ponteiro(caminho, "predicado"),
         erros,
         "DOMINIO_INVALIDO",
-        { naoVazio: true, proibirHip: true },
+        { naoVazio: true, proibirPrefixoReservado: true },
       );
       if (relacaoId !== undefined) {
         if (idsRelacoes.has(relacaoId)) {
@@ -721,7 +724,7 @@ export function validarDominio(
             ponteiro(argCaminho, "id"),
             erros,
             "DOMINIO_INVALIDO",
-            { naoVazio: true, proibirHip: true },
+            { naoVazio: true, proibirPrefixoReservado: true },
           );
           if (argId !== undefined) args.push({ tipo: argOriginal.tipo, id: argId });
         });

@@ -159,7 +159,7 @@ O esquema rejeita:
 - emergência com aridade menor que dois, argumento relacional ou capacidades exigidas vazias;
 - relações estruturalmente duplicadas;
 - referências inexistentes e ciclos;
-- IDs iniciados por `hip:`;
+- IDs iniciados por `hip:` ou `proj:`;
 - correspondência com peso diferente de 1, aridade, classe ou simetria incompatível.
 
 O validador será próprio e sem dependência nova em tempo de execução.
@@ -271,9 +271,10 @@ logR[i] = ln(valorAlvo[i] / valorFonte[i])
 logA = mediana(logR)
 distancia[i] = quantizar12(|logR[i] - logA|)
 dentro(i) = distancia[i] <= toleranciaLogEscala
+escoreEscala = quantidadeDentro / quantidadeAvaliada
 ```
 
-Com quantidade par, a mediana é a média dos dois valores centrais. Essa formulação é simétrica sob inversão dos domínios: inverter troca o sinal dos logaritmos sem mudar as distâncias à mediana.
+Com quantidade par, a mediana é a média dos dois valores centrais. O escore do atributo de escala é a fração dos pares avaliados que ficam dentro da tolerância. Essa formulação é simétrica sob inversão dos domínios: inverter troca o sinal dos logaritmos sem mudar as distâncias à mediana.
 
 Para grupo monótono, usa-se Kendall τ-b. O algoritmo conta concordâncias, discordâncias e empates de modo determinístico; denominador zero torna o atributo não avaliável. ρ₄ é a média dos atributos avaliáveis.
 
@@ -301,19 +302,19 @@ sistematicidade =
   soma dos pesos de todas as relações da fonte
 ```
 
-A pontuação fica em [0, 1] e é `null` quando a fonte não contém relações. A conectividade é favorecida na construção dos núcleos: cada núcleo nasce de uma relação de nível mais alto e inclui recursivamente sua estrutura conectada. A sistematicidade não substitui ρ₂; na modalidade homológica, ρ₂ é o filtro e a sistematicidade é o primeiro critério de ordenação.
+A pontuação fica em [0, 1] e é `null` quando a fonte não contém relações. A conectividade é favorecida na construção dos núcleos: cada núcleo nasce de uma hipótese raiz e inclui recursivamente sua estrutura conectada. A sistematicidade não substitui ρ₂; na modalidade homológica, ρ₂ é o filtro e a sistematicidade é o primeiro critério de ordenação.
 
 ## Busca
 
 ### Hipóteses locais
 
-Relações candidatas são indexadas por `(predicadoNormalizado, aridade, classe, simetria)`, evitando o produto cartesiano quando não há correspondência. Nas modalidades heurística e funcional, pares de entidades podem iniciar núcleos quando sua medida local é maior que zero.
+Relações candidatas são indexadas por `(predicadoNormalizado, aridade, classe, simetria)`. Formam-se hipóteses locais para todos os pares compatíveis em qualquer nível das duas estruturas, evitando o produto cartesiano quando não há correspondência. Nas modalidades heurística e funcional, pares de entidades podem iniciar núcleos quando sua medida local é maior que zero.
 
 As hipóteses são produzidas por iterador em ordem canônica. A implementação não materializa mais hipóteses do que o orçamento permite.
 
 ### Núcleos
 
-Uma relação é de nível mais alto quando não aparece como argumento de nenhuma outra relação do domínio. Cada par dessas relações de nível mais alto é percorrido iterativamente, não por recursão irrestrita. A expansão segue argumentos em ordem canônica, consulta resultados memoizados para sub-relações compartilhadas e rejeita qualquer conflito de injetividade.
+Uma hipótese local estruturalmente consistente é raiz quando não aparece como par de argumentos de nenhuma outra hipótese local estruturalmente consistente. Cada hipótese raiz é percorrida iterativamente, não por recursão irrestrita. A expansão desce pelos argumentos em ordem canônica, consulta resultados memoizados para sub-relações compartilhadas e rejeita qualquer conflito de injetividade. O índice `relacoesNivelMaisAlto` pode existir para diagnóstico, mas não participa da escolha das raízes nem da formação dos núcleos.
 
 A chave de um núcleo é a serialização canônica de seus pares de entidade e pares de relação. Núcleos repetidos são descartados.
 
@@ -451,7 +452,7 @@ Uma relação da fonte sem imagem só é projetável quando ao menos um argument
 
 A projeção preserva referências tipadas e ocorre em ordem topológica. Uma sub-relação sem imagem só é projetada recursivamente se ela própria tiver ao menos um argumento direto com imagem. Se um argumento relacional não tiver imagem nem projeção válida, a relação que o contém não é emitida. `suporte` contém exatamente os argumentos diretos que já tinham imagem, em ordem canônica.
 
-Uma sub-relação projetada recebe um ID determinístico antes de ser referenciada. IDs hipotéticos usam componentes percentualmente codificados no formato `hip:<dominioFonte>:<entidadeFonte>`; o prefixo é reservado e proibido na entrada. Colisões são verificadas mesmo assim.
+Uma sub-relação projetada recebe antes de ser referenciada o ID determinístico `proj:<dominioFonte>:<relacaoFonte>`. IDs hipotéticos usam `hip:<dominioFonte>:<entidadeFonte>`. Em ambos os formatos, os componentes são percentualmente codificados. Os prefixos `proj:` e `hip:` são reservados e proibidos na entrada; colisões são verificadas mesmo assim.
 
 ### `buscar`
 

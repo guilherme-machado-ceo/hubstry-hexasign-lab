@@ -62,7 +62,7 @@ A relação binária local dada pela igualdade de papéis é reflexiva, simétri
 
 A Def. 3.4 da v1 define simetria como pertença à mesma órbita de um grupo de transformações 𝒢 (p. 25), sem especificar o grupo. A v2 exige que o grupo seja declarado na entrada, por atributo numérico. Dois grupos estão previstos. O grupo de **escala** contém as transformações x ↦ a·x, com a > 0. O grupo **monótono** contém as transformações que preservam a ordem.
 
-**Definição 7.** Para cada atributo numérico presente em pelo menos três pares mapeados, calcula-se a invariância. No grupo de escala, para cada par calcula-se a razão positiva e finita r = valor-alvo/valor-fonte. Estima-se o fator no domínio logarítmico por ln(a) = mediana(ln(r)). Quando há quantidade par de razões, a mediana é a média dos dois valores centrais. Um par fica dentro da tolerância declarada quando |ln(r) − ln(a)| ≤ εₗₒg. O atributo não é avaliável se qualquer razão considerada não for positiva e finita. No grupo monótono, usa-se (τ_b + 1)/2, em que τ_b é o coeficiente de Kendall com correção para empates; quando seu denominador é zero, o atributo não é avaliável. O valor de ρ₄(M) é a média sobre os atributos avaliados, e é indefinido se nenhum atributo for avaliável.
+**Definição 7.** Para cada atributo numérico presente em pelo menos três pares mapeados, calcula-se a invariância. No grupo de escala, para cada par calcula-se a razão positiva e finita r = valor-alvo/valor-fonte. Estima-se o fator no domínio logarítmico por ln(a) = mediana(ln(r)). Quando há quantidade par de razões, a mediana é a média dos dois valores centrais. Um par fica dentro da tolerância declarada quando |ln(r) − ln(a)| ≤ εₗₒg. O atributo não é avaliável se qualquer razão considerada não for positiva e finita. O escore do atributo de escala é a fração dos pares avaliados que ficam dentro da tolerância. No grupo monótono, usa-se (τ_b + 1)/2, em que τ_b é o coeficiente de Kendall com correção para empates; quando seu denominador é zero, o atributo não é avaliável. O valor de ρ₄(M) é a média sobre os atributos avaliados, e é indefinido se nenhum atributo for avaliável.
 
 Sem tolerância, pertencer à mesma órbita é uma relação de equivalência, como afirma a v1. No grupo de escala, a formulação logarítmica preserva a simetria sob a inversão dos domínios, porque a inversão troca o sinal de ln(r) e de sua mediana sem alterar a distância entre ambos. Com tolerância, a versão medida é reflexiva e simétrica, mas não transitiva, e isso deve ser declarado.
 
@@ -125,10 +125,10 @@ O motor oferece três operações, todas determinísticas.
 
 ## 7. Busca determinística
 
-Encontrar o melhor mapeamento entre duas estruturas é um problema combinatório difícil. A v2 adota, por isso, o procedimento guloso do SME, com regras de desempate fixas. Uma relação é de **nível mais alto** quando não é argumento de nenhuma outra relação do mesmo domínio.
+Encontrar o melhor mapeamento entre duas estruturas é um problema combinatório difícil. A v2 adota, por isso, o procedimento guloso do SME, com regras de desempate fixas.
 
-1. **Hipóteses locais.** Formam-se pares de instâncias de relação com predicados correspondentes e mesma aridade. Nas modalidades heurística e funcional, formam-se também pares de entidades por atributos e por papéis.
-2. **Núcleos.** Para cada par de relações de nível mais alto, desce-se recursivamente pelos argumentos e forma-se o maior mapeamento consistente com a injetividade.
+1. **Hipóteses locais.** Formam-se hipóteses para todos os pares de instâncias de relação com predicados correspondentes, mesma aridade, classe e simetria, em qualquer nível das duas estruturas. Nas modalidades heurística e funcional, formam-se também pares de entidades por atributos e por papéis.
+2. **Núcleos.** Uma hipótese local estruturalmente consistente é raiz quando não aparece como par de argumentos de nenhuma outra hipótese local estruturalmente consistente. Cada núcleo nasce de uma hipótese raiz e desce recursivamente pelos argumentos, formando o maior mapeamento compatível com a injetividade. Uma relação ser ou não de nível mais alto em seu próprio domínio não decide a formação de núcleos.
 3. **Pontuação.** Cada núcleo recebe a pontuação do objetivo da modalidade. Na homológica, relações de ordem superior pesam mais, o que implementa a sistematicidade.
 4. **Fusão gulosa.** Os núcleos são ordenados por pontuação decrescente e, em caso de empate, pela chave canônica, isto é, pela concatenação ordenada dos identificadores. Cada núcleo é acrescentado se não violar a injetividade.
 

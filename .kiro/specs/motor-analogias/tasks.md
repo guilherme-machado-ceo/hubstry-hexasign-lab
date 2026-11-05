@@ -23,7 +23,7 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
   - _Requisitos: 2.29, 3.5, 7.7, 10.1–10.8_
 
 - [x] 2. Esquema, validação e canonização
-  - [x] 2.1 Implementar os tipos, a normalização NFC e o validador próprio em `src/motor/esquema.ts`: referências tipadas, números finitos, esquema de atributos, unidades, capacidades, namespaces, aridade, classes, no máximo um potencial, prefixo `hip:` reservado, duplicatas estruturais, referências inexistentes, ciclos e profundidade.
+  - [x] 2.1 Implementar os tipos, a normalização NFC e o validador próprio em `src/motor/esquema.ts`: referências tipadas, números finitos, esquema de atributos, unidades, capacidades, namespaces, aridade, classes, no máximo um potencial, prefixos `hip:` e `proj:` reservados, duplicatas estruturais, referências inexistentes, ciclos e profundidade.
     - Rejeitar oposições que não sejam binárias e simétricas e emergências inválidas.
     - Rejeitar pesos diferentes de 1 com o erro `CORRESPONDENCIA_FORA_DO_MVP` e mensagem clara.
     - _Requisitos: 1.1–1.10, 9.4, 9.8_
@@ -82,7 +82,8 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - Aplicar o limite configurado antes de materialização desproporcional.
     - _Requisitos: 4.1, 9.6, 9.8_
   - [ ] 5.2 Implementar núcleos estruturalmente consistentes com travessia iterativa, memoização de sub-relações, injetividade e chave canônica.
-    - Definir relação de nível mais alto como aquela que não é argumento de nenhuma outra relação do domínio.
+    - Formar hipóteses locais para relações compatíveis em qualquer nível; uma hipótese é raiz quando não é argumento de outra hipótese local estruturalmente consistente.
+    - Não usar `relacoesNivelMaisAlto` para escolher raízes ou formar núcleos.
     - Aplicar os limites de profundidade e núcleos.
     - _Requisitos: 4.1, 7.9, 9.4, 9.6, 9.8_
   - [ ] 5.3 Implementar profundidade e sistematicidade como preservação ponderada por `1 + profundidade`.
@@ -113,7 +114,7 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - Validar o mapeamento recebido pelo comando autônomo.
     - Projetar uma relação sem imagem somente quando ao menos um argumento direto tiver imagem; não usar adjacência por entidade compartilhada ou componente conectado.
     - Projetar sub-relações sem imagem somente quando elas próprias satisfizerem o critério de suporte direto.
-    - Criar referências tipadas, IDs hipotéticos determinísticos sem colisão e suporte direto canônico.
+    - Criar referências tipadas, IDs hipotéticos `hip:<dominioFonte>:<entidadeFonte>` e IDs de relações projetadas `proj:<dominioFonte>:<relacaoFonte>`, com componentes percentualmente codificados, sem colisão e com suporte direto canônico.
     - _Requisitos: 5.1–5.6_
 
 - [ ] 7. Operações e CLI

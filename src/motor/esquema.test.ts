@@ -54,15 +54,17 @@ describe("validarDominio", () => {
     if ("erros" in resultado) expect(resultado.erros.some((erro) => erro.mensagem.includes("duplicado"))).toBe(true);
   });
 
-  it("rejeita escalar Unicode inválido e prefixo reservado", () => {
+  it("rejeita escalar Unicode inválido e prefixos reservados", () => {
     const entrada = criarDominioValido();
     entrada.id = "\ud800";
     entrada.entidades[0].id = "hip:reservado";
+    entrada.relacoes[0].id = "proj:reservado";
     const resultado = validarDominio(entrada, LIMITES_TESTE);
     expect(resultado.ok).toBe(false);
     if ("erros" in resultado) {
       expect(resultado.erros.some((erro) => erro.mensagem.includes("Unicode"))).toBe(true);
-      expect(resultado.erros.some((erro) => erro.mensagem.includes("hip:"))).toBe(true);
+      expect(resultado.erros.some((erro) => erro.caminho === "/entidades/0/id" && erro.mensagem.includes("hip:"))).toBe(true);
+      expect(resultado.erros.some((erro) => erro.caminho === "/relacoes/0/id" && erro.mensagem.includes("proj:"))).toBe(true);
     }
   });
 

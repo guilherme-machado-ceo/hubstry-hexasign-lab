@@ -36,7 +36,7 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 5. O SISTEMA DEVE rejeitar relações estruturalmente duplicadas, isto é, relações de IDs diferentes com o mesmo predicado e os mesmos argumentos canônicos.
 6. Predicados de oposição DEVEM ser binários e simétricos. Predicados de emergência DEVEM ter aridade mínima dois, aceitar somente referências diretas a entidades e declarar uma lista não vazia de capacidades exigidas.
 7. O SISTEMA DEVE aceitar no máximo um atributo marcado como potencial por domínio no MVP.
-8. O SISTEMA DEVE normalizar strings para Unicode NFC antes de verificar unicidade e rejeitar strings que contenham escalares Unicode inválidos. Identificadores de entrada NÃO DEVEM começar com o prefixo reservado `hip:`.
+8. O SISTEMA DEVE normalizar strings para Unicode NFC antes de verificar unicidade e rejeitar strings que contenham escalares Unicode inválidos. Identificadores de entrada NÃO DEVEM começar com os prefixos reservados `hip:` ou `proj:`.
 9. QUANDO uma tabela de correspondência entre predicados for fornecida, O SISTEMA DEVE aceitar somente entradas com peso exatamente 1 no MVP. Qualquer outro peso, inclusive entre 0 e 1, DEVE ser rejeitado com mensagem que informe que pesos graduais estão fora do MVP.
 10. Predicados correspondentes DEVEM ter a mesma aridade, classe e marca de simetria. A tabela NÃO DEVE conter pares duplicados ou correspondências conflitantes.
 
@@ -77,7 +77,7 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 17. Um atributo numérico só é avaliável quando aparece, com a mesma unidade e o mesmo grupo, em pelo menos três pares mapeados.
 18. No grupo de escala, para cada par calcula-se `r = valorAlvo / valorFonte`. O atributo só é avaliável se todas as razões consideradas forem positivas e finitas.
 19. O fator de escala DEVE ser estimado por `ln(a) = mediana(ln(r))`. Para quantidade par de observações, a mediana é a média aritmética dos dois valores centrais no domínio logarítmico.
-20. Um par fica dentro da tolerância quando `|ln(r) - ln(a)| ≤ toleranciaLogEscala`, com tolerância não negativa fornecida pela configuração versionada. A distância logarítmica DEVE ser quantizada a doze casas decimais antes dessa comparação.
+20. Um par fica dentro da tolerância quando `|ln(r) - ln(a)| ≤ toleranciaLogEscala`, com tolerância não negativa fornecida pela configuração versionada. A distância logarítmica DEVE ser quantizada a doze casas decimais antes dessa comparação. O escore do atributo de escala DEVE ser `quantidadeDentro / quantidadeAvaliada`.
 21. No grupo monótono, O SISTEMA DEVE usar Kendall τ-b e transformar o resultado por `(τ-b + 1) / 2`. Se o denominador de τ-b for zero, o atributo não é avaliável.
 22. ρ₄ é a média dos atributos avaliáveis e DEVE ser `null` se nenhum atributo for avaliável.
 
@@ -135,7 +135,7 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 
 1. A operação autônoma `inferir` DEVE receber fonte, alvo, um mapeamento validado, configuração e, opcionalmente, tabela de correspondência. A operação `mapear` DEVE reutilizar a mesma função pura de inferência.
 2. Uma relação da fonte sem imagem só é projetável quando ao menos um argumento direto já tem imagem no alvo: uma referência de entidade tem imagem quando a entidade está mapeada; uma referência de relação tem imagem quando a sub-relação da fonte possui relação correspondente no alvo.
-3. A projeção DEVE preservar referências tipadas. Uma sub-relação sem imagem só pode ser projetada recursivamente quando ela própria satisfizer o critério do item 2; se um argumento relacional não tiver imagem nem projeção válida, a relação que o contém NÃO DEVE ser emitida.
+3. A projeção DEVE preservar referências tipadas. Uma sub-relação sem imagem só pode ser projetada recursivamente quando ela própria satisfizer o critério do item 2; se um argumento relacional não tiver imagem nem projeção válida, a relação que o contém NÃO DEVE ser emitida. Relações projetadas DEVEM usar o ID `proj:<dominioFonte>:<relacaoFonte>`, com os dois componentes percentualmente codificados.
 4. QUANDO uma entidade projetada não tiver correspondente, O SISTEMA DEVE criar uma entidade hipotética com identificador determinístico iniciado por `hip:`, derivado do identificador do domínio-fonte e da entidade-fonte, e marcá-la como hipotética.
 5. O SISTEMA DEVE associar a cada inferência candidata, como suporte, os argumentos diretos que já tinham imagem, representados por referências tipadas e ordenados canonicamente. Compartilhar uma entidade apenas de forma indireta ou pertencer ao mesmo componente conectado NÃO É suporte suficiente.
 6. A operação DEVE rejeitar mapeamentos não injetivos, referências inexistentes e colisões de identificadores antes de produzir inferências.
