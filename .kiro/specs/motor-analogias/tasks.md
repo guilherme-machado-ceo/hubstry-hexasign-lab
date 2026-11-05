@@ -77,27 +77,27 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
     - `ρ₂ = 1`, com compatibilidade de classe nas correspondências, implica oposição preservada como oposição e emergência preservada como emergência; complementaridade por capacidades não é garantida.
     - _Requisito: 2.34; teoria v2 §4, Proposições 1 e 2_
 
-- [ ] 5. Busca e orçamento
-  - [ ] 5.1 Implementar hipóteses locais como iterador indexado por predicado normalizado, aridade, classe e simetria.
+- [x] 5. Busca e orçamento
+  - [x] 5.1 Implementar hipóteses locais como iterador indexado por predicado normalizado, aridade, classe e simetria.
     - Aplicar o limite configurado antes de materialização desproporcional.
     - _Requisitos: 4.1, 9.6, 9.8_
-  - [ ] 5.2 Implementar núcleos estruturalmente consistentes com travessia iterativa, memoização de sub-relações, injetividade e chave canônica.
+  - [x] 5.2 Implementar núcleos estruturalmente consistentes com travessia iterativa, memoização de sub-relações, injetividade e chave canônica.
     - Formar hipóteses locais para relações compatíveis em qualquer nível; uma hipótese é raiz quando não é argumento de outra hipótese local estruturalmente consistente.
     - Não usar `relacoesNivelMaisAlto` para escolher raízes ou formar núcleos.
     - Aplicar os limites de profundidade e núcleos.
     - _Requisitos: 4.1, 7.9, 9.4, 9.6, 9.8_
-  - [ ] 5.3 Implementar profundidade e sistematicidade como preservação ponderada por `1 + profundidade`.
+  - [x] 5.3 Implementar profundidade e sistematicidade como preservação ponderada por `1 + profundidade`.
     - _Requisitos: 3.3_
-  - [ ] 5.4 Implementar fusão gulosa, reinício pelos três melhores núcleos, deduplicação, recálculo dos perfis e ordenação final pela tupla total da modalidade.
+  - [x] 5.4 Implementar fusão gulosa, reinício pelos três melhores núcleos, deduplicação, recálculo dos perfis e ordenação final pela tupla total da modalidade.
     - Não afirmar que os três resultados são ótimos globais.
     - _Requisitos: 3.1–3.3, 4.1, 7.5, 7.9_
-  - [ ] 5.5 Implementar busca exata por ramificação e poda admissível para até oito entidades.
+  - [x] 5.5 Implementar busca exata por ramificação e poda admissível para até oito entidades.
     - Considerar o espaço de 1.441.729 mapeamentos parciais injetivos em 8×8 antes da poda.
     - Para ρ₁ e ρ₃, calcular o limite superior com denominador fixo e contribuição máxima 1 para cada entidade ainda não decidida.
     - Não podar igualdade enquanto a chave canônica puder alterar o desempate.
     - Registrar nós visitados, podados e avaliados.
     - _Requisitos: 9.7, 10.6, 10.7_
-  - [ ] 5.6 Testar erros determinísticos de orçamento sem executar as validações grandes.
+  - [x] 5.6 Testar erros determinísticos de orçamento sem executar as validações grandes.
     - _Requisitos: 9.6, 9.8, 9.9_
 
 - [ ] 6. Modalidades, diagnóstico e inferências
