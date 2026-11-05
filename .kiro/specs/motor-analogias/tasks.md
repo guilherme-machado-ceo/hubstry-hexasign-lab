@@ -22,19 +22,19 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
   - Fazer commit apenas dos artefatos de pré-registro e configuração antes de qualquer código de validação.
   - _Requisitos: 2.29, 3.5, 7.7, 10.1–10.8_
 
-- [ ] 2. Esquema, validação e canonização
-  - [ ] 2.1 Implementar os tipos, a normalização NFC e o validador próprio em `src/motor/esquema.ts`: referências tipadas, números finitos, esquema de atributos, unidades, capacidades, namespaces, aridade, classes, no máximo um potencial, prefixo `hip:` reservado, duplicatas estruturais, referências inexistentes, ciclos e profundidade.
+- [x] 2. Esquema, validação e canonização
+  - [x] 2.1 Implementar os tipos, a normalização NFC e o validador próprio em `src/motor/esquema.ts`: referências tipadas, números finitos, esquema de atributos, unidades, capacidades, namespaces, aridade, classes, no máximo um potencial, prefixo `hip:` reservado, duplicatas estruturais, referências inexistentes, ciclos e profundidade.
     - Rejeitar oposições que não sejam binárias e simétricas e emergências inválidas.
     - Rejeitar pesos diferentes de 1 com o erro `CORRESPONDENCIA_FORA_DO_MVP` e mensagem clara.
     - _Requisitos: 1.1–1.10, 9.4, 9.8_
-  - [ ] 2.2 Implementar em `src/motor/canonico.ts` o comparador por ponto de código Unicode, quantização a doze casas, ordenação das coleções-set e serialização UTF-8 canônica de entrada, configuração e saída.
+  - [x] 2.2 Implementar em `src/motor/canonico.ts` o comparador por ponto de código Unicode, quantização a doze casas, ordenação das coleções-set e serialização UTF-8 canônica de entrada, configuração e saída.
     - Preservar argumentos não simétricos e canonizar argumentos simétricos.
     - Normalizar `-0` e centralizar a representação textual de números.
     - _Requisitos: 7.1, 7.3–7.6, 7.9_
-  - [ ] 2.3 Implementar adaptadores de SHA-256 para Node.js e navegador sobre os mesmos bytes canônicos, inclusive hash separado da configuração e hash da saída sem autorreferência.
+  - [x] 2.3 Implementar adaptadores de SHA-256 para Node.js e navegador sobre os mesmos bytes canônicos, inclusive hash separado da configuração e hash da saída sem autorreferência.
     - Manter APIs de ambiente fora de `src/motor/`.
     - _Requisitos: 4.6, 7.2, 7.7, 7.8_
-  - [ ] 2.4 Escrever testes de propriedade e vetores dourados para mostrar que permutações de coleções-set não alteram os bytes, enquanto a ordem de argumentos não simétricos permanece significativa.
+  - [x] 2.4 Escrever testes de propriedade e vetores dourados para mostrar que permutações de coleções-set não alteram os bytes, enquanto a ordem de argumentos não simétricos permanece significativa.
     - _Requisitos: 7.1, 7.3–7.6_
 
 - [ ] 3. Correspondência de predicados e índices
