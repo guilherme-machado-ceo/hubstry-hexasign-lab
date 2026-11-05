@@ -1,44 +1,55 @@
 # Hubstry HexaSign Lab
 
-**Experimental auditability workspace for the Hexarelational Algebra of Significance (π√f(A)).**
+**Instrumento experimental de analogias estruturais, baseado na Álgebra Hexarrelacional de Significância (π√f(A)).**
 
-## Product direction
+## O que é
 
-The Lab is being refined as a B2B technical workspace for teams that need to inspect, compare and document semantic/algorithmic artifacts.
+O HexaSign instrumentaliza analogias heurísticas, funcionais e homológicas entre estruturas relacionais com grandezas físicas. Uma analogia liga uma fonte, um sistema conhecido, a um alvo, o sistema investigado. As seis relações de significância descrevem o que se preserva nessa passagem: similitude (ρ₁), homologia (ρ₂), equivalência (ρ₃), simetria (ρ₄), equilíbrio (ρ₅) e compensação (ρ₆).
 
-Core workflow:
-1. Analyze an artifact.
-2. Compare two artifacts.
-3. Simulate the six-dimensional relation vector.
-4. Preserve history.
-5. Explain the method.
+O HexaSign não analisa textos. A versão anterior estimava as seis relações por contagem de palavras, um desvio em relação à proposta original da teoria; essa análise foi removida (ver ADR-009 em `docs/DECISIONS.md`).
 
-## Mathematical core
+## Primeiro domínio: a série harmônica
 
-The current engine implements the manuscript's continuous six-component vector and golden-ratio-weighted norm:
+- **Fonte:** a estrutura harmônica ideal 𝓘_N, em que a relação entre as ordens m e n é a razão m/n.
+- **Alvo:** um ou dois eventos, cada um descrito por componentes espectrais (frequência, incerteza e amplitude).
+- **Definições operacionais:** seguem o perfil operacional HMAL (Hubstry Marine Acoustic Layer, camada acústica marinha da Hubstry) das seis relações, v0.1.4, no repositório `Hubstry-DeepTech/hubstry-marine-acoustic-layer`.
 
-f(A) = sqrt( sum_{k=1..6} φ^(k-1) · ρ_k(A)^2 )
+| Relação | Implementação | Estado |
+|---|---|---|
+| ρ₁ Similitude | Desvio normalizado de cada componente em relação à posição ideal da sua ordem, com a escala estimada sem o componente | Medida |
+| ρ₂ Homologia | Homomorfismo entre o observado e o ideal: busca exaustiva das atribuições de ordens, testada contra duas famílias de nulos | Medida |
+| ρ₃ Equivalência | Igualdade de assinaturas em contextos fixados (provisórios) | Medida |
+| ρ₄ Simetria | Mudança de escala de frequência, por teste de equivalência sobre a dispersão residual e a inclinação | Medida |
+| ρ₅ Equilíbrio | Definição operacional aberta | Aberta |
+| ρ₆ Compensação | Definição operacional aberta | Aberta |
 
-and the canonical Π operator:
+## Escolhas de método
 
-Π(A) = [f(A)]^(1/π)
+- Homologia como homomorfismo, com o isomorfismo como caso máximo.
+- A ordem ρ₁ … ρ₆ é conceitual, não uma cadeia de implicação lógica.
+- As seis relações são reportadas separadamente, sem pressupor independência.
+- Modelo nulo obrigatório para qualquer afirmação de encaixe.
+- Nenhuma modalidade de analogia fica presa a relações específicas: a modalidade é declarada.
+- A norma ponderada pela razão áurea, f(A), e o operador Π(A) = [f(A)]^(1/π) são leitura teórica, calculada só quando as seis relações têm escore.
 
-The manuscript describes the six relations as similitude, homology, equivalence, symmetry, equilibrium and compensation, and defines the continuous vector in [0,1]^6. It also explicitly distinguishes the canonical indexed reading from the multiplicative reading of the notation.
+## Limites desta versão
 
-## Important product caveat
+- Modelos nulos gerados em nível de componentes, e não a partir do sinal.
+- Covariância entre componentes tratada como diagonal; independência entre eventos declarada em ρ₄.
+- Sem estimador independente da frequência fundamental.
+- Parâmetros padrão são exemplos, não calibrações.
 
-The current text analysis is deterministic heuristics for experimentation. It should not be presented as a validated scientific measurement instrument. The Lab UI therefore frames results as analytical/experimental outputs.
+## Desenvolvimento
 
-## Deployment
+```bash
+pnpm install
+pnpm dev        # interface
+pnpm test       # testes do motor
+pnpm build && pnpm start   # servidor estático na porta 8080
+```
 
-The frontend is a Vite + React + TypeScript application. It can be deployed to Vercel or containerized for Cloud Run.
+O motor fica em `src/lib/engine/` e não depende do navegador.
 
-## Planned Google Cloud MVP services
+## Referência
 
-- Cloud Run: API / serverless backend when backend functionality is introduced.
-- Firestore: user/session/history persistence.
-- Cloud Storage: exported reports and static assets.
-- Cloud Logging / Monitoring: operational telemetry.
-- Secret Manager: credentials when integrations are added.
-
-Check the current Google Cloud pricing/free-tier documentation before enabling any service; free quotas and billing requirements vary by product and billing account.
+G. G. Machado, "π√f(A): Uma Álgebra Hexarrelacional de Significância para Algoritmos" (2026). DOI: [10.5281/zenodo.18776401](https://doi.org/10.5281/zenodo.18776401).

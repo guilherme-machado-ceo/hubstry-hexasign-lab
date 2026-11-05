@@ -5,6 +5,30 @@ Formato: ADR leve (status, data, decisão, motivo, impacto). Decisões novas ent
 
 ---
 
+## ADR-009 — Refatoração para analogias estruturais
+Status: accepted
+Date: 2026-11-05
+
+Decision:
+O HexaSign deixa de analisar textos e passa a instrumentalizar analogias heurísticas, funcionais
+e homológicas entre estruturas relacionais com grandezas físicas. Primeiro domínio: série
+harmônica ideal × componentes espectrais medidos, com as definições operacionais do perfil HMAL
+v0.1.4. Homologia (ρ₂) é homomorfismo, com o isomorfismo como caso máximo. A hierarquia
+ρ₆ ⇒ … ⇒ ρ₁ é ordem conceitual, não implicação. ρ₅ e ρ₆ ficam abertas. O vetor é reportado sem
+agregação; a norma áurea é leitura teórica.
+
+Reason:
+Decisão do autor da teoria (nov. 2026): a intenção original das seis relações era instrumentalizar
+analogias; as heurísticas lexicais foram um desvio das implementações, não da teoria.
+
+Impact:
+Removidos o motor lexical, os componentes de análise de texto, o histórico e a camada de IA sobre
+texto (`/api/maas/observe`, `server/maas.mjs`, `server/validator.mjs`, `src/lib/ai/`), que seguem
+no histórico do Git. Ficam substituídos os ADR-006, ADR-007 e ADR-008 e o ICP de `docs/PRODUCT.md`.
+Novo motor em `src/lib/engine/`, com testes (Vitest) no CI.
+
+---
+
 ## ADR-008 — Guard anti-overclaim (T1.5)
 Status: accepted
 Date: 2026-10-04

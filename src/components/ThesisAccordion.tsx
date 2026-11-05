@@ -30,35 +30,25 @@ export const ThesisAccordion = () => {
         </AccordionTrigger>
         <AccordionContent className="space-y-4 pb-5 text-sm leading-relaxed text-slate-300">
           <p>
-            Todo texto, código ou ideia é uma teia de relações. Nós tendemos a perguntar{" "}
-            <em>quanto</em> algo significa — esta pesquisa pergunta <strong>como</strong> algo
-            significa.
+            Uma analogia diz que algo de um sistema conhecido vale também para outro. A pergunta desta pesquisa é{" "}
+            <strong>o que exatamente se preserva</strong> nessa passagem, e com que grau de evidência.
           </p>
           <p>
-            A teoria π√f(A), publicada em acesso aberto, propõe que a significância de um
-            artefato pode ser <strong>investigada por meio de suas relações</strong>. São seis
-            relações fundamentais: o quanto os elementos de um artefato se{" "}
-            <strong>assemelham</strong> (similitude), se{" "}
-            <strong>correspondem em estrutura</strong> (homologia), podem{" "}
-            <strong>se substituir</strong> em um contexto (equivalência), se{" "}
-            <strong>espelham</strong> (simetria), se <strong>equilibram</strong> (equilíbrio) e
-            se <strong>completam</strong> gerando valor novo (compensação).
+            A teoria π√f(A), publicada em acesso aberto, propõe seis relações de significância para responder a
+            isso: dois sistemas podem se <strong>assemelhar</strong> (similitude), <strong>corresponder em
+            estrutura</strong> (homologia), <strong>substituir-se</strong> em contextos fixados (equivalência),{" "}
+            <strong>transformar-se um no outro</strong> (simetria), <strong>equilibrar-se</strong> (equilíbrio) ou{" "}
+            <strong>completar-se</strong> gerando algo novo (compensação).
           </p>
           <p>
-            Essas seis medidas são combinadas por uma fórmula inspirada na razão áurea — que dá
-            mais peso às relações mais profundas — e comprimidas em um único número, o Π(A),
-            usando a raiz de ordem π.
-          </p>
-          <p>
-            Neste laboratório, <strong>o motor matemático é determinístico</strong>: o mesmo
-            texto sempre gera os mesmos números. A inteligência artificial apenas{" "}
-            <strong>lê e explica</strong> esses números — ela não pode criá-los nem alterá-los.
+            O HexaSign transforma essas relações em testes. Cada uma tem definição operacional, tolerância, modelo
+            nulo e critério de refutação. O primeiro domínio é a série harmônica: o laboratório verifica o quanto
+            componentes espectrais medidos preservam a estrutura de razões entre ordens harmônicas.
           </p>
           <p className="rounded-lg border border-slate-700 bg-slate-900/70 p-3 text-slate-400">
-            <strong className="text-slate-200">Transparência:</strong> nesta versão experimental,
-            as seis relações são estimadas por uma aproximação determinística simplificada. A
-            implementação da camada relacional completa descrita no paper permanece como linha
-            de desenvolvimento da pesquisa.
+            <strong className="text-slate-200">Transparência:</strong> o motor é determinístico, e a mesma entrada com
+            a mesma semente gera sempre o mesmo resultado. Quatro relações estão operacionalizadas; equilíbrio e
+            compensação continuam abertas e aparecem como tal, sem número inventado.
           </p>
           <a
             href={ZENODO_URL}

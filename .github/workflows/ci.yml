@@ -34,6 +34,9 @@ jobs:
       - name: Editorial guard
         run: pnpm run check:editorial
 
+      - name: Tests
+        run: pnpm run test
+
       - name: Type check
         run: pnpm exec tsc -b
 
@@ -41,4 +44,4 @@ jobs:
         run: pnpm run build
 
       - name: Check API syntax
-        run: node --check server/index.mjs && node --check server/maas.mjs && node --check server/validator.mjs
+        run: node --check server/index.mjs
