@@ -37,7 +37,7 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
   - [x] 2.4 Escrever testes de propriedade e vetores dourados para mostrar que permutações de coleções-set não alteram os bytes, enquanto a ordem de argumentos não simétricos permanece significativa.
     - _Requisitos: 7.1, 7.3–7.6_
 
-- [ ] 3. Correspondência de predicados e índices
+- [x] 3. Correspondência de predicados e índices
   - Implementar em `src/motor/correspondencia.ts` correspondência por nome e por tabela unitária, exigindo compatibilidade de aridade, classe e simetria.
   - Implementar índices por assinatura relacional, predicado, papel direto e ordem topológica.
   - Usar posição `*` nos papéis de predicados simétricos.
