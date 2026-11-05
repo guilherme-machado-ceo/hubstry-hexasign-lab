@@ -1,0 +1,62 @@
+{
+  "versao": "1.0.0",
+  "semanticaRho6": "emergencia-v1",
+  "agregacaoTeorica": false,
+  "heuristica": {
+    "exige": {
+      "rho1": 0.5
+    },
+    "ordem": [
+      "rho1",
+      "rho2",
+      "chaveCanonica"
+    ]
+  },
+  "funcional": {
+    "exige": {
+      "rho3": 0.5
+    },
+    "ordem": [
+      "rho3",
+      "rho2",
+      "chaveCanonica"
+    ]
+  },
+  "homologica": {
+    "exige": {
+      "rho2": 0.6
+    },
+    "ordem": [
+      "sistematicidade",
+      "rho1",
+      "chaveCanonica"
+    ]
+  },
+  "gentner": {
+    "rho1Alto": 0.6,
+    "rho2Alto": 0.6
+  },
+  "correspondencias": {
+    "pesosPermitidos": [
+      1
+    ]
+  },
+  "limiaresBinarios": null,
+  "tolerancias": {
+    "rho4LogEscala": 0.05,
+    "rho5Equilibrio": 0.05
+  },
+  "limites": {
+    "entidadesPorDominio": 200,
+    "relacoesPorDominio": 1000,
+    "predicadosPorDominio": 200,
+    "atributosPorEntidade": 100,
+    "aridade": 16,
+    "profundidadeRelacional": 100,
+    "dominiosBiblioteca": 100,
+    "hipotesesLocais": 250000,
+    "nucleos": 50000,
+    "entidadesBuscaExata": 8,
+    "mapeamentosParciaisBuscaExata": 1441729
+  }
+}
