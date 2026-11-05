@@ -1,86 +1,167 @@
 # Plano de implementação: motor determinístico de criação de analogias
 
-Ordem pensada para ter o motor utilizável pela linha de comando ao fim da tarefa 7, e a validação completa ao fim da tarefa 10. As tarefas 11 a 13 levam o motor à web e à AWS (Amazon Web Services).
+A ordem abaixo é normativa para o MVP. As tarefas devem ser executadas uma por vez. Ao fim de cada tarefa, os testes pertinentes devem ser executados, a tarefa deve ser marcada como concluída e um resumo curto deve ser apresentado ao autor antes da próxima tarefa.
+
+A Tarefa 1 é um portão: `validacao/criterios.v1.md` e `config/modalidades.v1.json` devem ser commitados antes da criação ou execução de qualquer código de validação, teste experimental ou gerador. Nenhum limiar pré-registrado pode ser alterado para acomodar um resultado posterior. Fracassos devem ser registrados e submetidos ao autor.
+
+Validações grandes, especialmente H4 com 1.000 execuções, só podem ser executadas mediante pedido expresso do autor.
+
+## MVP
 
 - [ ] 1. Pré-registro e configuração
-  - Criar `validacao/criterios.v1.md` com H1 a H5, métricas, limiares de sucesso e decisões em caso de fracasso, copiados da Seção 10 do documento de teoria v2.
-  - Criar `config/modalidades.v1.json` com os perfis exigidos provisórios.
-  - Fazer commit desses dois arquivos antes de qualquer código de validação.
-  - _Requisitos: 3.5, 10.5_
+  - Criar `validacao/criterios.v1.md` com H1 a H5, métricas, populações, limiares de sucesso, tratamento de empates e decisões em caso de fracasso, conforme a teoria v2 e o Requisito 10.
+  - Registrar H5 com perda mediana zero e perda máxima não superior a 5%.
+  - Registrar H4 como igualdade de 100% dos hashes da saída canônica em Node.js e navegador, em duas máquinas ou trabalhadores independentes.
+  - Registrar H2 como validação pós-MVP, sem executá-la.
+  - Criar `config/modalidades.v1.json` com os valores provisórios do design, inclusive `semanticaRho6: "emergencia-v1"`, ordem homológica, tolerâncias e limites de recurso.
+  - Registrar na configuração que somente o peso de correspondência 1 é permitido no MVP e que a agregação teórica está ausente.
+  - Fazer commit apenas dos artefatos de pré-registro e configuração antes de qualquer código de validação.
+  - _Requisitos: 2.29, 3.5, 7.7, 10.3, 10.5, 10.6, 10.7_
 
 - [ ] 2. Esquema, validação e canonização
-  - [ ] 2.1 Implementar os tipos e o validador de domínio em `src/motor/esquema.ts`, com mensagens que indiquem o caminho do campo inválido, detecção de referências inexistentes e de ciclos entre relações.
-    - _Requisitos: 1.1, 1.2, 1.3, 1.4, 1.5_
-  - [ ] 2.2 Implementar `canonizar` e `arredondar` em `src/motor/canonico.ts`, e o cálculo do resumo SHA-256 na camada de interface.
-    - _Requisitos: 7.1, 7.3, 7.4_
-  - [ ] 2.3 Escrever testes de propriedade: embaralhar a entrada não altera a forma canônica.
-    - _Requisitos: 7.1_
+  - [ ] 2.1 Implementar os tipos, a normalização NFC e o validador próprio em `src/motor/esquema.ts`: referências tipadas, números finitos, esquema de atributos, unidades, capacidades, namespaces, aridade, classes, no máximo um potencial, prefixo `hip:` reservado, duplicatas estruturais, referências inexistentes, ciclos e profundidade.
+    - Rejeitar oposições que não sejam binárias e simétricas e emergências inválidas.
+    - Rejeitar pesos diferentes de 1 com o erro `CORRESPONDENCIA_FORA_DO_MVP` e mensagem clara.
+    - _Requisitos: 1.1–1.10, 9.4, 9.8_
+  - [ ] 2.2 Implementar em `src/motor/canonico.ts` o comparador por ponto de código Unicode, quantização a doze casas, ordenação das coleções-set e serialização UTF-8 canônica de entrada, configuração e saída.
+    - Preservar argumentos não simétricos e canonizar argumentos simétricos.
+    - Normalizar `-0` e centralizar a representação textual de números.
+    - _Requisitos: 7.1, 7.3–7.6, 7.9_
+  - [ ] 2.3 Implementar adaptadores de SHA-256 para Node.js e navegador sobre os mesmos bytes canônicos, inclusive hash separado da configuração e hash da saída sem autorreferência.
+    - Manter APIs de ambiente fora de `src/motor/`.
+    - _Requisitos: 4.6, 7.2, 7.7, 7.8_
+  - [ ] 2.4 Escrever testes de propriedade e vetores dourados para mostrar que permutações de coleções-set não alteram os bytes, enquanto a ordem de argumentos não simétricos permanece significativa.
+    - _Requisitos: 7.1, 7.3–7.6_
 
 - [ ] 3. Correspondência de predicados e índices
-  - Implementar em `src/motor/correspondencia.ts` a correspondência por nome e por tabela, o índice de papéis (predicado, posição) e o índice de relações por predicado.
-  - _Requisitos: 1.5, 2.1_
+  - Implementar em `src/motor/correspondencia.ts` correspondência por nome e por tabela unitária, exigindo compatibilidade de aridade, classe e simetria.
+  - Implementar índices por assinatura relacional, predicado, papel direto e ordem topológica.
+  - Usar posição `*` nos papéis de predicados simétricos.
+  - Confirmar por teste que pesos diferentes de 1 são rejeitados e nunca chegam à pontuação.
+  - _Requisitos: 1.9, 1.10, 2.10, 2.14–2.16_
 
 - [ ] 4. As seis relações
-  - [ ] 4.1 ρ₁ similitude e ρ₂ homologia, com detecção de isomorfismo; testes unitários e o teste de propriedade "a identidade tem ρ₂ = 1".
-    - _Requisitos: 2.1, 2.2, 2.4, 2.6_
-  - [ ] 4.2 ρ₃ equivalência por papéis e ρ₄ simetria pelos grupos de escala e monótono; teste de propriedade "ρ₃ binário é simétrico".
-    - _Requisitos: 2.1, 2.2, 2.3, 2.6_
-  - [ ] 4.3 ρ₅ equilíbrio por potencial declarado ou oposição e ρ₆ compensação por emergência e complementaridade; teste de que ρ₅ nunca usa resíduos de ajuste.
-    - _Requisitos: 2.1, 2.2, 2.5, 2.6_
-  - [ ] 4.4 Testes das Proposições 1 e 2 do documento de teoria v2.
-    - _Requisitos: 2.4_
+  - [ ] 4.1 Implementar ρ₁ similitude.
+    - Cobrir zero-zero, atributo ausente, união vazia, mapeamento vazio, tipo ou unidade incompatível, números extremos e média com pares locais indefinidos.
+    - _Requisitos: 2.1, 2.2, 2.5–2.9_
+  - [ ] 4.2 Implementar ρ₂ homologia e detecção de isomorfismo.
+    - Resolver relações aninhadas em ordem topológica; fonte sem relações produz `null`; argumentos sem imagem contam como não preservados.
+    - Testar identidade e distinguir preservação relacional completa do suporte de isomorfismo total.
+    - _Requisitos: 2.1, 2.2, 2.10–2.13_
+  - [ ] 4.3 Implementar ρ₃ equivalência por papéis diretos.
+    - Cobrir Jaccard vazio-vazio, posição `*`, mapeamento vazio e correspondências unitárias.
+    - _Requisitos: 2.1–2.3, 2.14–2.16_
+  - [ ] 4.4 Implementar ρ₄ simetria.
+    - Usar mediana dos logaritmos das razões alvo/fonte, tolerância logarítmica e somente razões positivas e finitas.
+    - Usar Kendall τ-b e cobrir empates, denominador zero, atributo ausente, unidade incompatível e quantidade par de observações.
+    - Testar a simetria sob inversão dos domínios para o grupo de escala.
+    - _Requisitos: 2.1–2.3, 2.17–2.22_
+  - [ ] 4.5 Implementar ρ₅ equilíbrio.
+    - Enumerar pares não ordenados, aceitar no máximo um potencial, cobrir zero-zero, unidades, pares parcialmente mapeados, oposição e mudança de mecanismo.
+    - Testar que resíduos de ajuste nunca são usados.
+    - _Requisitos: 1.6, 1.7, 2.1–2.3, 2.23–2.28_
+  - [ ] 4.6 Implementar ρ₆ compensação com a semântica provisória `emergencia-v1`.
+    - Cobrir disjunção dois a dois, cobertura das capacidades exigidas, capacidades extras, argumento sem imagem e fonte sem emergência.
+    - _Requisitos: 1.6, 2.1–2.3, 2.29–2.33_
+  - [ ] 4.7 Agregar o perfil, o perfil binário opcional e as versões das seis definições.
+    - Rejeitar `NaN`, infinito e valor fora de [0, 1].
+    - _Requisitos: 2.1–2.5, 4.2_
+  - [ ] 4.8 Testar as Proposições 1 e 2 da teoria v2 como conformidade teórica independente.
+    - Isomorfismo implica ρ₃ binário igual a 1 sob vocabulário compatível.
+    - `ρ₂ = 1` implica preservação das oposições predicativas e das instâncias de emergência; complementaridade por atributos não é inferida.
+    - _Requisito: 2.34; teoria v2 §4, Proposições 1 e 2_
 
-- [ ] 5. Busca
-  - [ ] 5.1 Hipóteses locais e núcleos estruturalmente consistentes.
-    - _Requisitos: 4.1_
-  - [ ] 5.2 Fusão gulosa com desempate canônico e geração de até três mapeamentos distintos.
-    - _Requisitos: 4.1, 7.1, 7.3_
-  - [ ] 5.3 Busca exata por ramificação e poda para até oito entidades.
-    - _Requisitos: 10.4_
+- [ ] 5. Busca e orçamento
+  - [ ] 5.1 Implementar hipóteses locais como iterador indexado por predicado normalizado, aridade, classe e simetria.
+    - Aplicar o limite configurado antes de materialização desproporcional.
+    - _Requisitos: 4.1, 9.6, 9.8_
+  - [ ] 5.2 Implementar núcleos estruturalmente consistentes com travessia iterativa, memoização de sub-relações, injetividade e chave canônica.
+    - Aplicar os limites de profundidade e núcleos.
+    - _Requisitos: 4.1, 7.9, 9.4, 9.6, 9.8_
+  - [ ] 5.3 Implementar profundidade e sistematicidade como preservação ponderada por `1 + profundidade`.
+    - _Requisitos: 3.3_
+  - [ ] 5.4 Implementar fusão gulosa, reinício pelos três melhores núcleos, deduplicação, recálculo dos perfis e ordenação final pela tupla total da modalidade.
+    - Não afirmar que os três resultados são ótimos globais.
+    - _Requisitos: 3.1–3.3, 4.1, 7.5, 7.9_
+  - [ ] 5.5 Implementar busca exata por ramificação e poda admissível para até oito entidades.
+    - Considerar o espaço de 1.441.729 mapeamentos parciais injetivos em 8×8 antes da poda.
+    - Não podar igualdade enquanto a chave canônica puder alterar o desempate.
+    - Registrar nós visitados, podados e avaliados.
+    - _Requisitos: 9.7, 10.5, 10.6_
+  - [ ] 5.6 Testar erros determinísticos de orçamento sem executar as validações grandes.
+    - _Requisitos: 9.6, 9.8, 9.9_
 
 - [ ] 6. Modalidades, diagnóstico e inferências
-  - [ ] 6.1 Objetivos e limiares por modalidade, lidos da configuração; resultado vazio com justificativa quando nenhum mapeamento atinge o limiar.
-    - _Requisitos: 3.1, 3.2, 3.3, 3.4, 3.5_
-  - [ ] 6.2 Classificação nas categorias de Gentner e alerta de aparência superficial.
-    - _Requisitos: 4.2, 4.3_
-  - [ ] 6.3 Inferências candidatas conectadas à estrutura mapeada, entidades hipotéticas com identificador determinístico e suporte.
-    - _Requisitos: 5.1, 5.2, 5.3_
+  - [ ] 6.1 Implementar filtros e tuplas de ordenação lidos da configuração.
+    - Heurística: ρ₁, depois ρ₂, depois chave.
+    - Funcional: ρ₃, depois ρ₂, depois chave.
+    - Homológica: filtrar por ρ₂, ordenar por sistematicidade, depois ρ₁ e chave.
+    - _Requisitos: 3.1–3.3, 3.5_
+  - [ ] 6.2 Implementar resultado vazio com justificativa e melhor candidato rejeitado.
+    - _Requisito: 3.4_
+  - [ ] 6.3 Implementar classificação de Gentner, diagnóstico indeterminado e alerta de aparência superficial.
+    - _Requisitos: 4.3–4.5_
+  - [ ] 6.4 Implementar inferências conectadas e projeção recursiva em `src/motor/inferencia.ts`.
+    - Validar o mapeamento recebido pelo comando autônomo.
+    - Criar referências tipadas, IDs hipotéticos determinísticos sem colisão e suporte canônico.
+    - _Requisitos: 5.1–5.6_
 
 - [ ] 7. Operações e CLI
-  - Implementar `mapear`, `inferir` e `buscar` em `src/motor/operacoes.ts` e a CLI em `scripts/motor-cli.ts`, com os comandos `mapear`, `inferir`, `buscar` e `validar`.
-  - _Requisitos: 4.1, 5.1, 6.1, 6.2, 9.1, 9.4_
-
-- [ ] 8. Leitura teórica opcional
-  - Implementar em `src/motor/teoria.ts` a norma com pesos configuráveis e o operador Π, calculados apenas com as seis relações definidas e rotulados como leitura teórica.
-  - _Requisitos: 8.1, 8.2, 8.3_
+  - [ ] 7.1 Implementar os contratos completos de `mapear` e `inferir` em `src/motor/operacoes.ts`, incluindo metadados, versões, hashes e melhor candidato rejeitado.
+    - _Requisitos: 4.1–4.6, 5.1–5.6_
+  - [ ] 7.2 Implementar `buscar` com biblioteca limitada, um representante elegível por alvo, heap top-k, contadores de descarte e desempate total.
+    - _Requisitos: 6.1–6.5, 9.5, 9.8_
+  - [ ] 7.3 Implementar `scripts/motor-cli.ts` com `mapear`, `inferir`, `buscar` e `validar`, códigos de saída estáveis e erros estruturados.
+    - _Requisitos: 9.1, 9.4–9.8_
+  - [ ] 7.4 Verificar por análise de imports e teste arquitetural que `src/motor/` não usa aleatoriedade, relógio, rede, modelos de linguagem ou APIs específicas de ambiente.
+    - _Requisito: 7.2_
 
 - [ ] 9. Casos clássicos (H1)
-  - Codificar à mão, em `validacao/casos-classicos/`, ao menos dois casos da literatura do SME (Structure-Mapping Engine, motor de mapeamento estrutural), com o mapeamento esperado: sistema solar e átomo de Rutherford; fluxo de água e fluxo de calor.
-  - Rodar a modalidade homológica e registrar o resultado.
-  - _Requisitos: 10.1_
+  - Codificar à mão, em `validacao/casos-classicos/`, ao menos os casos sistema solar/átomo de Rutherford e fluxo de água/fluxo de calor, com mapeamentos esperados.
+  - Rodar a modalidade homológica e gravar o resultado sem alterar critérios ou limiares.
+  - Se algum caso falhar, registrar o fracasso e consultar o autor antes de prosseguir para outra validação.
+  - _Requisitos: 10.1, 10.8_
 
 - [ ] 10. Validação H3, H4 e H5
-  - [ ] 10.1 Gerador determinístico de 40 pares controlados, dez por categoria de Gentner, e relatório de acurácia (H3).
-    - _Requisitos: 10.2_
-  - [ ] 10.2 Teste de 1.000 execuções com entradas embaralhadas e comparação dos resumos (H4).
-    - _Requisitos: 7.1, 7.2, 10.3_
-  - [ ] 10.3 Comparação entre busca gulosa e exata em domínios de até oito entidades (H5).
-    - _Requisitos: 10.4_
-  - [ ] 10.4 Gravar os relatórios em `validacao/resultados/`, com versão do motor e da configuração.
-    - _Requisitos: 7.4, 10.5_
+  - [ ] 10.1 Implementar o gerador determinístico de 40 pares controlados, dez por categoria de Gentner, e o relatório de acurácia H3.
+    - _Requisitos: 10.2, 10.8_
+  - [ ] 10.2 Preparar o teste H4 para 1.000 execuções com coleções-set embaralhadas, comparando o SHA-256 da saída canônica em Node.js e navegador, em duas máquinas ou trabalhadores independentes.
+    - Não executar H4 sem pedido expresso do autor.
+    - _Requisitos: 7.1–7.9, 10.3, 10.4, 10.8_
+  - [ ] 10.3 Comparar a busca gulosa com a exata em domínios de até oito entidades, usando a métrica pré-registrada.
+    - Verificar perda mediana zero e perda máxima não superior a 5%.
+    - Registrar contagens de nós, podas, tempo e pico de memória, sem alterar a regra de poda após observar os resultados.
+    - _Requisitos: 9.7, 10.5, 10.6, 10.8_
+  - [ ] 10.4 Gravar cada relatório em `validacao/resultados/`, separado do pré-registro, com versões, ambientes, hashes da configuração, entradas e saídas.
+    - Registrar resultados negativos integralmente e consultar o autor antes de qualquer revisão da busca ou da representação.
+    - _Requisito: 10.8_
 
 - [ ] 11. API HTTP
-  - Acrescentar a `server/` as rotas `POST /api/mapear`, `POST /api/inferir` e `POST /api/buscar`, com os códigos de erro do design.
-  - _Requisitos: 9.2, 9.4_
+  - Acrescentar a `server/` as rotas `POST /api/mapear`, `POST /api/inferir` e `POST /api/buscar`.
+  - Usar os mesmos contratos JSON, canonização e limites da biblioteca e da CLI.
+  - Implementar 400 para entrada inválida, 413 para tamanho excedido e 500 somente para falha interna.
+  - _Requisitos: 7.8, 9.2, 9.4–9.9_
 
 - [ ] 12. Página web mínima
-  - Substituir a página atual por uma tela que carrega dois domínios JSON, escolhe a modalidade, executa `mapear` e exibe o perfil, o mapeamento, a categoria de Gentner, os alertas e as inferências candidatas.
-  - _Requisitos: 9.3_
+  - Substituir a página atual por uma tela que carrega dois domínios JSON, escolhe a modalidade, executa `mapear` e exibe perfil, mapeamento, diagnóstico, alertas e inferências.
+  - Aplicar os mesmos limites antes da busca e calcular SHA-256 com `crypto.subtle` sobre os bytes do canonizador compartilhado.
+  - Garantir que cancelamento da interface não apresente resultado parcial como completo.
+  - _Requisitos: 7.8, 9.3, 9.4, 9.8, 9.9_
 
-- [ ] 13. Publicação na AWS
-  - Empacotar a API e a página para uma função sem servidor ou um contêiner, com limites de custo configurados, conferindo antes os preços vigentes.
-  - _Requisitos: 9.2, 9.3_
+## Pós-MVP
 
-- [ ] 14. Validação H2 (depois do MVP)
-  - Conferir conteúdo e licença do conjunto SCAN; codificar 20 analogias como pares de domínios; comparar com um modelo de linguagem usado como linha de base.
-  - _Requisitos: 10.5_
+As tarefas abaixo não fazem parte da entrega do MVP, não devem ser iniciadas durante sua implementação e exigem aprovação ou spec própria.
+
+- [ ] 8. Agregação teórica opcional
+  - Especificar integralmente a fórmula de `f(A)`, os pesos, a normalização e a quantização antes de escrever código.
+  - Implementar a norma e Π somente como leitura teórica, nunca como objetivo de busca.
+  - _Pós-MVP: Requisito 8_
+
+- [ ] 13. Publicação em provedor de nuvem
+  - Criar spec separada para escolher entre AWS, GCP ou outro provedor e definir arquitetura, segurança, operação e limites de custo antes do deploy.
+  - _Pós-MVP: publicação fora desta spec_
+
+- [ ] 14. Validação H2
+  - Conferir conteúdo, disponibilidade e licença do conjunto SCAN.
+  - Codificar os 20 pares pré-registrados e executar a comparação com a linha de base de modelo de linguagem por procedimento reproduzível.
+  - _Pós-MVP: H2_

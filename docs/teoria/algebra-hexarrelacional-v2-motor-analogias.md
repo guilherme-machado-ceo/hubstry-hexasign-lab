@@ -62,9 +62,9 @@ A versão binária, igualdade de papéis, é reflexiva, simétrica e transitiva,
 
 A Def. 3.4 da v1 define simetria como pertença à mesma órbita de um grupo de transformações 𝒢 (p. 25), sem especificar o grupo. A v2 exige que o grupo seja declarado na entrada, por atributo numérico. Dois grupos estão previstos. O grupo de **escala** contém as transformações x ↦ a·x, com a > 0. O grupo **monótono** contém as transformações que preservam a ordem.
 
-**Definição 7.** Para cada atributo numérico presente em pelo menos três pares mapeados, calcula-se a invariância. No grupo de escala, estima-se o fator a pela mediana das razões e conta-se a fração de pares cuja razão fica dentro da tolerância relativa declarada. No grupo monótono, usa-se (τ + 1)/2, em que τ é o coeficiente de Kendall, uma medida de concordância entre duas ordenações que varia de −1 a 1. O valor de ρ₄(M) é a média sobre os atributos avaliados, e é indefinido se nenhum atributo for avaliável.
+**Definição 7.** Para cada atributo numérico presente em pelo menos três pares mapeados, calcula-se a invariância. No grupo de escala, para cada par calcula-se a razão positiva e finita r = valor-alvo/valor-fonte. Estima-se o fator no domínio logarítmico por ln(a) = mediana(ln(r)). Quando há quantidade par de razões, a mediana é a média dos dois valores centrais. Um par fica dentro da tolerância declarada quando |ln(r) − ln(a)| ≤ εₗₒg. O atributo não é avaliável se qualquer razão considerada não for positiva e finita. No grupo monótono, usa-se (τ_b + 1)/2, em que τ_b é o coeficiente de Kendall com correção para empates; quando seu denominador é zero, o atributo não é avaliável. O valor de ρ₄(M) é a média sobre os atributos avaliados, e é indefinido se nenhum atributo for avaliável.
 
-Sem tolerância, pertencer à mesma órbita é uma relação de equivalência, como afirma a v1. Com tolerância, a versão medida é reflexiva e simétrica, mas não transitiva, e isso deve ser declarado.
+Sem tolerância, pertencer à mesma órbita é uma relação de equivalência, como afirma a v1. No grupo de escala, a formulação logarítmica preserva a simetria sob a inversão dos domínios, porque a inversão troca o sinal de ln(r) e de sua mediana sem alterar a distância entre ambos. Com tolerância, a versão medida é reflexiva e simétrica, mas não transitiva, e isso deve ser declarado.
 
 ### 3.5 ρ₅, equilíbrio: anulação de potenciais
 
@@ -179,13 +179,24 @@ A disponibilidade, o conteúdo e a licença do conjunto SCAN devem ser conferido
 
 O mercado de interesse é o PLN (processamento de linguagem natural) aplicado à governança de IA. A ponte entre o motor e esse mercado é a extração de domínios estruturados a partir de textos. Essa etapa pode usar um modelo de linguagem, desde que fique fora do núcleo e que cada extração seja armazenada com seu resumo, para que as execuções seguintes sejam reproduzíveis. A escolha da aplicação comercial deve suceder, e não preceder, a validação de H1 a H5.
 
-## 12. Decisões pendentes do autor
+## 12. Decisões do autor e pendências
 
-1. Os perfis exigidos e os limiares de cada modalidade (Seção 5).
-2. A leitura de ρ₆: compensação como emergência (esta proposta) ou como acréscimo extrínseco (relatório).
-3. O destino da norma áurea e de Π: núcleo, como exibição opcional, ou apêndice.
-4. O destino do ensaio filosófico da v1: apêndice ou volume próprio.
-5. A publicação da errata numérica da v1 no Zenodo, antes da v2.
+### 12.1 Decisões operacionais para o MVP do motor de analogias
+
+1. **Modalidades.** A modalidade homológica filtra por ρ₂ no limiar configurado, ordena por sistematicidade, desempata por ρ₁ e, por fim, pela chave canônica. Os limiares permanecem provisórios e versionados.
+2. **ρ₆.** O MVP usa provisoriamente a compensação por complementaridade com emergência e registra `semanticaRho6: "emergencia-v1"` na configuração e na saída. Essa escolha operacional não encerra a decisão teórica entre emergência e acréscimo extrínseco.
+3. **Correspondências entre predicados.** O MVP aceita somente peso 1. Pesos graduais devem ser rejeitados até que uma semântica própria seja definida.
+4. **Agregação.** A norma áurea e Π ficam fora do MVP. Sua eventual implementação depende de especificação posterior da fórmula, dos pesos, da normalização e da quantização.
+5. **ρ₄.** O grupo de escala usa tolerância no domínio logarítmico, conforme a Definição 7 desta versão, e o grupo monótono usa Kendall τ-b.
+6. **ρ₅.** O MVP admite no máximo um atributo potencial por domínio.
+7. **Validação e publicação posteriores.** A execução de H2 com o conjunto SCAN e a publicação em provedor de nuvem ficam fora da spec do MVP.
+
+### 12.2 Pendências teóricas e editoriais
+
+1. A decisão teórica definitiva entre as duas leituras de ρ₆.
+2. O destino final da norma áurea e de Π depois do MVP: exibição opcional ou apêndice.
+3. O destino do ensaio filosófico da v1: apêndice ou volume próprio.
+4. A publicação da errata numérica da v1 no Zenodo, antes da v2.
 
 ## Referências
 

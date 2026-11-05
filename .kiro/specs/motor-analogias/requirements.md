@@ -4,19 +4,24 @@
 
 Este documento especifica o MVP (Minimum Viable Product, produto mínimo viável) de um motor que cria analogias heurísticas, funcionais e homológicas entre domínios descritos como estruturas relacionais. O motor avalia cada analogia pelas seis relações de significância da Álgebra Hexarrelacional. A base teórica é a proposta de núcleo normativo da v2, em `docs/teoria/algebra-hexarrelacional-v2-motor-analogias.md`. As referências entre colchetes, como [v2 §3.2], apontam para as seções desse documento.
 
-O motor é determinístico. Isso significa que a mesma entrada, na mesma versão do motor, produz sempre a mesma saída, byte a byte. Modelos de linguagem não participam do núcleo; se usados, ficam numa etapa externa de extração, com resultados armazenados.
+O motor é determinístico. A mesma entrada efetiva, na mesma versão do motor e da configuração, deve produzir a mesma saída canônica byte a byte. A entrada efetiva compreende domínios, modalidade, tabela de correspondência, parâmetros da operação e configuração. Modelos de linguagem não participam do núcleo; se usados, ficam numa etapa externa de extração, com resultados armazenados.
+
+As decisões operacionais deste documento não transformam propostas teóricas provisórias em resultados validados. A semântica de ρ₆ e os limiares das modalidades devem permanecer identificados como provisórios e versionados.
 
 ## Glossário
 
-- **Domínio:** estrutura com entidades, atributos, predicados e instâncias de relação [v2 §2].
+- **Domínio:** estrutura com entidades, esquema de atributos, predicados e instâncias de relação [v2 §2].
 - **Fonte e alvo:** o domínio conhecido e o domínio investigado numa analogia.
+- **Referência:** argumento tipado que aponta para uma entidade ou uma relação.
 - **Mapeamento:** função parcial e injetiva das entidades da fonte nas entidades do alvo.
 - **Perfil:** vetor das seis relações (ρ₁ a ρ₆), com entradas possivelmente indefinidas.
 - **Modalidade:** heurística, funcional ou homológica, cada uma com um perfil exigido [v2 §5].
+- **Sistematicidade:** preservação ponderada de relações, com peso maior para relações de ordem superior.
 - **Inferência candidata:** relação da fonte projetada no alvo pelo mapeamento [v2 §6].
-- **Forma canônica:** serialização JSON (JavaScript Object Notation, notação de objetos JavaScript) com chaves e listas em ordem fixa, usada para calcular resumos.
+- **Forma canônica:** serialização JSON em UTF-8, com regras fixas para strings, números, chaves e coleções, usada para comparação e cálculo de resumos.
+- **Entrada equivalente:** entrada que difere somente na ordem de coleções declaradas como conjuntos; a ordem dos argumentos de predicados não simétricos permanece significativa.
 
-## Requisitos
+## Requisitos do MVP
 
 ### Requisito 1: representação de domínios
 
@@ -24,24 +29,78 @@ O motor é determinístico. Isso significa que a mesma entrada, na mesma versão
 
 #### Critérios de aceitação
 
-1. QUANDO um domínio for carregado, O SISTEMA DEVE validá-lo contra um esquema que exige entidades com identificador único, atributos tipados (categórico ou numérico com unidade), predicados com aridade e classe (comum, oposição ou emergência) e instâncias de relação cujos argumentos sejam entidades ou outras instâncias.
-2. SE o domínio violar o esquema, ENTÃO O SISTEMA DEVE rejeitá-lo com mensagem que indique o caminho do campo inválido.
-3. SE uma instância de relação referenciar um identificador inexistente ou formar ciclo entre relações, ENTÃO O SISTEMA DEVE rejeitar o domínio.
-4. QUANDO um predicado da classe emergência for declarado, O SISTEMA DEVE exigir a lista de capacidades requeridas.
-5. QUANDO uma tabela de correspondência entre predicados for fornecida, O SISTEMA DEVE aceitar pesos entre 0 e 1 e rejeitar pesos fora desse intervalo.
+1. QUANDO um domínio for carregado, O SISTEMA DEVE validá-lo contra um esquema que exige: identificador do domínio; esquema de atributos; entidades com identificador único e capacidades explícitas; predicados com nome único, aridade e classe (`comum`, `oposicao` ou `emergencia`); e instâncias de relação com identificador único e argumentos tipados como referência a entidade ou relação.
+2. O esquema de atributos DEVE declarar o tipo de cada atributo. Atributos categóricos admitem valores de texto; atributos numéricos exigem unidade e valores finitos. Unidade, grupo de simetria e marca de potencial pertencem ao esquema, não aos valores de cada entidade.
+3. SE o domínio violar o esquema, ENTÃO O SISTEMA DEVE rejeitá-lo com mensagem que indique o caminho do campo inválido e a regra violada.
+4. SE uma referência apontar para um identificador inexistente, se a quantidade de argumentos divergir da aridade ou se as relações formarem um ciclo, ENTÃO O SISTEMA DEVE rejeitar o domínio.
+5. O SISTEMA DEVE rejeitar relações estruturalmente duplicadas, isto é, relações de IDs diferentes com o mesmo predicado e os mesmos argumentos canônicos.
+6. Predicados de oposição DEVEM ser binários e simétricos. Predicados de emergência DEVEM ter aridade mínima dois, aceitar somente referências diretas a entidades e declarar uma lista não vazia de capacidades exigidas.
+7. O SISTEMA DEVE aceitar no máximo um atributo marcado como potencial por domínio no MVP.
+8. O SISTEMA DEVE normalizar strings para Unicode NFC antes de verificar unicidade e rejeitar strings que contenham escalares Unicode inválidos. Identificadores de entrada NÃO DEVEM começar com o prefixo reservado `hip:`.
+9. QUANDO uma tabela de correspondência entre predicados for fornecida, O SISTEMA DEVE aceitar somente entradas com peso exatamente 1 no MVP. Qualquer outro peso, inclusive entre 0 e 1, DEVE ser rejeitado com mensagem que informe que pesos graduais estão fora do MVP.
+10. Predicados correspondentes DEVEM ter a mesma aridade, classe e marca de simetria. A tabela NÃO DEVE conter pares duplicados ou correspondências conflitantes.
 
 ### Requisito 2: as seis relações
 
 **História de usuário:** como pesquisador, quero que cada mapeamento seja avaliado pelas seis relações, cada uma com definição declarada, para saber em que sentido dois domínios são análogos.
 
-#### Critérios de aceitação
+#### Critérios gerais
 
-1. QUANDO um mapeamento for avaliado, O SISTEMA DEVE calcular ρ₁ a ρ₆ conforme as Definições 4 a 9 [v2 §3], com valores em [0, 1].
-2. SE um domínio não oferecer material para uma relação, ENTÃO O SISTEMA DEVE reportar o valor como indefinido (`null`), e nunca como zero.
-3. QUANDO limiares forem fornecidos, O SISTEMA DEVE reportar também a versão binária de cada relação definida.
-4. O SISTEMA DEVE reportar ρ₂ como grau de homomorfismo e indicar isomorfismo quando o mapeamento for bijetivo e a inversa também preservar todas as relações.
-5. O SISTEMA DEVE calcular ρ₅ apenas a partir de potenciais declarados ou de predicados de oposição, e nunca de resíduos de ajuste [v2 §3.5].
-6. O SISTEMA DEVE registrar, para cada relação, a versão da definição usada.
+1. QUANDO um mapeamento for avaliado, O SISTEMA DEVE calcular ρ₁ a ρ₆ conforme as Definições 4 a 9 [v2 §3] e as convenções operacionais abaixo, com valores finitos no intervalo [0, 1].
+2. SE a fonte ou o mapeamento não oferecer material avaliável para uma relação, ENTÃO O SISTEMA DEVE reportar o valor como indefinido (`null`), nunca como zero ou `NaN`.
+3. QUANDO os seis limiares binários forem fornecidos pela configuração, O SISTEMA DEVE reportar a versão binária de cada relação definida. Uma relação indefinida permanece `null`. Sem esses limiares, o perfil binário DEVE ser omitido.
+4. O SISTEMA DEVE registrar no resultado a versão da definição usada para cada uma das seis relações.
+5. Valores intermediários que participem de ordenação DEVEM ser quantizados a doze casas decimais antes da comparação, conforme o Requisito 7.
+
+#### ρ₁, similitude
+
+6. Atributos só são comuns quando têm o mesmo nome e tipo. Atributos numéricos também DEVEM ter a mesma unidade.
+7. Um atributo presente em apenas uma entidade contribui zero para o numerador e um para o denominador da similitude local.
+8. Para atributos numéricos, dois valores iguais a zero DEVEM ter concordância 1. Nos demais casos, aplica-se a fórmula da Definição 4.
+9. Uma entidade pareada sem qualquer atributo na união tem similitude local indefinida e é omitida da média. Se nenhum par tiver similitude local definida, ρ₁ DEVE ser `null`.
+
+#### ρ₂, homologia
+
+10. A imagem de uma relação DEVE ser resolvida recursivamente, de baixo para cima: referências a entidades usam o mapeamento; referências a relações exigem que a relação referenciada já tenha imagem compatível.
+11. Todas as relações da fonte entram no denominador. Uma relação com argumento sem imagem conta como não preservada. Se a fonte não tiver relações, ρ₂ DEVE ser `null`.
+12. O SISTEMA DEVE reportar `rho2 = 1` como preservação relacional completa do suporte da fonte. O termo `homomorfismo` só pode ser usado com essa qualificação quando houver entidades isoladas não mapeadas.
+13. O SISTEMA DEVE indicar isomorfismo somente quando o mapeamento for bijetivo sobre todas as entidades e houver preservação de todas as relações nos dois sentidos.
+
+#### ρ₃, equivalência
+
+14. O papel de uma entidade DEVE considerar somente ocorrências diretas como argumento de relações. Para predicados simétricos, a posição é representada por uma posição canônica única, independente da ordem.
+15. O índice de Jaccard entre dois conjuntos de papéis vazios DEVE ser 1. Se o mapeamento não contiver pares, ρ₃ DEVE ser `null`.
+16. As propriedades de simetria e transitividade de ρ₃ só são assumidas sob um vocabulário normalizado por correspondências unitárias, não conflitantes e compatíveis com o Requisito 1.10.
+
+#### ρ₄, simetria
+
+17. Um atributo numérico só é avaliável quando aparece, com a mesma unidade e o mesmo grupo, em pelo menos três pares mapeados.
+18. No grupo de escala, para cada par calcula-se `r = valorAlvo / valorFonte`. O atributo só é avaliável se todas as razões consideradas forem positivas e finitas.
+19. O fator de escala DEVE ser estimado por `ln(a) = mediana(ln(r))`. Para quantidade par de observações, a mediana é a média aritmética dos dois valores centrais no domínio logarítmico.
+20. Um par fica dentro da tolerância quando `|ln(r) - ln(a)| ≤ toleranciaLogEscala`, com tolerância não negativa fornecida pela configuração versionada. A distância logarítmica DEVE ser quantizada a doze casas decimais antes dessa comparação.
+21. No grupo monótono, O SISTEMA DEVE usar Kendall τ-b e transformar o resultado por `(τ-b + 1) / 2`. Se o denominador de τ-b for zero, o atributo não é avaliável.
+22. ρ₄ é a média dos atributos avaliáveis e DEVE ser `null` se nenhum atributo for avaliável.
+
+#### ρ₅, equilíbrio
+
+23. O universo de avaliação é o conjunto de pares não ordenados de entidades da fonte.
+24. Um par está em equilíbrio numérico somente quando as duas entidades têm o único atributo potencial do domínio e satisfazem a fórmula da Definição 8 com `epsilonEquilibrio` não negativo, fornecido pela configuração versionada. Dois potenciais iguais a zero satisfazem a condição.
+25. Um par também está em equilíbrio quando seus membros são ligados por uma relação de oposição válida.
+26. Um par equilibrado da fonte só é preservado quando as duas entidades têm imagem e o par correspondente está em equilíbrio no alvo. No MVP, o mecanismo pode mudar entre potencial e oposição.
+27. Cada domínio avalia seus pares pelo próprio atributo potencial e pela respectiva unidade declarada; o nome e a unidade do potencial podem diferir entre fonte e alvo, pois ρ₅ compara a preservação do equilíbrio, não os valores entre domínios. ρ₅ nunca pode ser calculado a partir de resíduos de ajuste.
+28. Se a fonte não tiver pares em equilíbrio, ρ₅ DEVE ser `null`.
+
+#### ρ₆, compensação
+
+29. A semântica provisória do MVP DEVE ser registrada como `semanticaRho6: "emergencia-v1"` na configuração versionada e na saída.
+30. As capacidades possuídas por uma entidade DEVEM ser representadas por um conjunto explícito de identificadores de capacidade.
+31. Os argumentos de uma instância de emergência são complementares quando seus conjuntos de capacidades são disjuntos dois a dois e sua união contém todas as capacidades exigidas. Capacidades extras são permitidas.
+32. ρ₆ é a fração das instâncias de emergência da fonte cuja imagem relacional existe no alvo e cujos argumentos-alvo também são complementares. Instâncias com argumento sem imagem contam como não preservadas.
+33. Se a fonte não tiver instâncias de emergência, ρ₆ DEVE ser `null`.
+
+#### Conformidade teórica
+
+34. A implementação DEVE satisfazer as Proposições 1 e 2 da teoria v2 sob as precondições declaradas: isomorfismo implica ρ₃ binário igual a 1 sob vocabulário compatível; e `ρ₂ = 1` implica preservação das oposições predicativas e das instâncias de emergência, sem inferir complementaridade de capacidades.
 
 ### Requisito 3: modalidades de analogia
 
@@ -49,11 +108,11 @@ O motor é determinístico. Isso significa que a mesma entrada, na mesma versão
 
 #### Critérios de aceitação
 
-1. QUANDO a modalidade heurística for pedida, O SISTEMA DEVE maximizar ρ₁, desempatar por ρ₂ e rotular cada resultado como hipótese de exploração.
-2. QUANDO a modalidade funcional for pedida, O SISTEMA DEVE maximizar ρ₃ e desempatar por ρ₂.
-3. QUANDO a modalidade homológica for pedida, O SISTEMA DEVE maximizar ρ₂ com preferência por relações de ordem superior.
-4. SE nenhum mapeamento atingir o limiar exigido pela modalidade, ENTÃO O SISTEMA DEVE devolver resultado vazio com a justificativa e o melhor perfil encontrado.
-5. O SISTEMA DEVE ler os perfis exigidos e os limiares de um arquivo de configuração versionado, e não de constantes no código.
+1. QUANDO a modalidade heurística for pedida, O SISTEMA DEVE filtrar por `ρ₁ ≥ limiar`, maximizar ρ₁, desempatar por ρ₂ e depois pela chave canônica, e rotular cada resultado como hipótese de exploração.
+2. QUANDO a modalidade funcional for pedida, O SISTEMA DEVE filtrar por `ρ₃ ≥ limiar`, maximizar ρ₃, desempatar por ρ₂ e depois pela chave canônica.
+3. QUANDO a modalidade homológica for pedida, O SISTEMA DEVE filtrar por `ρ₂ ≥ limiar`, ordenar por sistematicidade, desempatar por ρ₁ e depois pela chave canônica.
+4. SE nenhum mapeamento atingir o limiar exigido, ENTÃO O SISTEMA DEVE devolver resultado vazio com justificativa e o melhor candidato rejeitado, incluindo seu mapeamento, perfil e motivo de rejeição.
+5. O SISTEMA DEVE ler perfis exigidos, limiares, tolerâncias, semântica de ρ₆ e regras de ordenação de um arquivo de configuração versionado, e não de constantes no código.
 
 ### Requisito 4: operação mapear
 
@@ -61,9 +120,12 @@ O motor é determinístico. Isso significa que a mesma entrada, na mesma versão
 
 #### Critérios de aceitação
 
-1. QUANDO receber fonte, alvo e modalidade, O SISTEMA DEVE devolver até três mapeamentos ordenados, cada um com perfil, diagnóstico e inferências candidatas.
-2. O SISTEMA DEVE classificar cada mapeamento numa das categorias de Gentner (semelhança literal, analogia, aparência superficial, anomalia), segundo ρ₁ e ρ₂ e limiares configuráveis [v2 §4].
-3. QUANDO a categoria for aparência superficial, O SISTEMA DEVE emitir um alerta explícito.
+1. QUANDO receber fonte, alvo, modalidade, configuração e, opcionalmente, tabela de correspondência, O SISTEMA DEVE devolver até três mapeamentos distintos, ordenados pela tupla total da modalidade depois da deduplicação.
+2. Cada mapeamento DEVE conter perfil, perfil binário quando configurado, versões das relações, indicador de isomorfismo, diagnóstico e inferências candidatas.
+3. QUANDO ρ₁ e ρ₂ estiverem definidos, O SISTEMA DEVE classificar o mapeamento numa das categorias de Gentner segundo os limiares configurados: semelhança literal, analogia, aparência superficial ou anomalia [v2 §4].
+4. SE ρ₁ ou ρ₂ for indefinido, ENTÃO O SISTEMA DEVE reportar o diagnóstico `indeterminado` e explicar quais dimensões faltaram.
+5. QUANDO a categoria for aparência superficial, O SISTEMA DEVE emitir um alerta explícito.
+6. O resultado DEVE conter versão do motor, versão e resumo da configuração, semântica de ρ₆, resumo SHA-256 da entrada canônica e resumo SHA-256 da saída canônica. O resumo da saída é calculado sobre o conteúdo do resultado sem o próprio campo `resumoSaida`.
 
 ### Requisito 5: operação inferir
 
@@ -71,9 +133,12 @@ O motor é determinístico. Isso significa que a mesma entrada, na mesma versão
 
 #### Critérios de aceitação
 
-1. QUANDO um mapeamento for produzido, O SISTEMA DEVE projetar no alvo as relações da fonte sem imagem e que estejam conectadas à estrutura mapeada.
-2. QUANDO um argumento projetado não tiver correspondente, O SISTEMA DEVE criar uma entidade hipotética com identificador determinístico e marcá-la como hipotética.
-3. O SISTEMA DEVE associar a cada inferência candidata a estrutura da fonte que a sustenta.
+1. A operação autônoma `inferir` DEVE receber fonte, alvo, um mapeamento validado, configuração e, opcionalmente, tabela de correspondência. A operação `mapear` DEVE reutilizar a mesma função pura de inferência.
+2. Uma relação da fonte sem imagem é projetável quando pertence ao mesmo componente conectado de ao menos uma relação preservada. Duas relações são conectadas quando uma referencia a outra ou quando compartilham, direta ou recursivamente, uma entidade da fonte.
+3. A projeção DEVE ser recursiva para relações que recebem outras relações como argumentos e DEVE preservar referências tipadas na saída.
+4. QUANDO uma entidade projetada não tiver correspondente, O SISTEMA DEVE criar uma entidade hipotética com identificador determinístico iniciado por `hip:`, derivado do identificador do domínio-fonte e da entidade-fonte, e marcá-la como hipotética.
+5. O SISTEMA DEVE associar a cada inferência candidata as relações preservadas do mesmo componente que a sustentam, em ordem canônica.
+6. A operação DEVE rejeitar mapeamentos não injetivos, referências inexistentes e colisões de identificadores antes de produzir inferências.
 
 ### Requisito 6: operação buscar
 
@@ -81,31 +146,29 @@ O motor é determinístico. Isso significa que a mesma entrada, na mesma versão
 
 #### Critérios de aceitação
 
-1. QUANDO receber fonte, biblioteca e modalidade, O SISTEMA DEVE devolver os k alvos de maior pontuação, com k configurável e padrão 5.
-2. QUANDO duas pontuações empatarem, O SISTEMA DEVE ordenar pelo identificador do domínio.
+1. A operação `buscar` DEVE receber fonte, biblioteca finita de domínios, modalidade, configuração, `k` e, opcionalmente, tabelas de correspondência por alvo. O valor padrão de `k` é 5.
+2. Para cada alvo, O SISTEMA DEVE executar a mesma semântica de `mapear` e usar o primeiro mapeamento elegível como representante do alvo.
+3. Alvos sem mapeamento elegível NÃO DEVEM ocupar o top-k, mas o resultado DEVE informar quantos alvos foram descartados pelo limiar ou por erro de orçamento.
+4. Os alvos DEVEM ser ordenados pela tupla total da modalidade. Um empate completo DEVE ser resolvido pelo identificador canônico do domínio e depois pelo resumo canônico do alvo.
+5. A implementação DEVE manter somente os melhores candidatos necessários ao top-k, sem materializar todos os resultados da biblioteca.
 
-### Requisito 7: determinismo e rastreabilidade
+### Requisito 7: determinismo, canonização e rastreabilidade
 
 **História de usuário:** como auditor, quero verificar que o mesmo pedido gera sempre o mesmo resultado.
 
 #### Critérios de aceitação
 
-1. O SISTEMA DEVE produzir saída idêntica, byte a byte, para entradas equivalentes, independentemente da ordem dos elementos no arquivo de entrada.
-2. O SISTEMA NÃO DEVE usar números aleatórios, relógio do sistema ou chamadas de rede no núcleo.
-3. O SISTEMA DEVE arredondar pontuações a doze casas decimais antes de qualquer comparação.
-4. O SISTEMA DEVE incluir em cada resultado a versão do motor, a versão da configuração e o resumo SHA-256 da entrada canônica. O SHA-256 é uma função de resumo que produz uma impressão digital única dos dados.
+1. O SISTEMA DEVE produzir saída canônica idêntica, byte a byte, para entradas equivalentes, independentemente da ordem das coleções declaradas como conjuntos.
+2. O núcleo em `src/motor/` NÃO DEVE usar números aleatórios, relógio, chamadas de rede, modelos de linguagem, estado global mutável nem APIs específicas de Node.js ou navegador.
+3. A canonização DEVE normalizar strings para NFC, ordenar chaves de objetos e comparar identificadores pela sequência de pontos de código Unicode, sem depender da ordem de inserção de `Map`, `Set` ou objetos.
+4. Entidades, predicados, relações, capacidades, correspondências, bibliotecas, pares de mapeamento, suportes, alertas e resultados DEVEM ter regras explícitas de ordenação. A ordem dos argumentos de predicados não simétricos DEVE ser preservada; argumentos de predicados simétricos DEVEM ser canonizados.
+5. Números DEVEM ser finitos, `-0` DEVE ser serializado como `0` e escores calculados no intervalo [0, 1] DEVEM ser quantizados por `Math.round(x × 10¹²) / 10¹²` antes de qualquer comparação e antes da serialização. A representação textual dos números DEVE seguir uma única implementação compartilhada.
+6. A forma canônica DEVE ser codificada em UTF-8 sem marca de ordem de bytes e serializada sem espaços insignificantes.
+7. O hash da entrada DEVE cobrir todos os dados que alteram o resultado, inclusive a configuração completa. O resultado também DEVE incluir um hash separado da configuração.
+8. Os adaptadores Node.js e navegador DEVEM calcular SHA-256 sobre os mesmos bytes produzidos pelo canonizador compartilhado. O cálculo de hash fica fora do núcleo puro e pode ser assíncrono.
+9. Todo desempate DEVE terminar em uma chave canônica total. A estabilidade implícita de algoritmos de ordenação não pode alterar resultados.
 
-### Requisito 8: agregação teórica opcional
-
-**História de usuário:** como autor da teoria, quero exibir a norma áurea e o operador Π como leitura teórica, sem que substituam o perfil.
-
-#### Critérios de aceitação
-
-1. QUANDO a exibição for pedida e as seis relações estiverem definidas, O SISTEMA DEVE calcular f(A) com os pesos configurados e Π(A) = f(A)^(1/π).
-2. SE alguma relação for indefinida, ENTÃO O SISTEMA DEVE omitir a agregação e informar o motivo.
-3. O SISTEMA DEVE rotular a agregação como leitura teórica.
-
-### Requisito 9: interfaces
+### Requisito 9: interfaces e limites de recurso
 
 **História de usuário:** como usuário, quero usar o motor pela linha de comando, por uma API HTTP e por uma página web mínima.
 
@@ -113,8 +176,13 @@ O motor é determinístico. Isso significa que a mesma entrada, na mesma versão
 
 1. O SISTEMA DEVE oferecer uma CLI (Command-Line Interface, interface de linha de comando) com os comandos `mapear`, `inferir`, `buscar` e `validar`.
 2. O SISTEMA DEVE oferecer uma API HTTP com os mesmos três comandos de criação, recebendo e devolvendo JSON.
-3. O SISTEMA DEVE oferecer uma página web que carregue dois domínios, execute `mapear` e exiba perfil, mapeamento, diagnóstico e inferências.
-4. SE a entrada exceder os limites configurados (padrão: 200 entidades e 1.000 relações por domínio), ENTÃO O SISTEMA DEVE rejeitá-la antes de iniciar a busca.
+3. O SISTEMA DEVE oferecer uma página web que carregue dois domínios, execute `mapear` e exiba perfil, mapeamento, diagnóstico, alertas e inferências.
+4. Os limites configuráveis padrão por domínio DEVEM ser: 200 entidades, 1.000 relações, 200 predicados, aridade 16, profundidade relacional 100 e 100 atributos por entidade.
+5. O limite padrão de biblioteca DEVE ser 100 alvos. `k` NÃO DEVE exceder o tamanho da biblioteca.
+6. A busca gulosa DEVE interromper-se com erro determinístico de orçamento antes de exceder os limites configurados de hipóteses locais e núcleos. O padrão é 250.000 hipóteses locais e 50.000 núcleos materializados ou pendentes.
+7. A busca exata só pode ser habilitada quando fonte e alvo tiverem no máximo oito entidades cada. Sua enumeração DEVE considerar o teto de 1.441.729 mapeamentos parciais injetivos em 8×8, antes da poda.
+8. SE qualquer limite for excedido, ENTÃO O SISTEMA DEVE rejeitar a operação ou o alvo afetado antes de uma alocação desproporcional, com código e mensagem determinísticos. Na API, tamanho de entrada excedido usa HTTP 413; demais violações de domínio ou parâmetro usam HTTP 400.
+9. Interfaces que permitam cancelamento PODEM interromper o trabalho, mas o cancelamento não pode produzir um resultado parcial apresentado como completo.
 
 ### Requisito 10: validação pré-registrada
 
@@ -122,8 +190,31 @@ O motor é determinístico. Isso significa que a mesma entrada, na mesma versão
 
 #### Critérios de aceitação
 
-1. O SISTEMA DEVE incluir um conjunto de casos clássicos da literatura do SME (Structure-Mapping Engine, motor de mapeamento estrutural), codificados à mão, com o mapeamento esperado (H1).
+1. O SISTEMA DEVE incluir um conjunto de casos clássicos da literatura do SME, codificados à mão, com o mapeamento esperado (H1).
 2. O SISTEMA DEVE incluir um gerador determinístico de 40 pares controlados, dez por categoria de Gentner (H3).
-3. O SISTEMA DEVE incluir um teste de determinismo com 1.000 execuções sobre entradas embaralhadas (H4).
-4. O SISTEMA DEVE incluir uma busca exata para domínios de até oito entidades e um relatório da perda da busca gulosa (H5).
-5. O SISTEMA DEVE gravar os critérios de H1 a H5 num arquivo versionado antes da primeira execução dos experimentos.
+3. O teste H4 DEVE comparar o SHA-256 da saída canônica, e não apenas o hash da entrada, em 1.000 execuções com coleções de entrada embaralhadas. A igualdade deve ser de 100% em pelo menos um ambiente Node.js e um navegador, executados em duas máquinas ou trabalhadores independentes.
+4. O teste H4 é uma validação grande e só DEVE ser executado mediante solicitação expressa do autor.
+5. O SISTEMA DEVE incluir uma busca exata para domínios de até oito entidades e um relatório da perda da busca gulosa (H5). O sucesso exige perda mediana zero e perda máxima não superior a 5%.
+6. A perda de H5 DEVE usar a pontuação normativa da modalidade, com fórmula, população de casos e tratamento de empates registrados antes da execução.
+7. Os critérios de H1 a H5, inclusive H2 pós-MVP, DEVEM ser gravados em arquivo versionado e commitados antes da primeira implementação ou execução de código de validação.
+8. Resultados experimentais DEVEM ser gravados separadamente do pré-registro, com versão do motor, versão e hash da configuração, ambiente, hash das entradas e hash das saídas. Um fracasso DEVE ser registrado e não pode ser corrigido por alteração retroativa de limiar.
+
+## Pós-MVP
+
+Os itens desta seção não fazem parte dos critérios de entrega do MVP e não devem bloquear sua implementação ou validação.
+
+### Requisito 8: agregação teórica opcional
+
+**História de usuário:** como autor da teoria, quero eventualmente exibir a norma áurea e o operador Π como leitura teórica, sem que substituam o perfil.
+
+1. A norma, seus pesos, sua normalização e a fórmula de `f(A)` DEVEM ser especificados integralmente antes da implementação.
+2. Π só pode ser calculado quando as seis relações estiverem definidas e nunca pode participar da busca ou da ordenação.
+3. A agregação DEVE ser rotulada como leitura teórica e usar regra determinística de quantização.
+
+### H2: validação com o conjunto SCAN
+
+A execução de H2 fica fora do MVP. Antes dela, conteúdo, disponibilidade e licença do conjunto SCAN devem ser conferidos. Os 20 pares, a métrica de acerto, o procedimento da linha de base com modelo de linguagem e os artefatos extraídos devem permanecer reproduzíveis e vinculados ao pré-registro.
+
+### Publicação
+
+A publicação em AWS, GCP ou outro provedor fica fora desta spec do MVP. Uma spec separada deve definir provedor, arquitetura, limites de custo, segurança e operação antes do deploy.
