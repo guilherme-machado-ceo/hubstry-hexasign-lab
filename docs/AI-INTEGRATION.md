@@ -1,5 +1,7 @@
 # AI Integration — Hallucination-Resistant Architecture
 
+> **Substituído pelo ADR-009 (05/11/2026).** Este documento descreve a versão de análise de texto, removida. Mantido como registro histórico.
+
 ## Principle
 
 **AI is an observer, not an oracle.**

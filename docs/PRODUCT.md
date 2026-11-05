@@ -1,5 +1,7 @@
 # HexaSign Lab — Product Definition (MVP)
 
+> **Substituído pelo ADR-009 (05/11/2026).** Este documento descreve a versão de análise de texto, removida. Mantido como registro histórico.
+
 ## 1. Product thesis
 
 HexaSign Lab is a technical workspace for **comparing and documenting semantic/algorithmic artifacts using a deterministic relational vector**.
