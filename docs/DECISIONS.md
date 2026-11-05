@@ -6,7 +6,7 @@ Formato: ADR leve (status, data, decisão, motivo, impacto). Decisões novas ent
 ---
 
 ## ADR-014 — Inferências podem introduzir predicados ausentes no alvo
-Status: accepted (implementação pendente, antes da execução de H1)
+Status: accepted (implementado antes da execução de H1)
 Date: 2026-11-05
 Decided by: autor da teoria
 

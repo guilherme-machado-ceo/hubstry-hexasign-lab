@@ -139,6 +139,8 @@ As decisões operacionais deste documento não transformam propostas teóricas p
 4. QUANDO uma entidade projetada não tiver correspondente, O SISTEMA DEVE criar uma entidade hipotética com identificador determinístico iniciado por `hip:`, derivado do identificador do domínio-fonte e da entidade-fonte, e marcá-la como hipotética.
 5. O SISTEMA DEVE associar a cada inferência candidata, como suporte, os argumentos diretos que já tinham imagem, representados por referências tipadas e ordenados canonicamente. Compartilhar uma entidade apenas de forma indireta ou pertencer ao mesmo componente conectado NÃO É suporte suficiente.
 6. A operação DEVE rejeitar mapeamentos não injetivos, referências inexistentes e colisões de identificadores antes de produzir inferências.
+7. SE uma relação projetável usar um predicado sem correspondente e sem homônimo no alvo, ENTÃO O SISTEMA DEVE usar o predicado-fonte, incluir sua declaração de nome, aridade, classe e simetria e marcar `predicadoNovo: true`. Inferências com predicado correspondente DEVEM marcar `predicadoNovo: false`.
+8. SE o alvo declarar predicado homônimo incompatível em aridade, classe ou simetria, ENTÃO O SISTEMA NÃO DEVE emitir a inferência e DEVE registrar conflito estruturado na saída, identificando a relação-fonte, as duas declarações e os campos incompatíveis.
 
 ### Requisito 6: operação buscar
 

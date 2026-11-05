@@ -1,5 +1,5 @@
 import { compararPontosDeCodigo, chaveReferencia } from "./canonico";
-import type { Dominio, Mapeamento, Referencia } from "./esquema";
+import type { Dominio, Mapeamento, Predicado, Referencia } from "./esquema";
 import type { ContextoAvaliacao } from "./relacoes";
 import { mapaEntidades, resolverImagensRelacoes } from "./relacoes";
 
@@ -9,17 +9,60 @@ export interface EntidadeHipotetica {
   hipotetica: true;
 }
 
+export interface DeclaracaoPredicadoInferido {
+  nome: string;
+  aridade: number;
+  classe: Predicado["classe"];
+  simetrico: boolean;
+}
+
 export interface Inferencia {
   relacaoFonte: string;
   idProjetado: string;
   predicado: string;
+  predicadoNovo: boolean;
+  declaracaoPredicado?: DeclaracaoPredicadoInferido;
   argsAlvo: Referencia[];
   entidadesHipoteticas: EntidadeHipotetica[];
   suporte: Referencia[];
 }
 
+export interface ConflitoPredicadoInferencia {
+  codigo: "PREDICADO_HOMONIMO_INCOMPATIVEL";
+  relacaoFonte: string;
+  predicado: string;
+  declaracaoFonte: DeclaracaoPredicadoInferido;
+  declaracaoAlvo: DeclaracaoPredicadoInferido;
+  camposIncompativeis: Array<"aridade" | "classe" | "simetrico">;
+}
+
+export interface ResultadoInferencias {
+  inferencias: Inferencia[];
+  conflitos: ConflitoPredicadoInferencia[];
+}
+
 function componente(valor: string): string {
   return encodeURIComponent(valor);
+}
+
+function declaracao(predicado: Predicado): DeclaracaoPredicadoInferido {
+  return {
+    nome: predicado.nome,
+    aridade: predicado.aridade,
+    classe: predicado.classe,
+    simetrico: predicado.simetrico,
+  };
+}
+
+function camposIncompativeis(
+  fonte: Predicado,
+  alvo: Predicado,
+): ConflitoPredicadoInferencia["camposIncompativeis"] {
+  const campos: ConflitoPredicadoInferencia["camposIncompativeis"] = [];
+  if (fonte.aridade !== alvo.aridade) campos.push("aridade");
+  if (fonte.classe !== alvo.classe) campos.push("classe");
+  if (fonte.simetrico !== alvo.simetrico) campos.push("simetrico");
+  return campos;
 }
 
 export function idEntidadeHipotetica(dominioFonte: string, entidadeFonte: string): string {
@@ -35,16 +78,15 @@ export function inferirRelacoes(
   alvo: Dominio,
   mapeamento: Mapeamento,
   contexto: ContextoAvaliacao,
-): Inferencia[] {
+): ResultadoInferencias {
   const entidades = mapaEntidades(fonte, alvo, mapeamento);
   const imagens = resolverImagensRelacoes(fonte, alvo, mapeamento, contexto).porRelacaoFonte;
   const projetadas = new Map<string, string>();
   const inferencias: Inferencia[] = [];
+  const conflitos: ConflitoPredicadoInferencia[] = [];
 
   for (const relacao of contexto.indicesFonte.ordemTopologica) {
     if (imagens.has(relacao.id)) continue;
-    const predicadoAlvo = contexto.correspondencia.fonteParaAlvo.get(relacao.predicado);
-    if (!predicadoAlvo) continue;
 
     const suporte = relacao.args.filter((arg) =>
       arg.tipo === "entidade" ? entidades.has(arg.id) : imagens.has(arg.id),
@@ -82,8 +124,39 @@ export function inferirRelacoes(
     }
     if (!resolvida) continue;
 
-    const predicado = contexto.indicesAlvo.predicadosPorNome.get(predicadoAlvo)!;
-    if (predicado.simetrico) {
+    const declaracaoFonte = contexto.indicesFonte.predicadosPorNome.get(relacao.predicado)!;
+    const nomeCorrespondente = contexto.correspondencia.fonteParaAlvo.get(relacao.predicado);
+    let predicado = nomeCorrespondente;
+    let declaracaoAlvo = nomeCorrespondente
+      ? contexto.indicesAlvo.predicadosPorNome.get(nomeCorrespondente)
+      : undefined;
+    let predicadoNovo = false;
+
+    if (!predicado || !declaracaoAlvo) {
+      const homonimo = contexto.indicesAlvo.predicadosPorNome.get(relacao.predicado);
+      if (!homonimo) {
+        predicado = relacao.predicado;
+        declaracaoAlvo = declaracaoFonte;
+        predicadoNovo = true;
+      } else {
+        const campos = camposIncompativeis(declaracaoFonte, homonimo);
+        if (campos.length > 0) {
+          conflitos.push({
+            codigo: "PREDICADO_HOMONIMO_INCOMPATIVEL",
+            relacaoFonte: relacao.id,
+            predicado: relacao.predicado,
+            declaracaoFonte: declaracao(declaracaoFonte),
+            declaracaoAlvo: declaracao(homonimo),
+            camposIncompativeis: campos,
+          });
+          continue;
+        }
+        predicado = homonimo.nome;
+        declaracaoAlvo = homonimo;
+      }
+    }
+
+    if (declaracaoAlvo.simetrico) {
       argsAlvo.sort((a, b) => compararPontosDeCodigo(chaveReferencia(a), chaveReferencia(b)));
     }
     const idProjetado = idRelacaoProjetada(fonte.id, relacao.id);
@@ -91,7 +164,9 @@ export function inferirRelacoes(
     inferencias.push({
       relacaoFonte: relacao.id,
       idProjetado,
-      predicado: predicadoAlvo,
+      predicado,
+      predicadoNovo,
+      ...(predicadoNovo ? { declaracaoPredicado: declaracao(declaracaoFonte) } : {}),
       argsAlvo,
       entidadesHipoteticas: [...entidadesHipoteticas.values()].sort((a, b) =>
         compararPontosDeCodigo(a.id, b.id),
@@ -102,5 +177,12 @@ export function inferirRelacoes(
     });
   }
 
-  return inferencias;
+  return {
+    inferencias,
+    conflitos: conflitos.sort(
+      (a, b) =>
+        compararPontosDeCodigo(a.relacaoFonte, b.relacaoFonte) ||
+        compararPontosDeCodigo(a.predicado, b.predicado),
+    ),
+  };
 }

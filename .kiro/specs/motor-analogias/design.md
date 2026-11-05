@@ -382,6 +382,7 @@ interface AvaliacaoMapeamento {
   justificativaDiagnostico?: string;
   alertas: string[];
   inferencias: Inferencia[];
+  conflitos: ConflitoPredicadoInferencia[];
   chaveCanonica: string;
 }
 ```
@@ -434,18 +435,37 @@ interface EntidadeHipotetica {
   hipotetica: true;
 }
 
+interface DeclaracaoPredicadoInferido {
+  nome: string;
+  aridade: number;
+  classe: Classe;
+  simetrico: boolean;
+}
+
 interface Inferencia {
   relacaoFonte: string;
   idProjetado: string;
   predicado: string;
+  predicadoNovo: boolean;
+  declaracaoPredicado?: DeclaracaoPredicadoInferido;
   argsAlvo: Referencia[];
   entidadesHipoteticas: EntidadeHipotetica[];
   suporte: Referencia[];
 }
 
+interface ConflitoPredicadoInferencia {
+  codigo: 'PREDICADO_HOMONIMO_INCOMPATIVEL';
+  relacaoFonte: string;
+  predicado: string;
+  declaracaoFonte: DeclaracaoPredicadoInferido;
+  declaracaoAlvo: DeclaracaoPredicadoInferido;
+  camposIncompativeis: Array<'aridade' | 'classe' | 'simetrico'>;
+}
+
 interface ResultadoInferir extends MetadadosResultado {
   mapeamento: Mapeamento;
   inferencias: Inferencia[];
+  conflitos: ConflitoPredicadoInferencia[];
 }
 ```
 
@@ -454,6 +474,8 @@ Uma relação da fonte sem imagem só é projetável quando ao menos um argument
 A projeção preserva referências tipadas e ocorre em ordem topológica. Uma sub-relação sem imagem só é projetada recursivamente se ela própria tiver ao menos um argumento direto com imagem. Se um argumento relacional não tiver imagem nem projeção válida, a relação que o contém não é emitida. `suporte` contém exatamente os argumentos diretos que já tinham imagem, em ordem canônica.
 
 Uma sub-relação projetada recebe antes de ser referenciada o ID determinístico `proj:<dominioFonte>:<relacaoFonte>`. IDs hipotéticos usam `hip:<dominioFonte>:<entidadeFonte>`. Em ambos os formatos, os componentes são percentualmente codificados. Os prefixos `proj:` e `hip:` são reservados e proibidos na entrada; colisões são verificadas mesmo assim.
+
+Quando há correspondência de predicado, a inferência usa o predicado-alvo e `predicadoNovo: false`. Quando não há correspondência nem homônimo no alvo, usa o predicado-fonte, inclui `declaracaoPredicado` com nome, aridade, classe e simetria, e marca `predicadoNovo: true`. Um homônimo incompatível suprime a inferência e produz um `ConflitoPredicadoInferencia`. Conflitos são ordenados por relação-fonte e predicado; `camposIncompativeis` segue sempre a ordem aridade, classe e simetria. Esses campos participam da saída canônica e de seu SHA-256.
 
 ### `buscar`
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CONFIG_TESTE, criarDominioValido } from "./__tests__/fixtures";
 import { avaliarCandidato } from "./busca";
-import type { ConfiguracaoMotor, Mapeamento } from "./esquema";
+import type { Classe, ConfiguracaoMotor, Mapeamento } from "./esquema";
 import { idEntidadeHipotetica, idRelacaoProjetada, inferirRelacoes } from "./inferencia";
 import { diagnosticarGentner, selecionarPorModalidade } from "./modalidades";
 import { criarContextoAvaliacao } from "./relacoes";
@@ -46,52 +46,146 @@ describe("modalidades e diagnóstico", () => {
   });
 });
 
+function adicionarRelacaoNova(
+  classe: Classe = "comum",
+  simetrico = false,
+): ReturnType<typeof criarDominioValido> {
+  const fonte = criarDominioValido();
+  fonte.id = "fonte teste";
+  fonte.predicados.push({ nome: "novo", aridade: 2, classe, simetrico });
+  fonte.relacoes.push({
+    id: "r5",
+    predicado: "novo",
+    args: [
+      { tipo: "entidade", id: "b" },
+      { tipo: "entidade", id: "a" },
+    ],
+  });
+  return fonte;
+}
+
 describe("inferências candidatas", () => {
-  it("projeta relação apoiada diretamente por sub-relações com imagem", () => {
+  it("projeta relação com predicado correspondente já existente", () => {
     const fonte = criarDominioValido();
     fonte.id = "fonte teste";
     const alvo = criarDominioValido();
     alvo.relacoes = alvo.relacoes.filter((relacao) => relacao.id !== "r4");
-    const contexto = criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE);
-    const inferencias = inferirRelacoes(fonte, alvo, MAPA_TOTAL, contexto);
-    expect(inferencias).toHaveLength(1);
-    expect(inferencias[0]).toMatchObject({
+    const resultado = inferirRelacoes(
+      fonte,
+      alvo,
+      MAPA_TOTAL,
+      criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE),
+    );
+    expect(resultado.conflitos).toEqual([]);
+    expect(resultado.inferencias).toHaveLength(1);
+    expect(resultado.inferencias[0]).toMatchObject({
       relacaoFonte: "r4",
       idProjetado: "proj:fonte%20teste:r4",
       predicado: "causa",
+      predicadoNovo: false,
       argsAlvo: [
         { tipo: "relacao", id: "r1" },
         { tipo: "relacao", id: "r2" },
       ],
     });
-    expect(inferencias[0].suporte).toEqual([
-      { tipo: "relacao", id: "r1" },
-      { tipo: "relacao", id: "r2" },
+    expect(resultado.inferencias[0].declaracaoPredicado).toBeUndefined();
+  });
+
+  it("introduz predicado-fonte ausente com sua declaração", () => {
+    const fonte = adicionarRelacaoNova();
+    fonte.entidades.push({ id: "c/novo", atributos: {}, capacidades: [] });
+    fonte.relacoes.find((item) => item.id === "r5")!.args[1] = {
+      tipo: "entidade",
+      id: "c/novo",
+    };
+    const alvo = criarDominioValido();
+    const resultado = inferirRelacoes(
+      fonte,
+      alvo,
+      MAPA_TOTAL,
+      criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE),
+    );
+    const inferencia = resultado.inferencias.find((item) => item.relacaoFonte === "r5");
+    expect(resultado.conflitos).toEqual([]);
+    expect(inferencia).toMatchObject({
+      idProjetado: "proj:fonte%20teste:r5",
+      predicado: "novo",
+      predicadoNovo: true,
+      declaracaoPredicado: {
+        nome: "novo",
+        aridade: 2,
+        classe: "comum",
+        simetrico: false,
+      },
+    });
+    expect(inferencia?.entidadesHipoteticas[0].id).toBe("hip:fonte%20teste:c%2Fnovo");
+    expect(inferencia?.suporte).toEqual([{ tipo: "entidade", id: "b" }]);
+  });
+
+  it("ordena argumentos de predicado-fonte novo e simétrico", () => {
+    const fonte = adicionarRelacaoNova("comum", true);
+    const alvo = criarDominioValido();
+    const resultado = inferirRelacoes(
+      fonte,
+      alvo,
+      MAPA_TOTAL,
+      criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE),
+    );
+    expect(resultado.inferencias.find((item) => item.relacaoFonte === "r5")?.argsAlvo).toEqual([
+      { tipo: "entidade", id: "a" },
+      { tipo: "entidade", id: "b" },
     ]);
   });
 
-  it("cria entidade hipotética para argumento direto sem imagem", () => {
-    const fonte = criarDominioValido();
-    fonte.id = "fonte teste";
-    fonte.entidades.push({ id: "c/novo", atributos: {}, capacidades: [] });
-    fonte.predicados.push({ nome: "novo", aridade: 2, classe: "comum", simetrico: false });
+  it.each([
+    [1, "comum", false, "aridade"],
+    [2, "oposicao", false, "classe"],
+    [2, "comum", true, "simetrico"],
+  ] as const)(
+    "suprime homônimo incompatível e registra conflito em %s/%s/%s",
+    (aridade, classe, simetrico, campo) => {
+      const fonte = adicionarRelacaoNova();
+      const alvo = criarDominioValido();
+      alvo.predicados.push({ nome: "novo", aridade, classe, simetrico });
+      const resultado = inferirRelacoes(
+        fonte,
+        alvo,
+        MAPA_TOTAL,
+        criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE),
+      );
+      expect(resultado.inferencias.some((item) => item.relacaoFonte === "r5")).toBe(false);
+      expect(resultado.conflitos).toHaveLength(1);
+      expect(resultado.conflitos[0]).toMatchObject({
+        codigo: "PREDICADO_HOMONIMO_INCOMPATIVEL",
+        relacaoFonte: "r5",
+        predicado: "novo",
+        camposIncompativeis: [campo],
+      });
+    },
+  );
+
+  it("permite projeção superior apoiada por imagem e sub-relação nova projetada", () => {
+    const fonte = adicionarRelacaoNova();
     fonte.relacoes.push({
-      id: "r5",
-      predicado: "novo",
+      id: "r6",
+      predicado: "causa",
       args: [
-        { tipo: "entidade", id: "a" },
-        { tipo: "entidade", id: "c/novo" },
+        { tipo: "relacao", id: "r1" },
+        { tipo: "relacao", id: "r5" },
       ],
     });
     const alvo = criarDominioValido();
-    alvo.predicados.push({ nome: "novo", aridade: 2, classe: "comum", simetrico: false });
-    const contexto = criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE);
-    const inferencia = inferirRelacoes(fonte, alvo, MAPA_TOTAL, contexto).find(
-      (item) => item.relacaoFonte === "r5",
+    const resultado = inferirRelacoes(
+      fonte,
+      alvo,
+      MAPA_TOTAL,
+      criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE),
     );
-    expect(inferencia?.idProjetado).toBe("proj:fonte%20teste:r5");
-    expect(inferencia?.entidadesHipoteticas[0].id).toBe("hip:fonte%20teste:c%2Fnovo");
-    expect(inferencia?.suporte).toEqual([{ tipo: "entidade", id: "a" }]);
+    expect(resultado.inferencias.map((item) => item.relacaoFonte)).toEqual(["r5", "r6"]);
+    expect(resultado.inferencias[1].argsAlvo).toContainEqual({
+      tipo: "relacao",
+      id: "proj:fonte%20teste:r5",
+    });
   });
 
   it("não projeta relação sem argumento direto com imagem", () => {
@@ -109,10 +203,13 @@ describe("inferências candidatas", () => {
       ],
     });
     const alvo = criarDominioValido();
-    const contexto = criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE);
-    expect(
-      inferirRelacoes(fonte, alvo, MAPA_TOTAL, contexto).some((item) => item.relacaoFonte === "r5"),
-    ).toBe(false);
+    const resultado = inferirRelacoes(
+      fonte,
+      alvo,
+      MAPA_TOTAL,
+      criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE),
+    );
+    expect(resultado.inferencias.some((item) => item.relacaoFonte === "r5")).toBe(false);
   });
 
   it("rejeita mapeamento não injetivo", () => {

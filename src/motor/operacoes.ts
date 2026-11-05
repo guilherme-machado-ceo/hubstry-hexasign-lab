@@ -25,7 +25,11 @@ import type {
   TabelaCorrespondencia,
   VersoesRelacoes,
 } from "./esquema";
-import { inferirRelacoes, type Inferencia } from "./inferencia";
+import {
+  inferirRelacoes,
+  type ConflitoPredicadoInferencia,
+  type Inferencia,
+} from "./inferencia";
 import {
   selecionarPorModalidade,
   type CategoriaGentner,
@@ -34,7 +38,7 @@ import {
 import { criarContextoAvaliacao } from "./relacoes";
 import { ErroOrcamentoBusca } from "./busca/orcamento";
 
-export const VERSAO_MOTOR = "0.1.0";
+export const VERSAO_MOTOR = "0.2.0";
 
 export type FuncaoSha256 = (bytes: Uint8Array) => Promise<string>;
 export type EstrategiaBusca = "gulosa" | "exata";
@@ -70,6 +74,7 @@ export interface AvaliacaoMapeamento {
   alertas: string[];
   rotulo?: "hipotese-de-exploracao";
   inferencias: Inferencia[];
+  conflitos: ConflitoPredicadoInferencia[];
   chaveCanonica: string;
 }
 
@@ -91,6 +96,7 @@ export interface EntradaInferir {
 export interface ResultadoInferir extends MetadadosResultado {
   mapeamento: Mapeamento;
   inferencias: Inferencia[];
+  conflitos: ConflitoPredicadoInferencia[];
 }
 
 export interface EntradaBuscar {
@@ -200,29 +206,33 @@ function mapearSemMetadados(entrada: EntradaMapear): {
 } {
   const { candidatos, contexto } = buscarCandidatos(entrada);
   const selecao = selecionarPorModalidade(candidatos, entrada.modalidade, entrada.config);
-  const mapeamentos = selecao.elegiveis.map((candidato) => ({
-    mapeamento: candidato.mapeamento,
-    perfil: candidato.perfil,
-    ...(candidato.perfilBinario === undefined
-      ? {}
-      : { perfilBinario: candidato.perfilBinario }),
-    sistematicidade: candidato.sistematicidade,
-    isomorfismo: candidato.isomorfismo,
-    versoesRelacoes: candidato.versoesRelacoes,
-    categoriaGentner: candidato.categoria,
-    ...(candidato.justificativa === undefined
-      ? {}
-      : { justificativaDiagnostico: candidato.justificativa }),
-    alertas: candidato.alertas,
-    ...(candidato.rotulo === undefined ? {} : { rotulo: candidato.rotulo }),
-    inferencias: inferirRelacoes(
+  const mapeamentos = selecao.elegiveis.map((candidato) => {
+    const resultadoInferencias = inferirRelacoes(
       entrada.fonte,
       entrada.alvo,
       candidato.mapeamento,
       contexto,
-    ),
-    chaveCanonica: candidato.chaveCanonica,
-  }));
+    );
+    return {
+      mapeamento: candidato.mapeamento,
+      perfil: candidato.perfil,
+      ...(candidato.perfilBinario === undefined
+        ? {}
+        : { perfilBinario: candidato.perfilBinario }),
+      sistematicidade: candidato.sistematicidade,
+      isomorfismo: candidato.isomorfismo,
+      versoesRelacoes: candidato.versoesRelacoes,
+      categoriaGentner: candidato.categoria,
+      ...(candidato.justificativa === undefined
+        ? {}
+        : { justificativaDiagnostico: candidato.justificativa }),
+      alertas: candidato.alertas,
+      ...(candidato.rotulo === undefined ? {} : { rotulo: candidato.rotulo }),
+      inferencias: resultadoInferencias.inferencias,
+      conflitos: resultadoInferencias.conflitos,
+      chaveCanonica: candidato.chaveCanonica,
+    };
+  });
   const versoesRelacoes =
     candidatos[0]?.versoesRelacoes ?? {
       rho1: "rho1-v1",
@@ -281,7 +291,7 @@ export async function inferir(
     entrada.config,
     entrada.correspondencias,
   );
-  const inferencias = inferirRelacoes(
+  const resultadoInferencias = inferirRelacoes(
     entrada.fonte,
     entrada.alvo,
     entrada.mapeamento,
@@ -307,7 +317,15 @@ export async function inferir(
     avaliacao.versoesRelacoes,
     sha256,
   );
-  return finalizar({ ...metadados, mapeamento: entrada.mapeamento, inferencias }, sha256);
+  return finalizar(
+    {
+      ...metadados,
+      mapeamento: entrada.mapeamento,
+      inferencias: resultadoInferencias.inferencias,
+      conflitos: resultadoInferencias.conflitos,
+    },
+    sha256,
+  );
 }
 
 export async function buscar(
