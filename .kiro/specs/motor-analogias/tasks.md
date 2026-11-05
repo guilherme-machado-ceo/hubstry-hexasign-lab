@@ -100,17 +100,17 @@ Validações grandes, especialmente H4 com 1.000 execuções, só podem ser exec
   - [x] 5.6 Testar erros determinísticos de orçamento sem executar as validações grandes.
     - _Requisitos: 9.6, 9.8, 9.9_
 
-- [ ] 6. Modalidades, diagnóstico e inferências
-  - [ ] 6.1 Implementar filtros e tuplas de ordenação lidos da configuração.
+- [x] 6. Modalidades, diagnóstico e inferências
+  - [x] 6.1 Implementar filtros e tuplas de ordenação lidos da configuração.
     - Heurística: ρ₁, depois ρ₂, depois chave.
     - Funcional: ρ₃, depois ρ₂, depois chave.
     - Homológica: filtrar por ρ₂, ordenar por sistematicidade, depois ρ₁ e chave.
     - _Requisitos: 3.1–3.3, 3.5_
-  - [ ] 6.2 Implementar resultado vazio com justificativa e melhor candidato rejeitado.
+  - [x] 6.2 Implementar resultado vazio com justificativa e melhor candidato rejeitado.
     - _Requisito: 3.4_
-  - [ ] 6.3 Implementar classificação de Gentner, diagnóstico indeterminado e alerta de aparência superficial.
+  - [x] 6.3 Implementar classificação de Gentner, diagnóstico indeterminado e alerta de aparência superficial.
     - _Requisitos: 4.3–4.5_
-  - [ ] 6.4 Implementar inferências com suporte direto e projeção recursiva em `src/motor/inferencia.ts`.
+  - [x] 6.4 Implementar inferências com suporte direto e projeção recursiva em `src/motor/inferencia.ts`.
     - Validar o mapeamento recebido pelo comando autônomo.
     - Projetar uma relação sem imagem somente quando ao menos um argumento direto tiver imagem; não usar adjacência por entidade compartilhada ou componente conectado.
     - Projetar sub-relações sem imagem somente quando elas próprias satisfizerem o critério de suporte direto.

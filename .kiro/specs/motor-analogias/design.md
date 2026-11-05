@@ -436,6 +436,7 @@ interface EntidadeHipotetica {
 
 interface Inferencia {
   relacaoFonte: string;
+  idProjetado: string;
   predicado: string;
   argsAlvo: Referencia[];
   entidadesHipoteticas: EntidadeHipotetica[];
