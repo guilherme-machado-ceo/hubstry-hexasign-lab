@@ -5,6 +5,65 @@ Formato: ADR leve (status, data, decisão, motivo, impacto). Decisões novas ent
 
 ---
 
+## ADR-016 — Correções da revisão independente e nova execução de H1 (r2)
+Status: accepted
+Date: 2026-11-06
+Decided by: autor da teoria (correções e registro); itens marcados como pendentes aguardam o autor
+
+Decision:
+Os defeitos confirmados na revisão independente (ADR-015) foram corrigidos, um commit por item,
+cada um com teste que falha antes e passa depois:
+- `18b96f9` — busca/nucleos: cada pareamento consistente de um predicado simétrico vira um
+  núcleo alternativo; as raízes consideram os filhos de todas as alternativas.
+- `8404b3c` — busca: o filtro da modalidade vem antes do corte em três. A busca exata guarda só
+  incumbentes elegíveis e, à parte, o melhor rejeitado; a poda usa margem de 1e-12. A gulosa
+  inclui como sementes os empates com a terceira semente, até o teto `MAXIMO_SEMENTES_GULOSA`
+  = 256, e devolve todos os candidatos distintos.
+- `4766e2a` — esquema: textos validados rejeitam U+0000–U+001F e U+007F; as chaves compostas
+  internas usam a serialização JSON de tuplas, e não junções com NUL.
+- `6454643` — ρ₄: o log da razão é calculado como log|y| − log|x|, sem estouro.
+- `ba9293c` — operações: `inferir` canoniza os pares do mapeamento; `buscar` canoniza as tabelas
+  de correspondência e rejeita biblioteca com ids duplicados.
+- `000228b` — testes de ρ₁ (MAX_VALUE contra MAX_VALUE/2), τ-b com empates, ρ₅ sem oposição
+  com contraste, e Proposições 1 e 2 como propriedades sobre isomorfismos por renomeação.
+
+A teoria v2 foi alinhada ao comportamento implementado: capacidades como componente de E na
+Def. 1; tabela de correspondência injetiva que substitui homônimos no MVP (Def. 2); concordância
+zero-zero igual a 1 em ρ₁ (Def. 4); denominador de ρ₆ (Def. 9); Proposição 2 reescrita.
+
+O executor de H1 foi endurecido (exige os dois casos clássicos e expectativas não vazias,
+confere os resumos SHA-256 dos casos contra `h1-v1.1.json`, conta extras sobre a lista
+completa, roda `mapear` para o modo normal e registra estabilidade e sensibilidade). A nova
+execução está em `validacao/resultados/h1-v1.1-r2.json`; o relatório suspenso permanece.
+
+Resultado r2 (critério v1.1, sem alteração de casos, limiares ou critérios):
+- os quatro casos têm o mapeamento esperado e todas as inferências esperadas; H1 passa;
+- o melhor candidato é o mesmo após renomear as entidades do alvo e inverter os argumentos
+  simétricos, nos quatro casos;
+- no modo normal, só `h1-a-glm` tem mapeamento elegível (ρ₂ = 0,6; categoria analogia). Nos
+  outros três, a busca exata confirma que nenhum mapeamento parcial injetivo atinge ρ₂ ≥ 0,6.
+
+Pendências do autor ([Decisão do autor]):
+1. ρ₃ vazio-vazio: o Jaccard de papéis vazios nos dois lados vale 1 no código e agora no texto
+   (Def. 6). A alternativa é excluir essas entidades ou tornar ρ₃ indefinido.
+2. Limiar homológico ρ₂ ≥ 0,6: com ele, três das quatro codificações clássicas ficam sem
+   resultado no modo normal. A emenda v1.1 isolou H1 desse filtro, mas o produto não.
+3. Correspondência injetiva: a alternativa da Def. 2 original (tabela só acrescenta pares)
+   exigiria uma relação entre predicados, e não uma função.
+
+Reason:
+Os defeitos tornavam a analogia escolhida dependente de nomes e da ordem de argumentos, e
+podiam esconder candidatos elegíveis. As correções preservam o determinismo e não tocam em
+casos, limiares ou critérios congelados.
+
+Impact:
+O teto de 256 sementes é uma limitação declarada: com mais de 256 núcleos empatados na
+terceira posição, a escolha volta a depender da chave canônica entre os empatados. A gulosa
+pode devolver mais de três candidatos; o corte em três acontece em `selecionarPorModalidade`.
+Identificadores com caracteres de controle passam a ser rejeitados na validação.
+
+---
+
 ## ADR-015 — Resultado de H1 (v1.1) suspenso por defeito confirmado na busca
 Status: accepted
 Date: 2026-11-06
