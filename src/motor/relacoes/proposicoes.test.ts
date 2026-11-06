@@ -100,6 +100,31 @@ function papeisLocaisIguais(entidade: string, imagem: string, contexto: Contexto
   return true;
 }
 
+function jaccardLocal(entidade: string, imagem: string, contexto: ContextoAvaliacao): number {
+  const fonte = contexto.indicesFonte.papeisPorEntidade.get(entidade) ?? new Set<string>();
+  const alvo = contexto.indicesAlvo.papeisPorEntidade.get(imagem) ?? new Set<string>();
+  let intersecao = 0;
+  for (const papel of fonte) {
+    const { predicado, posicao } = separarChavePapel(papel);
+    const correspondente = contexto.correspondencia.fonteParaAlvo.get(predicado);
+    if (correspondente && alvo.has(chavePapel(correspondente, posicao))) intersecao += 1;
+  }
+  const uniao = fonte.size + alvo.size - intersecao;
+  return uniao === 0 ? 1 : intersecao / uniao;
+}
+
+function inverterArgumentosSimetricos(dominio: Dominio): Dominio {
+  const simetricos = new Set(
+    dominio.predicados.filter((predicado) => predicado.simetrico).map((predicado) => predicado.nome),
+  );
+  return {
+    ...dominio,
+    relacoes: dominio.relacoes.map((relacao) =>
+      simetricos.has(relacao.predicado) ? { ...relacao, args: [...relacao.args].reverse() } : relacao,
+    ),
+  };
+}
+
 /** Fonte e alvo isomorfos: o alvo é a fonte renomeada por uma permutação. */
 const isomorfosArb = sementeArb.chain((semente) =>
   fc
@@ -138,6 +163,65 @@ describe("proposições da teoria v2 como propriedades", () => {
     );
   });
 
+  it("ρ₃ é invariante sob renomeação e inversão de argumentos simétricos", () => {
+    fc.assert(
+      fc.property(isomorfosArb, ({ fonte, alvo, mapeamento }) => {
+        const alvoInvertido = inverterArgumentosSimetricos(alvo);
+        fc.pre(validos(fonte, alvoInvertido));
+        const contexto = criarContextoAvaliacao(fonte, alvoInvertido, CONFIG_TESTE);
+        for (const [s, t] of mapeamento.pares) {
+          expect(jaccardLocal(s, t, contexto)).toBe(1);
+        }
+        expect(avaliarRho3(fonte, alvoInvertido, mapeamento, contexto)).toBe(1);
+      }),
+      { seed: 20261106, numRuns: 150 },
+    );
+  });
+
+  it("atribui papel canônico a predicado simétrico com argumentos invertidos", () => {
+    const fonte: Dominio = {
+      id: "S",
+      esquemaAtributos: {},
+      entidades: [
+        { id: "a", atributos: {}, capacidades: [] },
+        { id: "b", atributos: {}, capacidades: [] },
+      ],
+      predicados: [{ nome: "conecta", aridade: 2, classe: "comum", simetrico: true }],
+      relacoes: [
+        {
+          id: "r",
+          predicado: "conecta",
+          args: [
+            { tipo: "entidade", id: "a" },
+            { tipo: "entidade", id: "b" },
+          ],
+        },
+      ],
+    };
+    const alvo: Dominio = {
+      ...fonte,
+      id: "T",
+      entidades: [
+        { id: "x", atributos: {}, capacidades: [] },
+        { id: "y", atributos: {}, capacidades: [] },
+      ],
+      relacoes: [
+        {
+          id: "r",
+          predicado: "conecta",
+          args: [
+            { tipo: "entidade", id: "y" },
+            { tipo: "entidade", id: "x" },
+          ],
+        },
+      ],
+    };
+    const mapeamento: Mapeamento = { pares: [["a", "x"], ["b", "y"]] };
+    expect(validos(fonte, alvo)).toBe(true);
+    const contexto = criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE);
+    expect(jaccardLocal("a", "x", contexto)).toBe(1);
+    expect(avaliarRho3(fonte, alvo, mapeamento, contexto)).toBe(1);
+  });
   it("Proposição 2: ρ₂ = 1 preserva as classes oposição e emergência, mas não a complementaridade", () => {
     fc.assert(
       fc.property(
