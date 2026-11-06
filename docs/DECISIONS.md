@@ -5,6 +5,46 @@ Formato: ADR leve (status, data, decisão, motivo, impacto). Decisões novas ent
 
 ---
 
+## ADR-018 — Decisões autorais para o motor de analogias v2
+Status: accepted
+Date: 2026-11-06
+Decided by: autor da teoria
+
+Decision:
+Após o parecer do Claude Science e a revisão da Luna, ambos de 2026-11-06, o autor decidiu
+introduzir uma trilha v2, sem alterar a configuração nem o comportamento v1:
+
+1. A homologia v2 é decomposta em π, σ e ι. π é a preservação relacional `|G| / |R_S|`;
+   σ é `(|G| + |IC_sist|) / |R_S|`; e ι é `σ − π`. `IC_sist` conta uma vez cada relação-fonte
+   distinta com inferência sistemática.
+2. Inferências v2 são classificadas como sistemática ancestral, sistemática colateral,
+   superfície ou rejeitada. Superfície permanece na saída, marcada como exploratória.
+3. A modalidade homológica v2 exige `σ ≥ θ_s` e ao menos uma relação de ordem dois ou maior
+   em `G ∪ IC_sist`. O valor de θ_s permanece provisório e explicitamente não calibrado. A
+   ordenação continua por sistematicidade, ρ₁ e chave canônica. O diagnóstico de Gentner v2
+   usa σ como eixo estrutural.
+4. ρ₃ v2 exclui entidades-fonte sem papel do numerador e do denominador; se não houver
+   entidade com papel, o resultado é indefinido.
+5. ρ₅ v2 separa os mecanismos: equilíbrio por potencial só preserva potencial, e oposição só
+   preserva oposição. A saída informa o total e os componentes potencial e oposição.
+6. ρ₄ v2 informa separadamente os componentes escala e monótono. No perfil, ρ₄ é o escore de
+   escala quando houver atributo de escala avaliável; caso contrário, é o escore monótono.
+7. A configuração v1 e seus resultados permanecem imutáveis. A v2 só é executada sobre casos
+   de validação após o pré-registro `validacao/criterios.v1.2.md` estar commitado.
+
+Reason:
+A decomposição separa estrutura preservada de estrutura sustentada por inferências, e as regras
+v2 removem ambiguidades formais registradas no ADR-017. A trilha versionada evita reinterpretar
+retroativamente o pré-registro e os resultados históricos de H1.
+
+Impact:
+A v2 usa configuração, versões de relação e campos de saída próprios. Casos congelados,
+critérios v1 e v1.1, relatórios existentes e `config/modalidades.v1.json` não são alterados.
+Qualquer calibração de θ_s exige o protocolo pré-registrado v1.2 e conjunto de confirmação
+separado.
+
+---
+
 ## ADR-017 — Correções formais e pendências autorais da fase 1
 Status: accepted
 Date: 2026-11-06
