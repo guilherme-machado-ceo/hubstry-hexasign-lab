@@ -168,9 +168,15 @@ function ehObjeto(valor: unknown): valor is Record<string, unknown> {
   return typeof valor === "object" && valor !== null && !Array.isArray(valor);
 }
 
+/**
+ * Rejeita substitutos isolados e caracteres de controle C0 (U+0000 a U+001F)
+ * e DEL (U+007F), que não têm uso legítimo em identificadores e valores
+ * categóricos e poderiam forjar colisões em chaves internas (ADR-016).
+ */
 function unicodeValido(valor: string): boolean {
   for (let i = 0; i < valor.length; i += 1) {
     const unidade = valor.charCodeAt(i);
+    if (unidade <= 0x1f || unidade === 0x7f) return false;
     if (unidade >= 0xd800 && unidade <= 0xdbff) {
       const seguinte = valor.charCodeAt(i + 1);
       if (!(seguinte >= 0xdc00 && seguinte <= 0xdfff)) return false;
@@ -194,7 +200,7 @@ function textoNormalizado(
     return undefined;
   }
   if (!unicodeValido(valor)) {
-    erros.push({ codigo, caminho, mensagem: "contém escalar Unicode inválido" });
+    erros.push({ codigo, caminho, mensagem: "contém escalar Unicode inválido ou caractere de controle" });
     return undefined;
   }
   const normalizado = valor.normalize("NFC");
@@ -938,7 +944,7 @@ export function validarCorrespondencias(
       });
       return;
     }
-    const par = `${nomeFonte}\u0000${nomeAlvo}`;
+    const par = JSON.stringify([nomeFonte, nomeAlvo]);
     if (pares.has(par)) {
       erros.push({ codigo: "DOMINIO_INVALIDO", caminho, mensagem: "correspondência duplicada" });
       return;

@@ -54,6 +54,19 @@ describe("validarDominio", () => {
     if ("erros" in resultado) expect(resultado.erros.some((erro) => erro.mensagem.includes("duplicado"))).toBe(true);
   });
 
+  it.each(["a\u0000b", "a\u001fb", "a\u007fb", "\n"])(
+    "rejeita caractere de controle em identificadores (%j)",
+    (id) => {
+      const entrada = criarDominioValido();
+      entrada.entidades[0].id = id;
+      const resultado = validarDominio(entrada, LIMITES_TESTE);
+      expect(resultado.ok).toBe(false);
+      if ("erros" in resultado) {
+        expect(resultado.erros.some((erro) => erro.caminho === "/entidades/0/id")).toBe(true);
+      }
+    },
+  );
+
   it("rejeita escalar Unicode inválido e prefixos reservados", () => {
     const entrada = criarDominioValido();
     entrada.id = "\ud800";

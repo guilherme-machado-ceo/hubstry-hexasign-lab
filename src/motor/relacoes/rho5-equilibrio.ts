@@ -7,7 +7,7 @@ export const VERSAO_DEFINICAO_RHO5 = "rho5-v1";
 
 function chavePar(a: string, b: string): string {
   const [primeiro, segundo] = [a, b].sort(compararPontosDeCodigo);
-  return `${primeiro}\u0000${segundo}`;
+  return JSON.stringify([primeiro, segundo]);
 }
 
 function paresOposicao(dominio: Dominio): Set<string> {
@@ -74,7 +74,7 @@ export function avaliarRho5(
   const mapa = mapaEntidades(fonte, alvo, mapeamento);
   let preservados = 0;
   for (const chave of fonteEquilibrada) {
-    const [a, b] = chave.split("\u0000");
+    const [a, b] = JSON.parse(chave) as [string, string];
     const alvoA = mapa.get(a);
     const alvoB = mapa.get(b);
     if (alvoA && alvoB && alvoEquilibrado.has(chavePar(alvoA, alvoB))) preservados += 1;

@@ -31,10 +31,10 @@ describe("hipóteses locais e núcleos", () => {
     const contexto = criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE);
     const hipoteses = listarHipotesesLocais(fonte, alvo, "homologica", contexto);
     expect(hipoteses.filter((item) => item.tipo === "relacao").map((item) => item.chave)).toEqual([
-      "r\u0000r1\u0000r1",
-      "r\u0000r2\u0000r2",
-      "r\u0000r3\u0000r3",
-      "r\u0000r4\u0000r4",
+      JSON.stringify(["r", "r1", "r1"]),
+      JSON.stringify(["r", "r2", "r2"]),
+      JSON.stringify(["r", "r3", "r3"]),
+      JSON.stringify(["r", "r4", "r4"]),
     ]);
   });
 
@@ -44,7 +44,7 @@ describe("hipóteses locais e núcleos", () => {
     alvo.relacoes.find((item) => item.id === "r4")!.args[1] = { tipo: "relacao", id: "r3" };
     const contexto = criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE);
     const hipoteses = listarHipotesesLocais(fonte, alvo, "homologica", contexto);
-    const topo = hipoteses.find((item) => item.chave === "r\u0000r4\u0000r4");
+    const topo = hipoteses.find((item) => item.chave === JSON.stringify(["r", "r4", "r4"]));
     expect(topo?.tipo).toBe("relacao");
     if (topo?.tipo === "relacao") expect(construirNucleosRelacao(topo, contexto)).toEqual([]);
     const nucleos = formarNucleos(hipoteses, contexto);

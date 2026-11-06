@@ -82,12 +82,12 @@ export function predicadosCorrespondem(
 }
 
 export function chavePapel(predicado: string, posicao: number | "*"): string {
-  return `${predicado}\u0000${posicao}`;
+  return JSON.stringify([predicado, posicao]);
 }
 
 export function separarChavePapel(chave: string): { predicado: string; posicao: number | "*" } {
-  const [predicado, posicao] = chave.split("\u0000");
-  return { predicado, posicao: posicao === "*" ? "*" : Number(posicao) };
+  const [predicado, posicao] = JSON.parse(chave) as [string, number | "*"];
+  return { predicado, posicao };
 }
 
 function compararReferencias(a: Referencia, b: Referencia): number {

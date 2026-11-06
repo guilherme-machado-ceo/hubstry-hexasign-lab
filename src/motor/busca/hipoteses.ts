@@ -5,11 +5,11 @@ import { verificarOrcamento } from "./orcamento";
 import type { HipoteseLocal } from "./tipos";
 
 function chaveRelacao(fonte: string, alvo: string): string {
-  return `r\u0000${fonte}\u0000${alvo}`;
+  return JSON.stringify(["r", fonte, alvo]);
 }
 
 function chaveEntidade(fonte: string, alvo: string): string {
-  return `e\u0000${fonte}\u0000${alvo}`;
+  return JSON.stringify(["e", fonte, alvo]);
 }
 
 export function listarHipotesesLocais(
@@ -64,5 +64,14 @@ export function listarHipotesesLocais(
     }
   }
 
-  return hipoteses.sort((a, b) => compararPontosDeCodigo(a.chave, b.chave));
+  // Ordem por tupla (tipo, fonte, alvo), independente da serialização da chave.
+  const tupla = (h: HipoteseLocal): string[] => JSON.parse(h.chave) as string[];
+  return hipoteses.sort((a, b) => {
+    const [x, y] = [tupla(a), tupla(b)];
+    for (let i = 0; i < 3; i += 1) {
+      const c = compararPontosDeCodigo(x[i], y[i]);
+      if (c !== 0) return c;
+    }
+    return 0;
+  });
 }

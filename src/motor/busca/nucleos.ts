@@ -130,7 +130,7 @@ function expandirRelacao(
 }
 
 function chaveHipotese(fonte: string, alvo: string): string {
-  return `r\u0000${fonte}\u0000${alvo}`;
+  return JSON.stringify(["r", fonte, alvo]);
 }
 
 function estadoParaNucleo(estado: EstadoNucleo): Nucleo {
