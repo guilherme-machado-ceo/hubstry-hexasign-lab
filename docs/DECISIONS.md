@@ -5,6 +5,39 @@ Formato: ADR leve (status, data, decisão, motivo, impacto). Decisões novas ent
 
 ---
 
+## ADR-015 — Resultado de H1 (v1.1) suspenso por defeito confirmado na busca
+Status: accepted
+Date: 2026-11-06
+Decided by: autor da teoria
+
+Decision:
+O resultado de H1 registrado em `validacao/resultados/h1-v1.1.json` (commit `5685e0e`) fica
+suspenso. Ele não pode ser citado como validação até que os defeitos abaixo sejam corrigidos e
+H1 seja executada de novo, com os mesmos casos e os mesmos critérios. O relatório suspenso
+permanece no repositório como registro.
+
+Reason:
+Uma revisão independente do código (Claude Opus 5.5 via API, dois lotes, commit `5685e0e`)
+apontou defeitos, e um deles foi reproduzido:
+- `busca/nucleos.ts` forma um único núcleo por par de relações simétricas, com o primeiro
+  emparelhamento de argumentos. No caso `h1-b-glm`, renomear a entidade `barra` para `xbarra`,
+  ou inverter a ordem dos argumentos de `conecta`, muda o melhor mapeamento para
+  `cano → cubo-de-gelo` (ρ₂ = 0,375). O acerto relatado dependia, portanto, da ordem alfabética
+  dos identificadores.
+- `busca/gulosa.ts` e `busca/exata.ts` truncam os candidatos em três antes de aplicar o filtro
+  da modalidade, de modo que um elegível pode ser descartado.
+A anterioridade da emenda v1.1 foi conferida pelos commits: `35fa4d8` (13:31 UTC) precede o
+congelamento dos casos em `702435c` (15:36 UTC).
+
+Impact:
+Correções no motor e no executor de H1 antes de nova execução; H4 passa a permutar também os
+argumentos de predicados simétricos e a renomear identificadores. A nova execução registra,
+além do critério v1.1, o resultado do modo normal (elegibilidade, categoria de Gentner e saída
+de `mapear`) e o resultado contando só as inferências marcadas como clássicas pelos
+codificadores.
+
+---
+
 ## ADR-014 — Inferências podem introduzir predicados ausentes no alvo
 Status: accepted (implementado antes da execução de H1)
 Date: 2026-11-05
