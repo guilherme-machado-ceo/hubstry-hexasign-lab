@@ -113,6 +113,16 @@ describe("validarDominio", () => {
     if ("erros" in resultado) expect(resultado.erros[0].mensagem).toContain("no máximo um");
   });
 
+  it("rejeita predicado com aridade zero", () => {
+    const entrada = criarDominioValido();
+    entrada.predicados[0].aridade = 0;
+    const resultado = validarDominio(entrada, LIMITES_TESTE);
+    expect(resultado.ok).toBe(false);
+    if ("erros" in resultado) {
+      expect(resultado.erros.some((erro) => erro.caminho === "/predicados/0/aridade")).toBe(true);
+    }
+  });
+
   it("rejeita oposição e emergência estruturalmente inválidas", () => {
     const entrada = criarDominioValido();
     entrada.predicados.find((item) => item.nome === "opoe")!.simetrico = false;

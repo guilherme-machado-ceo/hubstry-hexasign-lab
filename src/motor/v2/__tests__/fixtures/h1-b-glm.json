@@ -1,0 +1,609 @@
+{
+  "id": "h1-b-glm",
+  "caso": "fluxo de água e fluxo de calor",
+  "origemBibliografica": "Falkenhainer, B.; Forbus, K. D.; Gentner, D. (1989). The Structure-Mapping Engine: algorithm and examples. Artificial Intelligence, 41(1).",
+  "codificacao": {
+    "codificador": "GLM-5.3 (Digiti/Huawei MaaS)",
+    "data": "2026-11-05",
+    "independencia": "codificado sem acesso ao motor nem à outra codificação; domínios copiados sem alteração",
+    "respostaBruta": "brutos/glm-5.3-lote-1.md"
+  },
+  "modalidade": "homologica",
+  "fonte": {
+    "id": "fluxo-de-agua",
+    "esquemaAtributos": {
+      "estado": {
+        "tipo": "categorico"
+      },
+      "material": {
+        "tipo": "categorico"
+      },
+      "valor": {
+        "tipo": "numerico",
+        "unidade": "kPa",
+        "grupo": "escala"
+      }
+    },
+    "entidades": [
+      {
+        "id": "bequer-a",
+        "atributos": {
+          "material": "vidro"
+        },
+        "capacidades": [
+          "conter-liquido"
+        ]
+      },
+      {
+        "id": "bequer-b",
+        "atributos": {
+          "material": "vidro"
+        },
+        "capacidades": [
+          "conter-liquido"
+        ]
+      },
+      {
+        "id": "agua",
+        "atributos": {
+          "estado": "liquido"
+        },
+        "capacidades": [
+          "fluir"
+        ]
+      },
+      {
+        "id": "cano",
+        "atributos": {
+          "material": "metal"
+        },
+        "capacidades": [
+          "conduzir-liquido"
+        ]
+      },
+      {
+        "id": "p1",
+        "atributos": {
+          "valor": 103.0
+        },
+        "capacidades": []
+      },
+      {
+        "id": "p2",
+        "atributos": {
+          "valor": 101.3
+        },
+        "capacidades": []
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "contem",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "pressao",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "maior-que",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "conecta",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": true
+      },
+      {
+        "nome": "flui",
+        "aridade": 4,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "causa",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "r-contem",
+        "predicado": "contem",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "bequer-a"
+          },
+          {
+            "tipo": "entidade",
+            "id": "agua"
+          }
+        ]
+      },
+      {
+        "id": "r-pressao-a",
+        "predicado": "pressao",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "bequer-a"
+          },
+          {
+            "tipo": "entidade",
+            "id": "p1"
+          }
+        ]
+      },
+      {
+        "id": "r-pressao-b",
+        "predicado": "pressao",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "bequer-b"
+          },
+          {
+            "tipo": "entidade",
+            "id": "p2"
+          }
+        ]
+      },
+      {
+        "id": "r-maior-que",
+        "predicado": "maior-que",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "p1"
+          },
+          {
+            "tipo": "entidade",
+            "id": "p2"
+          }
+        ]
+      },
+      {
+        "id": "r-conecta-a",
+        "predicado": "conecta",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cano"
+          },
+          {
+            "tipo": "entidade",
+            "id": "bequer-a"
+          }
+        ]
+      },
+      {
+        "id": "r-conecta-b",
+        "predicado": "conecta",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cano"
+          },
+          {
+            "tipo": "entidade",
+            "id": "bequer-b"
+          }
+        ]
+      },
+      {
+        "id": "r-flui",
+        "predicado": "flui",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "bequer-a"
+          },
+          {
+            "tipo": "entidade",
+            "id": "bequer-b"
+          },
+          {
+            "tipo": "entidade",
+            "id": "agua"
+          },
+          {
+            "tipo": "entidade",
+            "id": "cano"
+          }
+        ]
+      },
+      {
+        "id": "r-causa",
+        "predicado": "causa",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "r-maior-que"
+          },
+          {
+            "tipo": "relacao",
+            "id": "r-flui"
+          }
+        ]
+      }
+    ]
+  },
+  "alvo": {
+    "id": "fluxo-de-calor",
+    "esquemaAtributos": {
+      "estado": {
+        "tipo": "categorico"
+      },
+      "material": {
+        "tipo": "categorico"
+      },
+      "valor": {
+        "tipo": "numerico",
+        "unidade": "K",
+        "grupo": "escala"
+      }
+    },
+    "entidades": [
+      {
+        "id": "cafe",
+        "atributos": {
+          "estado": "liquido"
+        },
+        "capacidades": [
+          "conter-calor"
+        ]
+      },
+      {
+        "id": "cubo-de-gelo",
+        "atributos": {
+          "estado": "solido"
+        },
+        "capacidades": []
+      },
+      {
+        "id": "calor",
+        "atributos": {},
+        "capacidades": [
+          "fluir"
+        ]
+      },
+      {
+        "id": "barra",
+        "atributos": {
+          "material": "cobre"
+        },
+        "capacidades": [
+          "conduzir-calor"
+        ]
+      },
+      {
+        "id": "t1",
+        "atributos": {
+          "valor": 355
+        },
+        "capacidades": []
+      },
+      {
+        "id": "t2",
+        "atributos": {
+          "valor": 273
+        },
+        "capacidades": []
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "contem",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "temperatura",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "maior-que",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "conecta",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": true
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "r-contem",
+        "predicado": "contem",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cafe"
+          },
+          {
+            "tipo": "entidade",
+            "id": "calor"
+          }
+        ]
+      },
+      {
+        "id": "r-temperatura-cafe",
+        "predicado": "temperatura",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cafe"
+          },
+          {
+            "tipo": "entidade",
+            "id": "t1"
+          }
+        ]
+      },
+      {
+        "id": "r-temperatura-cubo",
+        "predicado": "temperatura",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cubo-de-gelo"
+          },
+          {
+            "tipo": "entidade",
+            "id": "t2"
+          }
+        ]
+      },
+      {
+        "id": "r-maior-que",
+        "predicado": "maior-que",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "t1"
+          },
+          {
+            "tipo": "entidade",
+            "id": "t2"
+          }
+        ]
+      },
+      {
+        "id": "r-conecta-cafe",
+        "predicado": "conecta",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "barra"
+          },
+          {
+            "tipo": "entidade",
+            "id": "cafe"
+          }
+        ]
+      },
+      {
+        "id": "r-conecta-cubo",
+        "predicado": "conecta",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "barra"
+          },
+          {
+            "tipo": "entidade",
+            "id": "cubo-de-gelo"
+          }
+        ]
+      }
+    ]
+  },
+  "correspondencias": [],
+  "mapeamentoEsperado": [
+    [
+      "agua",
+      "calor"
+    ],
+    [
+      "bequer-a",
+      "cafe"
+    ],
+    [
+      "bequer-b",
+      "cubo-de-gelo"
+    ],
+    [
+      "cano",
+      "barra"
+    ],
+    [
+      "p1",
+      "t1"
+    ],
+    [
+      "p2",
+      "t2"
+    ]
+  ],
+  "inferenciasEsperadas": [
+    {
+      "relacaoFonte": "r-flui",
+      "idProjetado": "proj:fluxo-de-agua:r-flui",
+      "predicado": "flui",
+      "argsAlvo": [
+        {
+          "tipo": "entidade",
+          "id": "cafe"
+        },
+        {
+          "tipo": "entidade",
+          "id": "cubo-de-gelo"
+        },
+        {
+          "tipo": "entidade",
+          "id": "calor"
+        },
+        {
+          "tipo": "entidade",
+          "id": "barra"
+        }
+      ],
+      "entidadesHipoteticas": []
+    },
+    {
+      "relacaoFonte": "r-causa",
+      "idProjetado": "proj:fluxo-de-agua:r-causa",
+      "predicado": "causa",
+      "argsAlvo": [
+        {
+          "tipo": "relacao",
+          "id": "r-maior-que"
+        },
+        {
+          "tipo": "relacao",
+          "id": "proj:fluxo-de-agua:r-flui"
+        }
+      ],
+      "entidadesHipoteticas": []
+    },
+    {
+      "relacaoFonte": "r-pressao-a",
+      "idProjetado": "proj:fluxo-de-agua:r-pressao-a",
+      "predicado": "pressao",
+      "argsAlvo": [
+        {
+          "tipo": "entidade",
+          "id": "cafe"
+        },
+        {
+          "tipo": "entidade",
+          "id": "t1"
+        }
+      ],
+      "entidadesHipoteticas": []
+    },
+    {
+      "relacaoFonte": "r-pressao-b",
+      "idProjetado": "proj:fluxo-de-agua:r-pressao-b",
+      "predicado": "pressao",
+      "argsAlvo": [
+        {
+          "tipo": "entidade",
+          "id": "cubo-de-gelo"
+        },
+        {
+          "tipo": "entidade",
+          "id": "t2"
+        }
+      ],
+      "entidadesHipoteticas": []
+    }
+  ],
+  "observacoes": [
+    "Inferências clássicas: flui(cafe, cubo-de-gelo, calor, barra) e causa(maior-que, flui). As de pressao foram declaradas pelo codificador como não clássicas, mas esperadas sem tabela de correspondência.",
+    "Controle declarado pelo codificador: domínio 'servir-cha'; informativo, fora do critério de H1."
+  ],
+  "controleInformativo": {
+    "id": "servir-cha",
+    "esquemaAtributos": {
+      "estado": {
+        "tipo": "categorico"
+      },
+      "material": {
+        "tipo": "categorico"
+      },
+      "valor": {
+        "tipo": "numerico",
+        "unidade": "K",
+        "grupo": "escala"
+      }
+    },
+    "entidades": [
+      {
+        "id": "bule",
+        "atributos": {
+          "material": "cobre"
+        },
+        "capacidades": [
+          "conter-liquido"
+        ]
+      },
+      {
+        "id": "cha",
+        "atributos": {
+          "estado": "liquido",
+          "valor": 373
+        },
+        "capacidades": []
+      },
+      {
+        "id": "xicara",
+        "atributos": {
+          "material": "porcelana"
+        },
+        "capacidades": [
+          "conter-liquido"
+        ]
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "despeja",
+        "aridade": 3,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "esfria",
+        "aridade": 1,
+        "classe": "comum",
+        "simetrico": false
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "r-despeja",
+        "predicado": "despeja",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "bule"
+          },
+          {
+            "tipo": "entidade",
+            "id": "xicara"
+          },
+          {
+            "tipo": "entidade",
+            "id": "cha"
+          }
+        ]
+      },
+      {
+        "id": "r-esfria",
+        "predicado": "esfria",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "cha"
+          }
+        ]
+      }
+    ]
+  }
+}

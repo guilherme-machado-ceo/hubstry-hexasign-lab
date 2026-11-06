@@ -38,7 +38,7 @@ import {
 import { criarContextoAvaliacao } from "./relacoes";
 import { ErroOrcamentoBusca } from "./busca/orcamento";
 
-export const VERSAO_MOTOR = "0.2.0";
+export const VERSAO_MOTOR = "0.3.0";
 
 export type FuncaoSha256 = (bytes: Uint8Array) => Promise<string>;
 export type EstrategiaBusca = "gulosa" | "exata";

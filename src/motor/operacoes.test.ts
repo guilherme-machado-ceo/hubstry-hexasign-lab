@@ -15,7 +15,7 @@ describe("operações públicas", () => {
     );
     expect(resultado.mapeamentos[0].perfil[1]).toBe(1);
     expect(resultado.mapeamentos[0].isomorfismo).toBe(true);
-    expect(resultado.versaoMotor).toBe("0.2.0");
+    expect(resultado.versaoMotor).toBe("0.3.0");
     expect(resultado.resumoConfig).toMatch(/^[0-9a-f]{64}$/);
     expect(resultado.resumoEntrada).toMatch(/^[0-9a-f]{64}$/);
     await expect(

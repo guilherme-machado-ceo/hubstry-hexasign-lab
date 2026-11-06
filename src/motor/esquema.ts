@@ -565,11 +565,11 @@ export function validarDominio(
         erros,
         "DOMINIO_INVALIDO",
       );
-      if (aridade !== undefined && (!Number.isInteger(aridade) || aridade < 0)) {
+      if (aridade !== undefined && (!Number.isInteger(aridade) || aridade < 1)) {
         erros.push({
           codigo: "DOMINIO_INVALIDO",
           caminho: ponteiro(caminho, "aridade"),
-          mensagem: "deve ser inteiro não negativo",
+          mensagem: "deve ser inteiro positivo",
         });
       }
       if (aridade !== undefined && aridade > limites.aridade) {
@@ -634,7 +634,7 @@ export function validarDominio(
         nome !== undefined &&
         aridade !== undefined &&
         Number.isInteger(aridade) &&
-        aridade >= 0 &&
+        aridade >= 1 &&
         aridade <= limites.aridade &&
         (classe === "comum" || classe === "oposicao" || classe === "emergencia") &&
         typeof original.simetrico === "boolean"
