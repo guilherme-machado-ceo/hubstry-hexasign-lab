@@ -86,7 +86,7 @@ A Def. 3.6 da v1 combina duas exigências: complementaridade, Δ(x) = −Δ(y), 
 
 ## 4. Perfil, implicações demonstradas e diagnóstico
 
-O perfil de um mapeamento é o vetor (ρ₁, …, ρ₆), com entradas possivelmente indefinidas. Na versão limiarizada, cada coordenada pode assumir 0, 1 ou indefinido; portanto, há 3⁶ = 729 estados possíveis. Os 64 perfis de {0,1}⁶ da v1 (Def. 4.2, p. 33) são exatamente o subconjunto em que as seis relações estão definidas. Na v2, todos os 729 estados são legítimos.
+O perfil de um mapeamento é o vetor (ρ₁, …, ρ₆), com entradas possivelmente indefinidas. Na versão limiarizada, cada coordenada pode assumir 0, 1 ou indefinido, mas as regras de definição impõem dependências: ρ₃ indefinido implica que todas as coordenadas são indefinidas; ρ₄ definido implica ρ₁ definido; ρ₅ definido implica ρ₁ ou ρ₂ definido; e ρ₆ definido implica ρ₂ definido. Portanto, das 3⁶ = 729 combinações formais, há no máximo 291 configurações admissíveis, como verifica a enumeração em `scripts/contar-estados-perfil.mjs`. Essa contagem não afirma que todas as 291 configurações sejam alcançáveis. Os 64 perfis de {0,1}⁶ da v1 (Def. 4.2, p. 33) são exatamente o subconjunto em que as seis relações estão definidas.
 
 A mudança decorre do diagnóstico do relatório. O Teorema 3.1 da v1, a cadeia ρ₆ ⇒ ρ₅ ⇒ ρ₄ ⇒ ρ₃ ⇒ ρ₂ ⇒ ρ₁ (p. 30-31), não decorre das definições, e o Axioma 2 de monotonia (p. 58) é contrariado pelos próprios exemplos da v1. A v2 substitui ambos por um conjunto de implicações demonstradas a partir das Definições 4 a 9. As duas proposições abaixo compõem esse conjunto e recebem esboços de demonstração.
 
