@@ -126,14 +126,14 @@ Em todas as modalidades, o motor reporta as seis relações, e não apenas a exi
 O motor oferece três operações, todas determinísticas.
 
 1. **Mapear.** Dados uma fonte, um alvo e uma modalidade, o motor devolve até três mapeamentos ordenados, cada um com perfil, diagnóstico e inferências candidatas.
-2. **Buscar.** Dados uma fonte, uma biblioteca de domínios e uma modalidade, o motor devolve os alvos mais análogos, em ordem. Essa operação corresponde, no programa de Gentner e Forbus, ao modelo MAC/FAC de recuperação analógica.
+2. **Buscar.** Dados uma fonte, uma biblioteca de domínios e uma modalidade, o motor devolve os alvos mais análogos, em ordem. A operação é inspirada no MAC/FAC (Many Are Called, Few Are Chosen, muitas opções são chamadas, poucas são escolhidas), mas não reproduz seu filtro inicial barato, não estrutural, baseado em vetores de conteúdo: este motor avalia diretamente as estruturas relacionais candidatas.
 3. **Inferir.** Para um mapeamento, o motor projeta no alvo as relações da fonte que não têm imagem. Cada projeção é uma inferência candidata. Uma relação só é projetável quando ao menos um de seus argumentos diretos já tem imagem no alvo: uma entidade está mapeada ou uma sub-relação tem relação correspondente. Quando um argumento-entidade não tem correspondente, o motor cria uma entidade hipotética, marcada como tal. Uma sub-relação sem imagem só pode ser projetada recursivamente se ela própria satisfizer o mesmo critério; se um argumento relacional não puder ser resolvido, a relação que o contém não é emitida. O suporte registrado para a inferência é formado pelos argumentos diretos que já tinham imagem. Quando o predicado da relação-fonte não tem correspondente nem homônimo no alvo, a inferência usa o nome e a declaração da fonte — aridade, classe e simetria — e o marca como predicado novo no alvo. Se existir no alvo um predicado homônimo incompatível em qualquer desses três campos, a inferência não é emitida e o conflito é registrado na saída.
 
 É a terceira operação que justifica falar em criação de analogias. Ela não se limita a reconhecer correspondências; produz conteúdo novo sobre o alvo, com a indicação explícita de qual estrutura da fonte o sustenta e com que perfil.
 
 ## 7. Busca determinística
 
-Encontrar o melhor mapeamento entre duas estruturas é um problema combinatório difícil. A v2 adota, por isso, o procedimento guloso do SME, com regras de desempate fixas.
+Encontrar o melhor mapeamento entre duas estruturas é um problema combinatório difícil. A v2 adota uma busca gulosa própria por núcleos, inspirada no princípio de sistematicidade do SME (Structure-Mapping Engine, motor de mapeamento estrutural), sem reproduzir o procedimento original daquele sistema.
 
 1. **Hipóteses locais.** Formam-se hipóteses para todos os pares de instâncias de relação com predicados correspondentes, mesma aridade, classe e simetria, em qualquer nível das duas estruturas. Nas modalidades heurística e funcional, formam-se também pares de entidades por atributos e por papéis.
 2. **Núcleos.** Uma hipótese local estruturalmente consistente é raiz quando não aparece como par de argumentos de nenhuma outra hipótese local estruturalmente consistente. Cada núcleo nasce de uma hipótese raiz e desce recursivamente pelos argumentos, formando o maior mapeamento compatível com a injetividade. Uma relação ser ou não de nível mais alto em seu próprio domínio não decide a formação de núcleos.
@@ -217,9 +217,9 @@ O mercado de interesse é o PLN (processamento de linguagem natural) aplicado à
 
 ## Referências
 
-- Falkenhainer, B.; Forbus, K. D.; Gentner, D. The Structure-Mapping Engine: algorithm and examples. *Artificial Intelligence*, v. 41, n. 1, 1989.
-- Forbus, K. D.; Gentner, D.; Law, K. MAC/FAC: a model of similarity-based retrieval. *Cognitive Science*, v. 19, n. 2, 1995.
-- Gentner, D. Structure-mapping: a theoretical framework for analogy. *Cognitive Science*, v. 7, n. 2, 1983.
+- Falkenhainer, B.; Forbus, K. D.; Gentner, D. The Structure-Mapping Engine: algorithm and examples. *Artificial Intelligence*, v. 41, n. 1, p. 1-63, 1989. DOI: 10.1016/0004-3702(89)90077-5.
+- Forbus, K. D.; Gentner, D.; Law, K. MAC/FAC: a model of similarity-based retrieval. *Cognitive Science*, v. 19, n. 2, p. 141-205, 1995. DOI: 10.1207/s15516709cog1902_1.
+- Gentner, D. Structure-mapping: a theoretical framework for analogy. *Cognitive Science*, v. 7, n. 2, p. 155-170, 1983. DOI: 10.1016/S0364-0213(83)80009-3.
 - Hesse, M. *Models and Analogies in Science*. Notre Dame: University of Notre Dame Press, 1966.
 - Czinczoll, T.; Yannakoudakis, H.; Mishra, P.; Shutova, E. Scientific and creative analogies in pretrained language models. *Findings of EMNLP*, 2022.
 - Machado, G. G. π√f(A): Uma Álgebra Hexarrelacional de Significância para Algoritmos. Zenodo, 2026. DOI 10.5281/zenodo.18776401.
