@@ -123,6 +123,17 @@ describe("ρ₄ simetria", () => {
     expect(avaliarRho4(alvo, fonte, inverso, contexto(alvo, fonte))).toBe(direto);
   });
 
+  it("não estoura com valores finitos extremos e é simétrico (ADR-016)", () => {
+    // y / x = MAX_VALUE / 1e-10 estoura para Infinity; a diferença de logs não.
+    const fonte = dominioNumerico("fonte", "escala", [1e-10, 2e-10, 3e-10]);
+    const alvo = dominioNumerico("alvo", "escala", [Number.MAX_VALUE / 3, Number.MAX_VALUE / 1.5, Number.MAX_VALUE]);
+    const mapa = mapaNumerico(3);
+    const inverso: Mapeamento = { pares: mapa.pares.map(([a, b]) => [b, a]) };
+    const direto = avaliarRho4(fonte, alvo, mapa, contexto(fonte, alvo));
+    expect(direto).toBe(1);
+    expect(avaliarRho4(alvo, fonte, inverso, contexto(alvo, fonte))).toBe(direto);
+  });
+
   it("calcula Kendall τ-b crescente e decrescente", () => {
     const fonte = dominioNumerico("fonte", "monotono", [1, 2, 3]);
     const crescente = dominioNumerico("alvo", "monotono", [10, 20, 30]);

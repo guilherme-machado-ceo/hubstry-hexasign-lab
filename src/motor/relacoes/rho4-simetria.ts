@@ -19,9 +19,12 @@ function escoreEscala(
 ): number | null {
   const logs: number[] = [];
   for (const [x, y] of pares) {
-    const razao = y / x;
-    if (!Number.isFinite(razao) || razao <= 0) return null;
-    logs.push(Math.log(razao));
+    // Log da razão como diferença de logs: y / x pode estourar para
+    // Infinity ou zerar com valores finitos extremos (ADR-016).
+    if (!(x !== 0 && y !== 0 && Math.sign(x) === Math.sign(y))) return null;
+    const logR = Math.log(Math.abs(y)) - Math.log(Math.abs(x));
+    if (!Number.isFinite(logR)) return null;
+    logs.push(logR);
   }
   const logA = mediana(logs);
   const dentro = logs.filter(
