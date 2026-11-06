@@ -1178,18 +1178,19 @@ export function validarConfiguracao(entrada: unknown): ResultadoValidacao<Config
         mensagem: "deve ser não negativa",
       });
     }
-    if (rho5Equilibrio !== undefined && rho5Equilibrio < 0) {
+    if (rho5Equilibrio !== undefined && (rho5Equilibrio < 0 || rho5Equilibrio >= 1)) {
       erros.push({
         codigo: "CONFIG_INVALIDA",
         caminho: "/tolerancias/rho5Equilibrio",
-        mensagem: "deve ser não negativa",
+        mensagem: "deve estar no intervalo [0, 1)",
       });
     }
     if (
       rho4LogEscala !== undefined &&
       rho4LogEscala >= 0 &&
       rho5Equilibrio !== undefined &&
-      rho5Equilibrio >= 0
+      rho5Equilibrio >= 0 &&
+      rho5Equilibrio < 1
     ) {
       tolerancias = { rho4LogEscala, rho5Equilibrio };
     }

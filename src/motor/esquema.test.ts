@@ -228,4 +228,16 @@ describe("validarConfiguracao", () => {
     expect(resultado.ok).toBe(false);
     if ("erros" in resultado) expect(resultado.erros.length).toBeGreaterThanOrEqual(3);
   });
+
+  it.each([1, 2, -0.1])("rejeita rho5Equilibrio fora de [0, 1): %s", (valor) => {
+    const config = structuredClone(CONFIG_TESTE);
+    config.tolerancias.rho5Equilibrio = valor;
+    expect(validarConfiguracao(config).ok).toBe(false);
+  });
+
+  it.each([0, 0.05])("aceita rho5Equilibrio em [0, 1): %s", (valor) => {
+    const config = structuredClone(CONFIG_TESTE);
+    config.tolerancias.rho5Equilibrio = valor;
+    expect(validarConfiguracao(config)).toEqual({ ok: true, valor: config });
+  });
 });
