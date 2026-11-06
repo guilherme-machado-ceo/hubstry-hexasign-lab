@@ -40,6 +40,9 @@ retroativamente o pré-registro e os resultados históricos de H1.
 Impact:
 A v2 usa configuração, versões de relação e campos de saída próprios. Casos congelados,
 critérios v1 e v1.1, relatórios existentes e `config/modalidades.v1.json` não são alterados.
+A versão do motor identifica o código: `VERSAO_MOTOR` é 0.3.0 também para a rota v1. A
+semântica v1 é garantida pela regressão, que normaliza somente ambiente, `versaoMotor` no topo
+do relatório e `modoNormal.resumoSaida`; qualquer alteração em `resumoEntrada` é regressão.
 Qualquer calibração de θ_s exige o protocolo pré-registrado v1.2 e conjunto de confirmação
 separado.
 

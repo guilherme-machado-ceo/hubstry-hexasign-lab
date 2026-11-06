@@ -45,7 +45,7 @@ import {
 
 const DIR = "validacao/casos-classicos";
 const RELATORIO_ANTERIOR = "validacao/resultados/h1-v1.1.json";
-const SAIDA = "validacao/resultados/h1-v1.1-r2.json";
+const SAIDA = process.env.H1_SAIDA ?? "validacao/resultados/h1-v1.1-r2.json";
 
 /**
  * Expectativas que a revisão independente (lote 2, achado sobre "pressao")
