@@ -1,0 +1,519 @@
+{
+  "hipotese": "H1",
+  "criterios": "validacao/criterios.v1.1.md",
+  "revisao": "r2 (ADR-015, ADR-016)",
+  "relatorioAnterior": "validacao/resultados/h1-v1.1.json",
+  "versaoMotor": "0.2.0",
+  "versaoConfig": "1.0.0",
+  "resumoConfig": "99ab78babf1738548c546ddea4aa48fd60e7667482b823c78200ab4089c38550",
+  "ambiente": {
+    "node": "v22.23.4",
+    "plataforma": "linux-x64"
+  },
+  "estrategia": "gulosa",
+  "ressalvas": [
+    "Os codificadores dos casos tiveram acesso à spec (commit 8193e7a), mas não ao motor nem à codificação um do outro; não eram cegos à teoria.",
+    "Os diagnósticos de modo normal, estabilidade e sensibilidade não participam do critério v1.1."
+  ],
+  "casos": [
+    {
+      "caso": "h1-a-claude",
+      "arquivo": "h1-a-claude.json",
+      "resumoCaso": "90ce241a9263921ea41fbbe66bc8d8d452db2060dc42eddbd9c604280eea8fc6",
+      "candidatosAvaliados": 1,
+      "criterioV11": {
+        "mapeamentoEsperado": [
+          [
+            "planeta",
+            "eletron"
+          ],
+          [
+            "sol",
+            "nucleo"
+          ]
+        ],
+        "mapeamentoObtido": [
+          [
+            "planeta",
+            "eletron"
+          ],
+          [
+            "sol",
+            "nucleo"
+          ]
+        ],
+        "mapeamentoCorreto": true,
+        "perfil": [
+          0,
+          0.375,
+          0.5,
+          null,
+          null,
+          null
+        ],
+        "sistematicidade": 0.25,
+        "rho2": 0.375,
+        "passariaNoFiltroRho2": false,
+        "inferencias": {
+          "esperadas": 2,
+          "presentes": 2,
+          "ausentes": [],
+          "extras": [
+            {
+              "relacaoFonte": "gravitacao-sol-planeta",
+              "predicado": "interacao-gravitacional",
+              "predicadoNovo": true,
+              "argsAlvo": [
+                {
+                  "tipo": "entidade",
+                  "id": "eletron"
+                },
+                {
+                  "tipo": "entidade",
+                  "id": "nucleo"
+                }
+              ]
+            },
+            {
+              "relacaoFonte": "causa-atracao-gravitacional",
+              "predicado": "causa",
+              "predicadoNovo": false,
+              "argsAlvo": [
+                {
+                  "tipo": "relacao",
+                  "id": "proj:sistema-solar:gravitacao-sol-planeta"
+                },
+                {
+                  "tipo": "relacao",
+                  "id": "atrai-nucleo-eletron"
+                }
+              ]
+            },
+            {
+              "relacaoFonte": "quente-sol-planeta",
+              "predicado": "mais-quente-que",
+              "predicadoNovo": true,
+              "argsAlvo": [
+                {
+                  "tipo": "entidade",
+                  "id": "nucleo"
+                },
+                {
+                  "tipo": "entidade",
+                  "id": "eletron"
+                }
+              ]
+            }
+          ],
+          "quantidadeExtras": 3,
+          "conflitos": []
+        },
+        "passou": true
+      },
+      "modoNormal": {
+        "resumoEntrada": "4246e1e2db26622602fadf781b135dc7cefab49ed5fe5ad884b526b12187887c",
+        "resumoSaida": "9f49d6dce0bd4455f8a997fbf5be437d0eea48c2e77db426ccd93b47567035fe",
+        "elegiveis": 0,
+        "primeiroElegivel": null,
+        "justificativaVazio": "nenhum mapeamento atingiu o requisito da modalidade: ρ₂ 0.375 abaixo do limiar 0.6",
+        "melhorCandidatoRejeitado": {
+          "mapeamento": {
+            "pares": [
+              [
+                "planeta",
+                "eletron"
+              ],
+              [
+                "sol",
+                "nucleo"
+              ]
+            ]
+          },
+          "perfil": [
+            0,
+            0.375,
+            0.5,
+            null,
+            null,
+            null
+          ],
+          "sistematicidade": 0.25,
+          "motivo": "ρ₂ 0.375 abaixo do limiar 0.6"
+        }
+      },
+      "estabilidade": {
+        "transformacao": "entidades do alvo prefixadas com z- e argumentos simétricos invertidos na fonte e no alvo",
+        "melhorCandidatoInalterado": true
+      },
+      "sensibilidadeClassicas": {
+        "excluidasPelaRevisao": [],
+        "esperadas": 2,
+        "presentes": 2
+      }
+    },
+    {
+      "caso": "h1-a-glm",
+      "arquivo": "h1-a-glm.json",
+      "resumoCaso": "ce3ef52a6a7fa6682391af815f10267c2973d8331ee65f2579b8122a0d2bfe42",
+      "candidatosAvaliados": 1,
+      "criterioV11": {
+        "mapeamentoEsperado": [
+          [
+            "planeta",
+            "eletron"
+          ],
+          [
+            "sol",
+            "nucleo"
+          ]
+        ],
+        "mapeamentoObtido": [
+          [
+            "planeta",
+            "eletron"
+          ],
+          [
+            "sol",
+            "nucleo"
+          ]
+        ],
+        "mapeamentoCorreto": true,
+        "perfil": [
+          0,
+          0.6,
+          0.75,
+          null,
+          null,
+          null
+        ],
+        "sistematicidade": 0.428571428571,
+        "rho2": 0.6,
+        "passariaNoFiltroRho2": true,
+        "inferencias": {
+          "esperadas": 2,
+          "presentes": 2,
+          "ausentes": [],
+          "extras": [],
+          "quantidadeExtras": 0,
+          "conflitos": []
+        },
+        "passou": true
+      },
+      "modoNormal": {
+        "resumoEntrada": "eadbe622f6d27e9a75dfb471ba34dfd82fdda9f199a2e761cc78e7ea7487eac5",
+        "resumoSaida": "66ef8fe1818f4f8bec93b0df046bb6f8bb3eda2deda463524d173ed97157c8a3",
+        "elegiveis": 1,
+        "primeiroElegivel": {
+          "mapeamento": [
+            [
+              "planeta",
+              "eletron"
+            ],
+            [
+              "sol",
+              "nucleo"
+            ]
+          ],
+          "perfil": [
+            0,
+            0.6,
+            0.75,
+            null,
+            null,
+            null
+          ],
+          "categoriaGentner": "analogia",
+          "alertas": []
+        },
+        "justificativaVazio": null,
+        "melhorCandidatoRejeitado": null
+      },
+      "estabilidade": {
+        "transformacao": "entidades do alvo prefixadas com z- e argumentos simétricos invertidos na fonte e no alvo",
+        "melhorCandidatoInalterado": true
+      },
+      "sensibilidadeClassicas": {
+        "excluidasPelaRevisao": [],
+        "esperadas": 2,
+        "presentes": 2
+      }
+    },
+    {
+      "caso": "h1-b-claude",
+      "arquivo": "h1-b-claude.json",
+      "resumoCaso": "3b48b0958022a360f9e7fb35436a56a84115b06b3c2b0e78a82cd25daf15e6d6",
+      "candidatosAvaliados": 2,
+      "criterioV11": {
+        "mapeamentoEsperado": [
+          [
+            "agua",
+            "calor"
+          ],
+          [
+            "bequer",
+            "cafe"
+          ],
+          [
+            "cano",
+            "barra"
+          ],
+          [
+            "frasco",
+            "cubo_gelo"
+          ]
+        ],
+        "mapeamentoObtido": [
+          [
+            "agua",
+            "calor"
+          ],
+          [
+            "bequer",
+            "cafe"
+          ],
+          [
+            "cano",
+            "barra"
+          ],
+          [
+            "frasco",
+            "cubo_gelo"
+          ]
+        ],
+        "mapeamentoCorreto": true,
+        "perfil": [
+          0,
+          0.5,
+          0.833333333333,
+          null,
+          null,
+          null
+        ],
+        "sistematicidade": 0.416666666667,
+        "rho2": 0.5,
+        "passariaNoFiltroRho2": false,
+        "inferencias": {
+          "esperadas": 1,
+          "presentes": 1,
+          "ausentes": [],
+          "extras": [
+            {
+              "relacaoFonte": "r_diametro_bequer",
+              "predicado": "diametro",
+              "predicadoNovo": true,
+              "argsAlvo": [
+                {
+                  "tipo": "entidade",
+                  "id": "cafe"
+                }
+              ]
+            },
+            {
+              "relacaoFonte": "r_diametro_frasco",
+              "predicado": "diametro",
+              "predicadoNovo": true,
+              "argsAlvo": [
+                {
+                  "tipo": "entidade",
+                  "id": "cubo_gelo"
+                }
+              ]
+            }
+          ],
+          "quantidadeExtras": 2,
+          "conflitos": []
+        },
+        "passou": true
+      },
+      "modoNormal": {
+        "resumoEntrada": "b38d0a79345f978ad0f8d1b07d8344ed8ab33951bc8172bd4541b0c90cb6534f",
+        "resumoSaida": "b9d5f50a280f9726fee9bc45569bae792a181318f109cb7cd1491646eb9d19f0",
+        "elegiveis": 0,
+        "primeiroElegivel": null,
+        "justificativaVazio": "nenhum mapeamento atingiu o requisito da modalidade: ρ₂ 0.5 abaixo do limiar 0.6",
+        "melhorCandidatoRejeitado": {
+          "mapeamento": {
+            "pares": [
+              [
+                "agua",
+                "calor"
+              ],
+              [
+                "bequer",
+                "cafe"
+              ],
+              [
+                "cano",
+                "barra"
+              ],
+              [
+                "frasco",
+                "cubo_gelo"
+              ]
+            ]
+          },
+          "perfil": [
+            0,
+            0.5,
+            0.833333333333,
+            null,
+            null,
+            null
+          ],
+          "sistematicidade": 0.416666666667,
+          "motivo": "ρ₂ 0.5 abaixo do limiar 0.6"
+        }
+      },
+      "estabilidade": {
+        "transformacao": "entidades do alvo prefixadas com z- e argumentos simétricos invertidos na fonte e no alvo",
+        "melhorCandidatoInalterado": true
+      },
+      "sensibilidadeClassicas": {
+        "excluidasPelaRevisao": [],
+        "esperadas": 1,
+        "presentes": 1
+      }
+    },
+    {
+      "caso": "h1-b-glm",
+      "arquivo": "h1-b-glm.json",
+      "resumoCaso": "d9620f0d6c5147a4e89efd3803ef2444b94ec7f590f674c230e3bcfb55d577f4",
+      "candidatosAvaliados": 6,
+      "criterioV11": {
+        "mapeamentoEsperado": [
+          [
+            "agua",
+            "calor"
+          ],
+          [
+            "bequer-a",
+            "cafe"
+          ],
+          [
+            "bequer-b",
+            "cubo-de-gelo"
+          ],
+          [
+            "cano",
+            "barra"
+          ],
+          [
+            "p1",
+            "t1"
+          ],
+          [
+            "p2",
+            "t2"
+          ]
+        ],
+        "mapeamentoObtido": [
+          [
+            "agua",
+            "calor"
+          ],
+          [
+            "bequer-a",
+            "cafe"
+          ],
+          [
+            "bequer-b",
+            "cubo-de-gelo"
+          ],
+          [
+            "cano",
+            "barra"
+          ],
+          [
+            "p1",
+            "t1"
+          ],
+          [
+            "p2",
+            "t2"
+          ]
+        ],
+        "mapeamentoCorreto": true,
+        "perfil": [
+          0,
+          0.5,
+          0.386111111111,
+          null,
+          null,
+          null
+        ],
+        "sistematicidade": 0.444444444444,
+        "rho2": 0.5,
+        "passariaNoFiltroRho2": false,
+        "inferencias": {
+          "esperadas": 4,
+          "presentes": 4,
+          "ausentes": [],
+          "extras": [],
+          "quantidadeExtras": 0,
+          "conflitos": []
+        },
+        "passou": true
+      },
+      "modoNormal": {
+        "resumoEntrada": "ece7b9ac248ffdbbe9abd8d9f59be9956e142c5c317ab44974fedcf351d613c8",
+        "resumoSaida": "00bcd7dba5d42f5776f3dea5ee220f3d4e9e7e7d0afb60d420c1ac02b421ef2f",
+        "elegiveis": 0,
+        "primeiroElegivel": null,
+        "justificativaVazio": "nenhum mapeamento atingiu o requisito da modalidade: ρ₂ 0.5 abaixo do limiar 0.6",
+        "melhorCandidatoRejeitado": {
+          "mapeamento": {
+            "pares": [
+              [
+                "agua",
+                "calor"
+              ],
+              [
+                "bequer-a",
+                "cafe"
+              ],
+              [
+                "bequer-b",
+                "cubo-de-gelo"
+              ],
+              [
+                "cano",
+                "barra"
+              ],
+              [
+                "p1",
+                "t1"
+              ],
+              [
+                "p2",
+                "t2"
+              ]
+            ]
+          },
+          "perfil": [
+            0,
+            0.5,
+            0.386111111111,
+            null,
+            null,
+            null
+          ],
+          "sistematicidade": 0.444444444444,
+          "motivo": "ρ₂ 0.5 abaixo do limiar 0.6"
+        }
+      },
+      "estabilidade": {
+        "transformacao": "entidades do alvo prefixadas com z- e argumentos simétricos invertidos na fonte e no alvo",
+        "melhorCandidatoInalterado": true
+      },
+      "sensibilidadeClassicas": {
+        "excluidasPelaRevisao": [
+          "r-pressao-a",
+          "r-pressao-b"
+        ],
+        "esperadas": 2,
+        "presentes": 2
+      }
+    }
+  ],
+  "passou": true
+}

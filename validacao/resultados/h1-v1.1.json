@@ -1,0 +1,316 @@
+{
+  "hipotese": "H1",
+  "criterios": "validacao/criterios.v1.1.md",
+  "versaoMotor": "0.2.0",
+  "versaoConfig": "1.0.0",
+  "resumoConfig": "99ab78babf1738548c546ddea4aa48fd60e7667482b823c78200ab4089c38550",
+  "ambiente": {
+    "node": "v22.23.4",
+    "plataforma": "linux-x64"
+  },
+  "estrategia": "gulosa",
+  "casos": [
+    {
+      "caso": "h1-a-claude",
+      "arquivo": "h1-a-claude.json",
+      "resumoCaso": "90ce241a9263921ea41fbbe66bc8d8d452db2060dc42eddbd9c604280eea8fc6",
+      "candidatosAvaliados": 1,
+      "mapeamentoEsperado": [
+        [
+          "planeta",
+          "eletron"
+        ],
+        [
+          "sol",
+          "nucleo"
+        ]
+      ],
+      "mapeamentoObtido": [
+        [
+          "planeta",
+          "eletron"
+        ],
+        [
+          "sol",
+          "nucleo"
+        ]
+      ],
+      "mapeamentoCorreto": true,
+      "perfil": [
+        0,
+        0.375,
+        0.5,
+        null,
+        null,
+        null
+      ],
+      "sistematicidade": 0.25,
+      "rho2": 0.375,
+      "passariaNoFiltroRho2": false,
+      "inferencias": {
+        "esperadas": 2,
+        "presentes": 2,
+        "ausentes": [],
+        "extras": [
+          {
+            "relacaoFonte": "gravitacao-sol-planeta",
+            "predicado": "interacao-gravitacional",
+            "predicadoNovo": true,
+            "argsAlvo": [
+              {
+                "tipo": "entidade",
+                "id": "eletron"
+              },
+              {
+                "tipo": "entidade",
+                "id": "nucleo"
+              }
+            ]
+          },
+          {
+            "relacaoFonte": "quente-sol-planeta",
+            "predicado": "mais-quente-que",
+            "predicadoNovo": true,
+            "argsAlvo": [
+              {
+                "tipo": "entidade",
+                "id": "nucleo"
+              },
+              {
+                "tipo": "entidade",
+                "id": "eletron"
+              }
+            ]
+          },
+          {
+            "relacaoFonte": "causa-atracao-gravitacional",
+            "predicado": "causa",
+            "predicadoNovo": false,
+            "argsAlvo": [
+              {
+                "tipo": "relacao",
+                "id": "proj:sistema-solar:gravitacao-sol-planeta"
+              },
+              {
+                "tipo": "relacao",
+                "id": "atrai-nucleo-eletron"
+              }
+            ]
+          }
+        ],
+        "conflitos": []
+      },
+      "passou": true
+    },
+    {
+      "caso": "h1-a-glm",
+      "arquivo": "h1-a-glm.json",
+      "resumoCaso": "ce3ef52a6a7fa6682391af815f10267c2973d8331ee65f2579b8122a0d2bfe42",
+      "candidatosAvaliados": 2,
+      "mapeamentoEsperado": [
+        [
+          "planeta",
+          "eletron"
+        ],
+        [
+          "sol",
+          "nucleo"
+        ]
+      ],
+      "mapeamentoObtido": [
+        [
+          "planeta",
+          "eletron"
+        ],
+        [
+          "sol",
+          "nucleo"
+        ]
+      ],
+      "mapeamentoCorreto": true,
+      "perfil": [
+        0,
+        0.6,
+        0.75,
+        null,
+        null,
+        null
+      ],
+      "sistematicidade": 0.428571428571,
+      "rho2": 0.6,
+      "passariaNoFiltroRho2": true,
+      "inferencias": {
+        "esperadas": 2,
+        "presentes": 2,
+        "ausentes": [],
+        "extras": [],
+        "conflitos": []
+      },
+      "passou": true
+    },
+    {
+      "caso": "h1-b-claude",
+      "arquivo": "h1-b-claude.json",
+      "resumoCaso": "3b48b0958022a360f9e7fb35436a56a84115b06b3c2b0e78a82cd25daf15e6d6",
+      "candidatosAvaliados": 2,
+      "mapeamentoEsperado": [
+        [
+          "agua",
+          "calor"
+        ],
+        [
+          "bequer",
+          "cafe"
+        ],
+        [
+          "cano",
+          "barra"
+        ],
+        [
+          "frasco",
+          "cubo_gelo"
+        ]
+      ],
+      "mapeamentoObtido": [
+        [
+          "agua",
+          "calor"
+        ],
+        [
+          "bequer",
+          "cafe"
+        ],
+        [
+          "cano",
+          "barra"
+        ],
+        [
+          "frasco",
+          "cubo_gelo"
+        ]
+      ],
+      "mapeamentoCorreto": true,
+      "perfil": [
+        0,
+        0.5,
+        0.833333333333,
+        null,
+        null,
+        null
+      ],
+      "sistematicidade": 0.416666666667,
+      "rho2": 0.5,
+      "passariaNoFiltroRho2": false,
+      "inferencias": {
+        "esperadas": 1,
+        "presentes": 1,
+        "ausentes": [],
+        "extras": [
+          {
+            "relacaoFonte": "r_diametro_bequer",
+            "predicado": "diametro",
+            "predicadoNovo": true,
+            "argsAlvo": [
+              {
+                "tipo": "entidade",
+                "id": "cafe"
+              }
+            ]
+          },
+          {
+            "relacaoFonte": "r_diametro_frasco",
+            "predicado": "diametro",
+            "predicadoNovo": true,
+            "argsAlvo": [
+              {
+                "tipo": "entidade",
+                "id": "cubo_gelo"
+              }
+            ]
+          }
+        ],
+        "conflitos": []
+      },
+      "passou": true
+    },
+    {
+      "caso": "h1-b-glm",
+      "arquivo": "h1-b-glm.json",
+      "resumoCaso": "d9620f0d6c5147a4e89efd3803ef2444b94ec7f590f674c230e3bcfb55d577f4",
+      "candidatosAvaliados": 2,
+      "mapeamentoEsperado": [
+        [
+          "agua",
+          "calor"
+        ],
+        [
+          "bequer-a",
+          "cafe"
+        ],
+        [
+          "bequer-b",
+          "cubo-de-gelo"
+        ],
+        [
+          "cano",
+          "barra"
+        ],
+        [
+          "p1",
+          "t1"
+        ],
+        [
+          "p2",
+          "t2"
+        ]
+      ],
+      "mapeamentoObtido": [
+        [
+          "agua",
+          "calor"
+        ],
+        [
+          "bequer-a",
+          "cafe"
+        ],
+        [
+          "bequer-b",
+          "cubo-de-gelo"
+        ],
+        [
+          "cano",
+          "barra"
+        ],
+        [
+          "p1",
+          "t1"
+        ],
+        [
+          "p2",
+          "t2"
+        ]
+      ],
+      "mapeamentoCorreto": true,
+      "perfil": [
+        0,
+        0.5,
+        0.386111111111,
+        null,
+        null,
+        null
+      ],
+      "sistematicidade": 0.444444444444,
+      "rho2": 0.5,
+      "passariaNoFiltroRho2": false,
+      "inferencias": {
+        "esperadas": 4,
+        "presentes": 4,
+        "ausentes": [],
+        "extras": [],
+        "conflitos": []
+      },
+      "passou": true
+    }
+  ],
+  "passou": true
+}

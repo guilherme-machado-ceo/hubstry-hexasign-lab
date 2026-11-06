@@ -1,0 +1,534 @@
+{
+  "id": "h1-a-claude",
+  "caso": "sistema solar e átomo de Rutherford",
+  "origemBibliografica": "Gentner, D. (1983). Structure-mapping: a theoretical framework for analogy. Cognitive Science, 7(2); Falkenhainer, B.; Forbus, K. D.; Gentner, D. (1989). The Structure-Mapping Engine: algorithm and examples. Artificial Intelligence, 41(1).",
+  "codificacao": {
+    "codificador": "Claude Opus 5.5 (API Anthropic)",
+    "data": "2026-11-05",
+    "independencia": "codificado sem acesso ao motor nem à outra codificação; domínios copiados sem alteração",
+    "respostaBruta": "brutos/claude-opus-5-5-caso-A.md"
+  },
+  "modalidade": "homologica",
+  "fonte": {
+    "id": "sistema-solar",
+    "esquemaAtributos": {
+      "massa": {
+        "tipo": "numerico",
+        "unidade": "kg",
+        "grupo": "escala"
+      },
+      "temperatura": {
+        "tipo": "numerico",
+        "unidade": "K",
+        "grupo": "escala"
+      },
+      "cor": {
+        "tipo": "categorico"
+      }
+    },
+    "entidades": [
+      {
+        "id": "sol",
+        "atributos": {
+          "massa": 1.989e+30,
+          "temperatura": 5772,
+          "cor": "amarelo"
+        },
+        "capacidades": []
+      },
+      {
+        "id": "planeta",
+        "atributos": {
+          "massa": 5.972e+24,
+          "temperatura": 288
+        },
+        "capacidades": []
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "mais-massivo-que",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "mais-quente-que",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "atrai",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "orbita",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "interacao-gravitacional",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": true
+      },
+      {
+        "nome": "e",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": true
+      },
+      {
+        "nome": "causa",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "massivo-sol-planeta",
+        "predicado": "mais-massivo-que",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "sol"
+          },
+          {
+            "tipo": "entidade",
+            "id": "planeta"
+          }
+        ]
+      },
+      {
+        "id": "quente-sol-planeta",
+        "predicado": "mais-quente-que",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "sol"
+          },
+          {
+            "tipo": "entidade",
+            "id": "planeta"
+          }
+        ]
+      },
+      {
+        "id": "atrai-sol-planeta",
+        "predicado": "atrai",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "sol"
+          },
+          {
+            "tipo": "entidade",
+            "id": "planeta"
+          }
+        ]
+      },
+      {
+        "id": "orbita-planeta-sol",
+        "predicado": "orbita",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "planeta"
+          },
+          {
+            "tipo": "entidade",
+            "id": "sol"
+          }
+        ]
+      },
+      {
+        "id": "gravitacao-sol-planeta",
+        "predicado": "interacao-gravitacional",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "sol"
+          },
+          {
+            "tipo": "entidade",
+            "id": "planeta"
+          }
+        ]
+      },
+      {
+        "id": "e-massa-atracao",
+        "predicado": "e",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "massivo-sol-planeta"
+          },
+          {
+            "tipo": "relacao",
+            "id": "atrai-sol-planeta"
+          }
+        ]
+      },
+      {
+        "id": "causa-orbita",
+        "predicado": "causa",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "e-massa-atracao"
+          },
+          {
+            "tipo": "relacao",
+            "id": "orbita-planeta-sol"
+          }
+        ]
+      },
+      {
+        "id": "causa-atracao-gravitacional",
+        "predicado": "causa",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "gravitacao-sol-planeta"
+          },
+          {
+            "tipo": "relacao",
+            "id": "atrai-sol-planeta"
+          }
+        ]
+      }
+    ]
+  },
+  "alvo": {
+    "id": "atomo-rutherford",
+    "esquemaAtributos": {
+      "massa": {
+        "tipo": "numerico",
+        "unidade": "kg",
+        "grupo": "escala"
+      },
+      "carga": {
+        "tipo": "numerico",
+        "unidade": "e"
+      }
+    },
+    "entidades": [
+      {
+        "id": "nucleo",
+        "atributos": {
+          "massa": 1.67262e-27,
+          "carga": 1
+        },
+        "capacidades": []
+      },
+      {
+        "id": "eletron",
+        "atributos": {
+          "massa": 9.10938e-31,
+          "carga": -1
+        },
+        "capacidades": []
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "mais-massivo-que",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "atrai",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "orbita",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "cargas-opostas",
+        "aridade": 2,
+        "classe": "oposicao",
+        "simetrico": true
+      },
+      {
+        "nome": "causa",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "massivo-nucleo-eletron",
+        "predicado": "mais-massivo-que",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "nucleo"
+          },
+          {
+            "tipo": "entidade",
+            "id": "eletron"
+          }
+        ]
+      },
+      {
+        "id": "atrai-nucleo-eletron",
+        "predicado": "atrai",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "nucleo"
+          },
+          {
+            "tipo": "entidade",
+            "id": "eletron"
+          }
+        ]
+      },
+      {
+        "id": "orbita-eletron-nucleo",
+        "predicado": "orbita",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "eletron"
+          },
+          {
+            "tipo": "entidade",
+            "id": "nucleo"
+          }
+        ]
+      },
+      {
+        "id": "cargas-opostas-nucleo-eletron",
+        "predicado": "cargas-opostas",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "nucleo"
+          },
+          {
+            "tipo": "entidade",
+            "id": "eletron"
+          }
+        ]
+      },
+      {
+        "id": "causa-atracao-eletrica",
+        "predicado": "causa",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "cargas-opostas-nucleo-eletron"
+          },
+          {
+            "tipo": "relacao",
+            "id": "atrai-nucleo-eletron"
+          }
+        ]
+      }
+    ]
+  },
+  "correspondencias": [],
+  "mapeamentoEsperado": [
+    [
+      "planeta",
+      "eletron"
+    ],
+    [
+      "sol",
+      "nucleo"
+    ]
+  ],
+  "inferenciasEsperadas": [
+    {
+      "relacaoFonte": "e-massa-atracao",
+      "idProjetado": "proj:sistema-solar:e-massa-atracao",
+      "predicado": "e",
+      "argsAlvo": [
+        {
+          "tipo": "relacao",
+          "id": "massivo-nucleo-eletron"
+        },
+        {
+          "tipo": "relacao",
+          "id": "atrai-nucleo-eletron"
+        }
+      ],
+      "entidadesHipoteticas": []
+    },
+    {
+      "relacaoFonte": "causa-orbita",
+      "idProjetado": "proj:sistema-solar:causa-orbita",
+      "predicado": "causa",
+      "argsAlvo": [
+        {
+          "tipo": "relacao",
+          "id": "proj:sistema-solar:e-massa-atracao"
+        },
+        {
+          "tipo": "relacao",
+          "id": "orbita-eletron-nucleo"
+        }
+      ],
+      "entidadesHipoteticas": []
+    }
+  ],
+  "observacoes": [
+    "Inferência clássica: causa(e(mais-massivo-que, atrai), orbita).",
+    "Declaradas pelo codificador como incertas na literatura (gravitação e sua causa) e como não esperadas (mais-quente-que); se o motor as produzir, contam como extras.",
+    "Controle declarado pelo codificador: domínio 'feixe-espectrometro'; informativo, fora do critério de H1."
+  ],
+  "controleInformativo": {
+    "id": "feixe-espectrometro",
+    "esquemaAtributos": {
+      "massa": {
+        "tipo": "numerico",
+        "unidade": "kg",
+        "grupo": "escala"
+      },
+      "carga": {
+        "tipo": "numerico",
+        "unidade": "e"
+      },
+      "inducao-magnetica": {
+        "tipo": "numerico",
+        "unidade": "T"
+      }
+    },
+    "entidades": [
+      {
+        "id": "proton-livre",
+        "atributos": {
+          "massa": 1.67262e-27,
+          "carga": 1
+        },
+        "capacidades": []
+      },
+      {
+        "id": "eletron-livre",
+        "atributos": {
+          "massa": 9.10938e-31,
+          "carga": -1
+        },
+        "capacidades": []
+      },
+      {
+        "id": "ima",
+        "atributos": {
+          "inducao-magnetica": 0.1
+        },
+        "capacidades": []
+      }
+    ],
+    "predicados": [
+      {
+        "nome": "deflete",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "mais-massivo-que",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "curvatura-maior-que",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      },
+      {
+        "nome": "causa",
+        "aridade": 2,
+        "classe": "comum",
+        "simetrico": false
+      }
+    ],
+    "relacoes": [
+      {
+        "id": "deflete-proton",
+        "predicado": "deflete",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "ima"
+          },
+          {
+            "tipo": "entidade",
+            "id": "proton-livre"
+          }
+        ]
+      },
+      {
+        "id": "deflete-eletron",
+        "predicado": "deflete",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "ima"
+          },
+          {
+            "tipo": "entidade",
+            "id": "eletron-livre"
+          }
+        ]
+      },
+      {
+        "id": "massivo-proton-eletron",
+        "predicado": "mais-massivo-que",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "proton-livre"
+          },
+          {
+            "tipo": "entidade",
+            "id": "eletron-livre"
+          }
+        ]
+      },
+      {
+        "id": "curvatura-eletron-proton",
+        "predicado": "curvatura-maior-que",
+        "args": [
+          {
+            "tipo": "entidade",
+            "id": "eletron-livre"
+          },
+          {
+            "tipo": "entidade",
+            "id": "proton-livre"
+          }
+        ]
+      },
+      {
+        "id": "causa-curvatura",
+        "predicado": "causa",
+        "args": [
+          {
+            "tipo": "relacao",
+            "id": "massivo-proton-eletron"
+          },
+          {
+            "tipo": "relacao",
+            "id": "curvatura-eletron-proton"
+          }
+        ]
+      }
+    ]
+  }
+}
