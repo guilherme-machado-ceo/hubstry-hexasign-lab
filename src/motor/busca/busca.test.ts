@@ -5,7 +5,7 @@ import { criarContextoAvaliacao } from "../relacoes";
 import { buscaExata } from "./exata";
 import { buscaGulosa } from "./gulosa";
 import { listarHipotesesLocais } from "./hipoteses";
-import { construirNucleoRelacao, formarNucleos } from "./nucleos";
+import { construirNucleosRelacao, formarNucleos } from "./nucleos";
 import { ErroOrcamentoBusca } from "./orcamento";
 import { calcularSistematicidade } from "./sistematicidade";
 
@@ -45,7 +45,7 @@ describe("hipóteses locais e núcleos", () => {
     const hipoteses = listarHipotesesLocais(fonte, alvo, "homologica", contexto);
     const topo = hipoteses.find((item) => item.chave === "r\u0000r4\u0000r4");
     expect(topo?.tipo).toBe("relacao");
-    if (topo?.tipo === "relacao") expect(construirNucleoRelacao(topo, contexto)).toBeNull();
+    if (topo?.tipo === "relacao") expect(construirNucleosRelacao(topo, contexto)).toEqual([]);
     const nucleos = formarNucleos(hipoteses, contexto);
     expect(nucleos.some((nucleo) => nucleo.paresRelacoes.some(([a, b]) => a === "r1" && b === "r1"))).toBe(true);
   });

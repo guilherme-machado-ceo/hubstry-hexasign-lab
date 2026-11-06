@@ -49,59 +49,58 @@ function vincularRelacao(fonte: string, alvo: string, estado: EstadoNucleo): boo
   return true;
 }
 
+/**
+ * Cada expansão devolve TODOS os estados consistentes (ADR-016). Antes, o
+ * pareamento de predicados simétricos devolvia só o primeiro estado
+ * consistente pela ordem dos identificadores do alvo, o que tornava o
+ * mapeamento escolhido dependente de nomes e da ordem dos argumentos.
+ */
 function expandirArgumento(
   fonte: Referencia,
   alvo: Referencia,
   estado: EstadoNucleo,
   contexto: ContextoAvaliacao,
-): boolean {
-  if (fonte.tipo !== alvo.tipo) return false;
+): EstadoNucleo[] {
+  if (fonte.tipo !== alvo.tipo) return [];
   if (fonte.tipo === "entidade" && alvo.tipo === "entidade") {
-    return vincularEntidade(fonte.id, alvo.id, estado);
+    const tentativa = clonar(estado);
+    return vincularEntidade(fonte.id, alvo.id, tentativa) ? [tentativa] : [];
   }
   if (fonte.tipo === "relacao" && alvo.tipo === "relacao") {
     const relacaoFonte = contexto.indicesFonte.relacoesPorId.get(fonte.id);
     const relacaoAlvo = contexto.indicesAlvo.relacoesPorId.get(alvo.id);
-    if (!relacaoFonte || !relacaoAlvo) return false;
+    if (!relacaoFonte || !relacaoAlvo) return [];
     return expandirRelacao(relacaoFonte, relacaoAlvo, estado, contexto);
   }
-  return false;
+  return [];
 }
 
-function expandirSimetrica(
-  argsFonte: readonly Referencia[],
-  argsAlvo: readonly Referencia[],
-  indice: number,
-  usados: Set<number>,
-  estado: EstadoNucleo,
+function expandirSequencia(
+  pares: ReadonlyArray<readonly [Referencia, Referencia]>,
+  estados: EstadoNucleo[],
   contexto: ContextoAvaliacao,
-): EstadoNucleo | null {
-  if (indice === argsFonte.length) return estado;
-  const candidatos = argsAlvo
-    .map((arg, posicao) => ({ arg, posicao, chave: `${arg.tipo}:${arg.id}` }))
-    .filter(({ posicao }) => !usados.has(posicao))
-    .sort((a, b) => compararPontosDeCodigo(a.chave, b.chave));
-  for (const candidato of candidatos) {
-    const tentativa = clonar(estado);
-    if (!expandirArgumento(argsFonte[indice], candidato.arg, tentativa, contexto)) continue;
-    const resultado = expandirSimetrica(
-      argsFonte,
-      argsAlvo,
-      indice + 1,
-      new Set([...usados, candidato.posicao]),
-      tentativa,
-      contexto,
-    );
-    if (resultado) return resultado;
+): EstadoNucleo[] {
+  let atuais = estados;
+  for (const [fonte, alvo] of pares) {
+    atuais = atuais.flatMap((estado) => expandirArgumento(fonte, alvo, estado, contexto));
+    if (atuais.length === 0) return [];
   }
-  return null;
+  return atuais;
 }
 
-function copiarEstado(origem: EstadoNucleo, destino: EstadoNucleo): void {
-  destino.entidadesFonte = origem.entidadesFonte;
-  destino.entidadesAlvo = origem.entidadesAlvo;
-  destino.relacoesFonte = origem.relacoesFonte;
-  destino.relacoesAlvo = origem.relacoesAlvo;
+/** Todas as permutações das posições 0..n-1, em ordem lexicográfica. */
+function permutacoes(n: number): number[][] {
+  if (n === 0) return [[]];
+  const resultado: number[][] = [];
+  for (const resto of permutacoes(n - 1)) {
+    for (let i = 0; i <= resto.length; i += 1) {
+      resultado.push([...resto.slice(0, i), n - 1, ...resto.slice(i)]);
+    }
+  }
+  return resultado.sort((a, b) => {
+    for (let i = 0; i < a.length; i += 1) if (a[i] !== b[i]) return a[i] - b[i];
+    return 0;
+  });
 }
 
 function expandirRelacao(
@@ -109,21 +108,25 @@ function expandirRelacao(
   alvo: Relacao,
   estado: EstadoNucleo,
   contexto: ContextoAvaliacao,
-): boolean {
-  if (contexto.correspondencia.fonteParaAlvo.get(fonte.predicado) !== alvo.predicado) return false;
-  if (fonte.args.length !== alvo.args.length) return false;
-  if (!vincularRelacao(fonte.id, alvo.id, estado)) return false;
+): EstadoNucleo[] {
+  if (contexto.correspondencia.fonteParaAlvo.get(fonte.predicado) !== alvo.predicado) return [];
+  if (fonte.args.length !== alvo.args.length) return [];
+  const base = clonar(estado);
+  if (!vincularRelacao(fonte.id, alvo.id, base)) return [];
   const predicado = contexto.indicesFonte.predicadosPorNome.get(fonte.predicado)!;
-  if (predicado.simetrico) {
-    const expandido = expandirSimetrica(fonte.args, alvo.args, 0, new Set(), estado, contexto);
-    if (!expandido) return false;
-    copiarEstado(expandido, estado);
-    return true;
-  }
-  for (let i = 0; i < fonte.args.length; i += 1) {
-    if (!expandirArgumento(fonte.args[i], alvo.args[i], estado, contexto)) return false;
-  }
-  return true;
+  const ordens = predicado.simetrico
+    ? permutacoes(fonte.args.length)
+    : [fonte.args.map((_, i) => i)];
+  const estados = ordens.flatMap((ordem) =>
+    expandirSequencia(
+      fonte.args.map((arg, i) => [arg, alvo.args[ordem[i]]] as const),
+      [base],
+      contexto,
+    ),
+  );
+  const unicos = new Map<string, EstadoNucleo>();
+  for (const e of estados) unicos.set(estadoParaNucleo(e).chaveCanonica, e);
+  return [...unicos.values()];
 }
 
 function chaveHipotese(fonte: string, alvo: string): string {
@@ -144,14 +147,17 @@ function estadoParaNucleo(estado: EstadoNucleo): Nucleo {
   };
 }
 
-export function construirNucleoRelacao(
+/**
+ * Núcleos alternativos de uma hipótese de relação: um por pareamento
+ * consistente dos argumentos (vários quando há predicados simétricos).
+ */
+export function construirNucleosRelacao(
   hipotese: HipoteseRelacao,
   contexto: ContextoAvaliacao,
-): Nucleo | null {
-  const estado = novoEstado();
-  return expandirRelacao(hipotese.fonte, hipotese.alvo, estado, contexto)
-    ? estadoParaNucleo(estado)
-    : null;
+): Nucleo[] {
+  return expandirRelacao(hipotese.fonte, hipotese.alvo, novoEstado(), contexto)
+    .map(estadoParaNucleo)
+    .sort((a, b) => compararPontosDeCodigo(a.chaveCanonica, b.chaveCanonica));
 }
 
 function nucleoEntidade(hipotese: HipoteseEntidade): Nucleo {
@@ -167,7 +173,7 @@ export function formarNucleos(
   hipoteses: readonly HipoteseLocal[],
   contexto: ContextoAvaliacao,
 ): Nucleo[] {
-  const validos = new Map<string, Nucleo>();
+  const validos = new Map<string, Nucleo[]>();
   const filhos = new Set<string>();
   const entidades: Nucleo[] = [];
 
@@ -176,18 +182,20 @@ export function formarNucleos(
       entidades.push(nucleoEntidade(hipotese));
       continue;
     }
-    const nucleo = construirNucleoRelacao(hipotese, contexto);
-    if (!nucleo) continue;
-    validos.set(hipotese.chave, nucleo);
-    nucleo.paresRelacoes.forEach(([fonte, alvo]) => {
-      const chave = chaveHipotese(fonte, alvo);
-      if (chave !== hipotese.chave) filhos.add(chave);
-    });
+    const alternativas = construirNucleosRelacao(hipotese, contexto);
+    if (alternativas.length === 0) continue;
+    validos.set(hipotese.chave, alternativas);
+    for (const nucleo of alternativas) {
+      nucleo.paresRelacoes.forEach(([fonte, alvo]) => {
+        const chave = chaveHipotese(fonte, alvo);
+        if (chave !== hipotese.chave) filhos.add(chave);
+      });
+    }
   }
 
   const raizes = [...validos.entries()]
     .filter(([chave]) => !filhos.has(chave))
-    .map(([, nucleo]) => nucleo);
+    .flatMap(([, alternativas]) => alternativas);
   const unicos = new Map<string, Nucleo>();
   [...raizes, ...entidades]
     .sort((a, b) => compararPontosDeCodigo(a.chaveCanonica, b.chaveCanonica))
