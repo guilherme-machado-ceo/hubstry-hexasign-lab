@@ -146,4 +146,53 @@ describe("CLI", () => {
     );
     expect((resultado as { mapeamentos: unknown[] }).mapeamentos).toHaveLength(1);
   });
+
+});
+
+describe("entradas canônicas (ADR-016)", () => {
+  it("inferir dá a mesma entrada canônica para pares do mapeamento em outra ordem", async () => {
+    const fonte = criarDominioValido();
+    const alvo = criarDominioValido();
+    const base = { fonte, alvo, config: CONFIG_TESTE };
+    const a = await inferir({ ...base, mapeamento: { pares: [["a", "a"], ["b", "b"]] } }, sha256Hex);
+    const b = await inferir({ ...base, mapeamento: { pares: [["b", "b"], ["a", "a"]] } }, sha256Hex);
+    expect(b.resumoEntrada).toBe(a.resumoEntrada);
+    expect(b.resumoSaida).toBe(a.resumoSaida);
+  });
+
+  it("buscar dá a mesma entrada canônica para tabelas de correspondência em outra ordem", async () => {
+    const fonte = criarDominioValido();
+    const alvo = criarDominioValido();
+    alvo.id = "a";
+    const tabela = [
+      { fonte: "liga", alvo: "liga", peso: 1 as const },
+      { fonte: "causa", alvo: "causa", peso: 1 as const },
+    ];
+    const entrada = (t: typeof tabela) => ({
+      fonte,
+      biblioteca: [alvo],
+      modalidade: "homologica" as const,
+      config: CONFIG_TESTE,
+      k: 1,
+      correspondenciasPorAlvo: { a: t },
+    });
+    const x = await buscar(entrada(tabela), sha256Hex);
+    const y = await buscar(entrada([...tabela].reverse()), sha256Hex);
+    expect(y.resumoEntrada).toBe(x.resumoEntrada);
+  });
+
+  it("rejeita biblioteca com ids duplicados", async () => {
+    await expect(
+      buscar(
+        {
+          fonte: criarDominioValido(),
+          biblioteca: [criarDominioValido(), criarDominioValido()],
+          modalidade: "homologica",
+          config: CONFIG_TESTE,
+          k: 1,
+        },
+        sha256Hex,
+      ),
+    ).rejects.toThrow("id duplicado");
+  });
 });

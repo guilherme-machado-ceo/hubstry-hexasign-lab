@@ -303,11 +303,12 @@ export async function inferir(
     entrada.mapeamento,
     contexto,
   );
+  const mapeamentoCanonico = avaliacao.mapeamento;
   const entradaCanonica = {
     operacao: "inferir",
     fonte: dominioCanonico(entrada.fonte),
     alvo: dominioCanonico(entrada.alvo),
-    mapeamento: entrada.mapeamento,
+    mapeamento: mapeamentoCanonico,
     config: configuracaoCanonica(entrada.config),
     correspondencias: correspondenciasCanonicas(entrada.correspondencias ?? []),
   };
@@ -320,7 +321,7 @@ export async function inferir(
   return finalizar(
     {
       ...metadados,
-      mapeamento: entrada.mapeamento,
+      mapeamento: mapeamentoCanonico,
       inferencias: resultadoInferencias.inferencias,
       conflitos: resultadoInferencias.conflitos,
     },
@@ -336,6 +337,10 @@ export async function buscar(
     throw new RangeError(
       `biblioteca excede o limite de ${entrada.config.limites.dominiosBiblioteca} domínios`,
     );
+  }
+  const ids = entrada.biblioteca.map((dominio) => dominio.id);
+  if (new Set(ids).size !== ids.length) {
+    throw new RangeError("biblioteca contém domínios com id duplicado");
   }
   const k = entrada.k ?? 5;
   if (!Number.isInteger(k) || k <= 0 || k > entrada.biblioteca.length) {
@@ -399,7 +404,11 @@ export async function buscar(
     modalidade: entrada.modalidade,
     config: configuracaoCanonica(entrada.config),
     k,
-    correspondenciasPorAlvo: entrada.correspondenciasPorAlvo ?? {},
+    correspondenciasPorAlvo: Object.fromEntries(
+      Object.entries(entrada.correspondenciasPorAlvo ?? {})
+        .sort(([a], [b]) => compararPontosDeCodigo(a, b))
+        .map(([id, tabela]) => [id, correspondenciasCanonicas(tabela)]),
+    ),
     estrategia: entrada.estrategia ?? "gulosa",
   };
   const versoes =
