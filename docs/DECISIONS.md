@@ -5,6 +5,70 @@ Formato: ADR leve (status, data, decisão, motivo, impacto). Decisões novas ent
 
 ---
 
+## ADR-017 — Correções formais e pendências autorais da fase 1
+Status: accepted
+Date: 2026-11-06
+Decided by: autor da teoria (pendências aguardam decisão)
+
+Decision:
+A fase 1 das correções formais e de robustez foi registrada em um commit por item:
+- `de42679` — `rho5Equilibrio` é aceito somente no intervalo [0, 1), com testes para 1, 2,
+  −0,1, 0 e 0,05.
+- `b3881d4` — testes de propriedade fixam a invariância de ρ₃ sob renomeação e inversão dos
+  argumentos de predicados simétricos, inclusive o contraexemplo `conecta(a,b)` e
+  `conecta(y,x)`.
+- `4c1b25e` — a Def. 6 e a Proposição 1 passam a explicitar o papel (predicado, ∗) e as
+  hipóteses e demonstração completas.
+- `113f232` — a Def. 3 formaliza a imagem relacional recursiva e o desempate determinístico.
+- `3fb919b` — a transitividade de ρ₂ e da igualdade de papéis fica restrita ao caso estrito e
+  a correspondências que se compõem.
+- `b765887` — a Seção 4 passa a declarar as dependências entre estados do perfil; o script
+  `scripts/contar-estados-perfil.mjs` enumera 291 configurações admissíveis em 729.
+- `955a410` — a Def. 8 fixa ε em [0, 1), pares distintos não ordenados e documenta o caso
+  misto de mecanismos de ρ₅.
+- `e33cbaf` — a Def. 4 exige escala de razão para ρ₁ e explicita a sensibilidade à origem.
+- `522abff` — a Def. 7 declara o piso 1/n do escore de escala com n ímpar e a mistura de
+  escalas na agregação de ρ₄.
+- `f5a0129` — a Def. 9 exige complementaridade na fonte e no alvo e disjunção dois a dois.
+- `4b81eaf` — a Proposição 2 passa a ser a Observação 1, com demonstração curta e corolário.
+- `df80e75` — a Def. 1 explicita aridade, oposição, simetria n-ária e duplicação relacional.
+- `e9cd6e8` — a Seção 6 passa a distinguir a inspiração no MAC/FAC e no SME do procedimento
+  próprio implementado.
+
+As fontes da revisão foram o parecer do Claude Science e a revisão da Luna, ambos de
+06/11/2026.
+
+Divergências registradas, sem mudança do código:
+- A Def. 1 exige aridade positiva, mas `validarDominio` aceita aridade zero; a definição
+  registra expressamente essa divergência.
+- A Def. 7 descreve a razão finita `valor-alvo/valor-fonte`, enquanto a implementação calcula
+  a diferença de logaritmos para evitar estouro ou subfluxo de ponto flutuante. A equivalência
+  matemática é preservada para valores válidos, mas a regra operacional deve ser harmonizada
+  em decisão futura.
+
+Permanecem pendentes do autor:
+1. Separar ρ₂ em π (preservação) e σ (sustentação), com ι = σ − π, e classificar inferências
+   em sistemática ancestral, sistemática colateral, superfície e rejeitada.
+2. Definir ρ₃ para entidades sem papel.
+3. Definir o limiar homológico.
+4. Decidir se os mecanismos de ρ₅ devem ser separados.
+5. Decidir a agregação de ρ₄.
+6. Fixar a governança: emenda pré-registrada, casos novos com competição de mapeamentos,
+   codificadores independentes e conjunto de calibração separado do conjunto de confirmação.
+
+Reason:
+As revisões identificaram imprecisões formais, lacunas de robustez e afirmações editoriais que
+poderiam atribuir ao motor ou à literatura propriedades que não estão estabelecidas. As
+correções preservam as decisões pendentes, os limiares, a regra de ρ₃ para entidades sem papel,
+a tabela de correspondência, os casos clássicos, os critérios de validação e os resultados.
+
+Impact:
+O texto normativo passa a documentar o comportamento implementado onde ele está definido, e
+as duas divergências acima ficam auditáveis sem alterar a semântica do motor. As pendências
+listadas não autorizam alteração de código, casos, critérios ou resultados sem decisão do autor.
+
+---
+
 ## ADR-016 — Correções da revisão independente e nova execução de H1 (r2)
 Status: accepted
 Date: 2026-11-06
