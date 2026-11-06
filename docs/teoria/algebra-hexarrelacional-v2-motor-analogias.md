@@ -23,8 +23,10 @@ A v1 define o domínio da teoria como o conjunto de todos os algoritmos (p. 7). 
 
 - E é um conjunto finito de entidades, cada uma com identificador único;
 - A atribui a cada entidade um conjunto de atributos tipados, categóricos ou numéricos, estes com unidade declarada, e um conjunto finito de capacidades, rótulos que a Def. 9 usa para julgar complementaridade;
-- P é um conjunto de predicados, cada um com aridade, ordem dos argumentos, classe e um campo que declara se o predicado é simétrico;
-- R é um conjunto finito de instâncias de relação p(x₁, …, xₖ), cujos argumentos são entidades ou outras instâncias de relação, sem ciclos no grafo de dependência entre relações.
+- P é um conjunto de predicados, cada um com aridade inteira positiva, ordem dos argumentos, classe e um campo que declara se o predicado é simétrico; predicado de oposição tem aridade 2 e é necessariamente simétrico;
+- R é um conjunto finito de instâncias de relação p(x₁, …, xₖ), cujos argumentos são entidades ou outras instâncias de relação, sem ciclos no grafo de dependência entre relações. Em predicado simétrico de aridade n, todas as permutações dos argumentos representam a mesma relação.
+
+O esquema rejeita relações estruturalmente duplicadas: duas relações com o mesmo predicado e os mesmos argumentos são inválidas, considerando argumentos canonizados nas relações simétricas. A implementação vigente, porém, aceita aridade zero, em divergência com a exigência formal de aridade positiva; essa divergência está registrada no ADR-017.
 
 A possibilidade de relações sobre relações merece destaque. Ela permite representar estruturas de ordem superior, como "a diferença de pressão causa o fluxo", em que "causa" relaciona duas outras relações. Na teoria de Gentner, é justamente a preservação dessas estruturas profundas que distingue uma analogia sólida de uma coincidência de superfície.
 
