@@ -1,5 +1,7 @@
 import type { CandidatoBusca } from "./busca";
-import { compararCandidatos } from "./busca";
+import { atendeModalidade, compararCandidatos, limiarModalidade, valorExigido } from "./busca";
+
+export { atendeModalidade, limiarModalidade, valorExigido };
 import type { ConfiguracaoMotor, Modalidade } from "./esquema";
 
 export type CategoriaGentner =
@@ -58,27 +60,6 @@ export function diagnosticarGentner(
     };
   }
   return { categoria: "anomalia", alertas: [] };
-}
-
-export function limiarModalidade(modalidade: Modalidade, config: ConfiguracaoMotor): number {
-  if (modalidade === "heuristica") return config.heuristica.exige.rho1;
-  if (modalidade === "funcional") return config.funcional.exige.rho3;
-  return config.homologica.exige.rho2;
-}
-
-export function valorExigido(candidato: CandidatoBusca, modalidade: Modalidade): number | null {
-  if (modalidade === "heuristica") return candidato.perfil[0];
-  if (modalidade === "funcional") return candidato.perfil[2];
-  return candidato.perfil[1];
-}
-
-export function atendeModalidade(
-  candidato: CandidatoBusca,
-  modalidade: Modalidade,
-  config: ConfiguracaoMotor,
-): boolean {
-  const valor = valorExigido(candidato, modalidade);
-  return valor !== null && valor >= limiarModalidade(modalidade, config);
 }
 
 function comDiagnostico(

@@ -8,6 +8,7 @@ import { listarHipotesesLocais } from "./hipoteses";
 import { construirNucleosRelacao, formarNucleos } from "./nucleos";
 import { ErroOrcamentoBusca } from "./orcamento";
 import { calcularSistematicidade } from "./sistematicidade";
+import { selecionarPorModalidade } from "../modalidades";
 
 function dominioVazio(id: string, quantidade: number): Dominio {
   return {
@@ -112,7 +113,8 @@ describe("busca exata", () => {
     const resultado = buscaExata(fonte, alvo, "homologica", contexto);
     expect(resultado.estatisticas.avaliados).toBe(34);
     expect(resultado.estatisticas.podados).toBe(0);
-    expect(resultado.candidatos).toHaveLength(3);
+    // Sem relações, ρ₂ é indefinido: nenhum elegível, só o melhor rejeitado.
+    expect(resultado.candidatos).toHaveLength(1);
   });
 
   it("encontra o mapeamento estrutural completo", () => {
@@ -129,5 +131,73 @@ describe("busca exata", () => {
     const alvo = dominioVazio("alvo", 9);
     const contexto = criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE);
     expect(() => buscaExata(fonte, alvo, "homologica", contexto)).toThrow("no máximo 8");
+  });
+});
+
+describe("filtro da modalidade antes do corte (ADR-016)", () => {
+  // Fonte: cadeia profunda p(a,b) ← q ← q e cinco relações rasas gᵢ(a, c).
+  // No alvo, a cadeia usa X e as relações rasas usam Z, então a não pode ir
+  // para os dois. A cadeia vence em sistematicidade (6/11), mas tem
+  // ρ₂ = 3/8; as relações rasas têm ρ₂ = 5/8 ≥ 0,6. Três variantes empatadas
+  // da cadeia (c livre, c → Z, c → W) ocupavam antes os três lugares e eram
+  // todas rejeitadas pelo filtro, aplicado só depois do corte.
+  function dominio(id: string, [x, y]: [string, string], [z, w]: [string, string]): Dominio {
+    return {
+      id,
+      esquemaAtributos: {},
+      entidades: [...new Set([x, y, z, w])].map((e) => ({ id: e, atributos: {}, capacidades: [] })),
+      predicados: [
+        { nome: "p", aridade: 2, classe: "comum", simetrico: false },
+        { nome: "q", aridade: 1, classe: "comum", simetrico: false },
+        ...[1, 2, 3, 4, 5].map((i) => ({
+          nome: `g${i}`,
+          aridade: 2,
+          classe: "comum" as const,
+          simetrico: false,
+        })),
+      ],
+      relacoes: [
+        { id: "r0", predicado: "p", args: [{ tipo: "entidade", id: x }, { tipo: "entidade", id: y }] },
+        { id: "r1", predicado: "q", args: [{ tipo: "relacao", id: "r0" }] },
+        { id: "r2", predicado: "q", args: [{ tipo: "relacao", id: "r1" }] },
+        ...[1, 2, 3, 4, 5].map((i) => ({
+          id: `g${i}`,
+          predicado: `g${i}`,
+          args: [
+            { tipo: "entidade" as const, id: z },
+            { tipo: "entidade" as const, id: w },
+          ],
+        })),
+      ],
+    };
+  }
+  const fonte = dominio("fonte", ["a", "b"], ["a", "c"]);
+  const alvo = dominio("alvo", ["X", "Y"], ["Z", "W"]);
+
+  it("a busca exata devolve o candidato elegível mesmo fora dos três melhores", () => {
+    const contexto = criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE);
+    const { candidatos } = buscaExata(fonte, alvo, "homologica", contexto);
+    const selecao = selecionarPorModalidade(candidatos, "homologica", CONFIG_TESTE);
+    expect(selecao.elegiveis.length).toBeGreaterThan(0);
+    expect(selecao.elegiveis[0].perfil[1]).toBe(0.625);
+    expect(selecao.elegiveis[0].mapeamento.pares).toContainEqual(["a", "Z"]);
+    expect(selecao.elegiveis[0].mapeamento.pares).toContainEqual(["c", "W"]);
+  });
+
+  it("a busca gulosa e a exata concordam no melhor elegível", () => {
+    const contexto = criarContextoAvaliacao(fonte, alvo, CONFIG_TESTE);
+    const nucleos = formarNucleos(listarHipotesesLocais(fonte, alvo, "homologica", contexto), contexto);
+    const gulosa = selecionarPorModalidade(
+      buscaGulosa(fonte, alvo, "homologica", nucleos, contexto),
+      "homologica",
+      CONFIG_TESTE,
+    );
+    const exata = selecionarPorModalidade(
+      buscaExata(fonte, alvo, "homologica", contexto).candidatos,
+      "homologica",
+      CONFIG_TESTE,
+    );
+    expect(gulosa.elegiveis[0].perfil[1]).toBe(exata.elegiveis[0].perfil[1]);
+    expect(gulosa.elegiveis[0].sistematicidade).toBe(exata.elegiveis[0].sistematicidade);
   });
 });

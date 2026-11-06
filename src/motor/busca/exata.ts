@@ -1,7 +1,7 @@
 import { compararPontosDeCodigo } from "../canonico";
 import type { Dominio, Mapeamento, Modalidade } from "../esquema";
 import { avaliarRho1, avaliarRho3, type ContextoAvaliacao } from "../relacoes";
-import { avaliarCandidato, compararCandidatos, primeiroCriterio } from "./ranking";
+import { atendeModalidade, avaliarCandidato, compararCandidatos, primeiroCriterio } from "./ranking";
 import type { CandidatoBusca, ResultadoBuscaExata } from "./tipos";
 
 function limiteSuperior(
@@ -37,6 +37,9 @@ function limiteSuperior(
   return 1;
 }
 
+/** Margem da poda: só poda quando o limite superior fica claramente abaixo. */
+export const MARGEM_PODA = 1e-12;
+
 function inserirIncumbente(
   incumbentes: CandidatoBusca[],
   candidato: CandidatoBusca,
@@ -62,7 +65,10 @@ export function buscaExata(
   const alvos = alvo.entidades.map((entidade) => entidade.id).sort(compararPontosDeCodigo);
   const usados = new Set<string>();
   const pares: Array<readonly [string, string]> = [];
+  // Incumbentes são só candidatos elegíveis na modalidade (ADR-016); o melhor
+  // rejeitado é guardado à parte, para o diagnóstico quando não há elegível.
   const incumbentes: CandidatoBusca[] = [];
+  let melhorRejeitado: CandidatoBusca | null = null;
   const estatisticas = { visitados: 0, podados: 0, avaliados: 0 };
 
   const visitar = (indice: number): void => {
@@ -70,18 +76,19 @@ export function buscaExata(
     if (incumbentes.length === 3) {
       const superior = limiteSuperior(fonte, alvo, modalidade, pares, indice, fontes, contexto);
       const pior = primeiroCriterio(incumbentes[incumbentes.length - 1], modalidade);
-      if (superior < pior) {
+      if (superior < pior - MARGEM_PODA) {
         estatisticas.podados += 1;
         return;
       }
     }
     if (indice === fontes.length) {
       estatisticas.avaliados += 1;
-      inserirIncumbente(
-        incumbentes,
-        avaliarCandidato(fonte, alvo, { pares: [...pares] }, contexto),
-        modalidade,
-      );
+      const candidato = avaliarCandidato(fonte, alvo, { pares: [...pares] }, contexto);
+      if (atendeModalidade(candidato, modalidade, contexto.config)) {
+        inserirIncumbente(incumbentes, candidato, modalidade);
+      } else if (!melhorRejeitado || compararCandidatos(candidato, melhorRejeitado, modalidade) < 0) {
+        melhorRejeitado = candidato;
+      }
       return;
     }
 
@@ -98,5 +105,6 @@ export function buscaExata(
   };
 
   visitar(0);
-  return { candidatos: incumbentes, estatisticas };
+  const candidatos = incumbentes.length > 0 ? incumbentes : melhorRejeitado ? [melhorRejeitado] : [];
+  return { candidatos, estatisticas };
 }

@@ -1,5 +1,5 @@
 import { compararPontosDeCodigo, jsonCanonico } from "../canonico";
-import type { Dominio, Mapeamento, Modalidade } from "../esquema";
+import type { ConfiguracaoMotor, Dominio, Mapeamento, Modalidade } from "../esquema";
 import { avaliarPerfil, type ContextoAvaliacao } from "../relacoes";
 import { calcularSistematicidade } from "./sistematicidade";
 import type { CandidatoBusca } from "./tipos";
@@ -68,4 +68,26 @@ export function compararCandidatos(
   const segundo = compararDecrescente(desempateA, desempateB);
   if (segundo !== 0) return segundo;
   return compararPontosDeCodigo(a.chaveCanonica, b.chaveCanonica);
+}
+
+export function limiarModalidade(modalidade: Modalidade, config: ConfiguracaoMotor): number {
+  if (modalidade === "heuristica") return config.heuristica.exige.rho1;
+  if (modalidade === "funcional") return config.funcional.exige.rho3;
+  return config.homologica.exige.rho2;
+}
+
+export function valorExigido(candidato: CandidatoBusca, modalidade: Modalidade): number | null {
+  if (modalidade === "heuristica") return candidato.perfil[0];
+  if (modalidade === "funcional") return candidato.perfil[2];
+  return candidato.perfil[1];
+}
+
+/** Requisito mínimo da modalidade (ρ₁, ρ₃ ou ρ₂), aplicado antes de qualquer corte. */
+export function atendeModalidade(
+  candidato: CandidatoBusca,
+  modalidade: Modalidade,
+  config: ConfiguracaoMotor,
+): boolean {
+  const valor = valorExigido(candidato, modalidade);
+  return valor !== null && valor >= limiarModalidade(modalidade, config);
 }

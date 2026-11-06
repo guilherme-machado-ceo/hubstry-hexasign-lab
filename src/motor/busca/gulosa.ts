@@ -1,4 +1,4 @@
-import { compararPontosDeCodigo } from "../canonico";
+import { compararPontosDeCodigo, jsonCanonico } from "../canonico";
 import type { Dominio, Mapeamento, Modalidade } from "../esquema";
 import type { ContextoAvaliacao } from "../relacoes";
 import { avaliarCandidato, compararCandidatos } from "./ranking";
@@ -40,19 +40,28 @@ function fundirNucleos(base: Nucleo, adicional: Nucleo): Nucleo | null {
   return {
     mapeamento: { pares },
     paresRelacoes,
-    chaveCanonica: JSON.stringify({ pares, paresRelacoes }),
+    chaveCanonica: jsonCanonico({ pares, paresRelacoes }),
   };
 }
 
-function candidatoNucleo(
-  nucleo: Nucleo,
-  fonte: Dominio,
-  alvo: Dominio,
-  contexto: ContextoAvaliacao,
-): CandidatoBusca {
-  return avaliarCandidato(fonte, alvo, nucleo.mapeamento, contexto);
+/**
+ * Teto de sementes da fusão gulosa (ADR-016). As três melhores sementes
+ * entram sempre; empates com a terceira também entram, até este teto, para
+ * que a escolha não dependa da ordem lexicográfica das chaves.
+ */
+export const MAXIMO_SEMENTES_GULOSA = 256;
+
+/** Comparação sem o desempate final pela chave canônica. */
+function empatados(a: CandidatoBusca, b: CandidatoBusca, modalidade: Modalidade): boolean {
+  const semChave = (c: CandidatoBusca): CandidatoBusca => ({ ...c, chaveCanonica: "" });
+  return compararCandidatos(semChave(a), semChave(b), modalidade) === 0;
 }
 
+/**
+ * Devolve todos os candidatos distintos produzidos pela fusão, ordenados.
+ * O corte em três acontece só depois do filtro da modalidade, em
+ * selecionarPorModalidade.
+ */
 export function buscaGulosa(
   fonte: Dominio,
   alvo: Dominio,
@@ -63,17 +72,29 @@ export function buscaGulosa(
   if (nucleos.length === 0) {
     return [avaliarCandidato(fonte, alvo, { pares: [] }, contexto)];
   }
-  const ordenados = [...nucleos].sort((a, b) => {
-    const comparacao = compararCandidatos(
-      candidatoNucleo(a, fonte, alvo, contexto),
-      candidatoNucleo(b, fonte, alvo, contexto),
-      modalidade,
-    );
-    return comparacao || compararPontosDeCodigo(a.chaveCanonica, b.chaveCanonica);
-  });
+  const avaliados = nucleos.map((nucleo) => ({
+    nucleo,
+    candidato: avaliarCandidato(fonte, alvo, nucleo.mapeamento, contexto),
+  }));
+  avaliados.sort(
+    (a, b) =>
+      compararCandidatos(a.candidato, b.candidato, modalidade) ||
+      compararPontosDeCodigo(a.nucleo.chaveCanonica, b.nucleo.chaveCanonica),
+  );
+  const ordenados = avaliados.map((item) => item.nucleo);
+
+  const corte = avaliados[Math.min(2, avaliados.length - 1)].candidato;
+  let quantidadeSementes = Math.min(3, avaliados.length);
+  while (
+    quantidadeSementes < avaliados.length &&
+    quantidadeSementes < MAXIMO_SEMENTES_GULOSA &&
+    empatados(avaliados[quantidadeSementes].candidato, corte, modalidade)
+  ) {
+    quantidadeSementes += 1;
+  }
 
   const resultados = new Map<string, CandidatoBusca>();
-  for (const semente of ordenados.slice(0, 3)) {
+  for (const semente of ordenados.slice(0, quantidadeSementes)) {
     let combinado = semente;
     for (const nucleo of ordenados) {
       if (nucleo === semente) continue;
@@ -84,9 +105,7 @@ export function buscaGulosa(
     resultados.set(candidato.chaveCanonica, candidato);
   }
 
-  return [...resultados.values()]
-    .sort((a, b) => compararCandidatos(a, b, modalidade))
-    .slice(0, 3);
+  return [...resultados.values()].sort((a, b) => compararCandidatos(a, b, modalidade));
 }
 
 export function mapeamentoDePares(pares: ReadonlyArray<readonly [string, string]>): Mapeamento {
