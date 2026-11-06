@@ -58,6 +58,13 @@ describe("ρ₁ similitude", () => {
     expect(avaliarRho1(fonte, alvo, mapaNumerico(2), contexto(fonte, alvo))).toBe(1);
   });
 
+  it("discrimina overflow: MAX_VALUE contra MAX_VALUE/2 dá 2/3", () => {
+    // A fórmula ingênua 1 − |x−y|/(|x|+|y|) estoura (|x|+|y| = Infinity) e dá 1.
+    const fonte = dominioNumerico("fonte", "escala", [Number.MAX_VALUE]);
+    const alvo = dominioNumerico("alvo", "escala", [Number.MAX_VALUE / 2]);
+    expect(avaliarRho1(fonte, alvo, mapaNumerico(1), contexto(fonte, alvo))).toBe(0.666666666667);
+  });
+
   it("retorna null quando nenhuma entidade-fonte tem atributo", () => {
     const fonte = dominioNumerico("fonte", "escala", []);
     const alvo = dominioNumerico("alvo", "escala", []);
@@ -143,6 +150,14 @@ describe("ρ₄ simetria", () => {
     expect(avaliarRho4(fonte, decrescente, mapa, contexto(fonte, decrescente))).toBe(0);
   });
 
+  it("corrige empates no τ-b (difere de τ-a)", () => {
+    // C = 4, D = 0, um empate só em x e um só em y: τ-b = 4/5 = 0,8 → 0,9.
+    // τ-a daria 4/6 → 0,8333…
+    const fonte = dominioNumerico("fonte", "monotono", [1, 1, 2, 3]);
+    const alvo = dominioNumerico("alvo", "monotono", [1, 2, 2, 3]);
+    expect(avaliarRho4(fonte, alvo, mapaNumerico(4), contexto(fonte, alvo))).toBe(0.9);
+  });
+
   it("retorna null para menos de três pares", () => {
     const fonte = dominioNumerico("fonte", "escala", [1, 2]);
     const alvo = dominioNumerico("alvo", "escala", [2, 4]);
@@ -159,17 +174,34 @@ describe("ρ₅ equilíbrio", () => {
     expect(avaliarRho5(fonte, alvo, MAPA_TOTAL, contexto(fonte, alvo))).toBe(1);
   });
 
-  it("não muda com atributos não potenciais", () => {
+  it("não muda com atributos não potenciais e muda com o potencial (contraste)", () => {
+    // Alvo sem oposição: o par (a, b) só está em equilíbrio pelo potencial
+    // (−1 + 1 = 0). Antes, a oposição r2 tornava o teste vácuo.
+    function alvoSoPotencial(): Dominio {
+      const alvo = criarDominioValido();
+      alvo.relacoes = alvo.relacoes.filter((r) => r.id !== "r2" && r.id !== "r4");
+      return alvo;
+    }
+    const fonte = criarDominioValido();
+    const base = alvoSoPotencial();
+    expect(avaliarRho5(fonte, base, MAPA_TOTAL, contexto(fonte, base))).toBe(1);
     fc.assert(
-      fc.property(fc.integer(), fc.integer(), (a, b) => {
-        const fonte = criarDominioValido();
-        const alvo = criarDominioValido();
-        const inicial = avaliarRho5(fonte, alvo, MAPA_TOTAL, contexto(fonte, alvo));
-        alvo.entidades[0].atributos.valor = a;
-        alvo.entidades[1].atributos.valor = b;
-        expect(avaliarRho5(fonte, alvo, MAPA_TOTAL, contexto(fonte, alvo))).toBe(inicial);
-      }),
-      { seed: 20261105, numRuns: 30 },
+      fc.property(
+        fc.integer(),
+        fc.integer(),
+        fc.constantFrom("A", "B", "C"),
+        fc.integer({ min: 2, max: 1000 }),
+        (va, vb, categoria, potencial) => {
+          const alvo = alvoSoPotencial();
+          alvo.entidades[0].atributos.valor = va;
+          alvo.entidades[1].atributos.valor = vb;
+          alvo.entidades[1].atributos.categoria = categoria;
+          expect(avaliarRho5(fonte, alvo, MAPA_TOTAL, contexto(fonte, alvo))).toBe(1);
+          alvo.entidades[1].atributos.potencial = potencial;
+          expect(avaliarRho5(fonte, alvo, MAPA_TOTAL, contexto(fonte, alvo))).toBe(0);
+        },
+      ),
+      { seed: 20261106, numRuns: 40 },
     );
   });
 });
